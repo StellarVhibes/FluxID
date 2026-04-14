@@ -3,33 +3,33 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Layers, Zap, Cpu, ArrowRight, GitBranch } from "lucide-react";
+import { Layers, Zap, Cpu, ArrowRight, Wallet } from "lucide-react";
 
 const FEATURES = [
   {
-    icon: Layers,
-    title: "ERC-4626 Vaults",
-    desc: "Tokenized yield-bearing vaults. Deposit once, earn continuously from multiple protocol integrations.",
-    tag: "Standard",
+    icon: Wallet,
+    title: "Wallet Connection",
+    desc: "Connect your Freighter wallet to analyze any Stellar wallet's financial behavior and liquidity patterns.",
+    tag: "Stellar",
   },
   {
-    icon: GitBranch,
-    title: "Uniswap v4 Hooks",
-    desc: "VultHook intercepts every swap and routes a share of fees back into your vault position.",
-    tag: "v4 Native",
+    icon: Layers,
+    title: "Liquidity Score",
+    desc: "Get a dynamic score (0-100) that reflects income consistency, spending patterns, and transaction stability.",
+    tag: "Real-Time",
   },
   {
     icon: Cpu,
-    title: "AI Strategy Engine",
-    desc: "On-demand AI analysis of your vault portfolio. Risk assessment, yield optimization, rebalancing signals.",
+    title: "Risk Assessment",
+    desc: "AI-powered risk signals (Low/Medium/High) to understand financial reliability at a glance.",
     tag: "AI-Powered",
   },
 ];
 
 const STATS = [
-  { icon: Layers,    value: "ERC-4626",  label: "Tokenized Vault Standard", accent: "var(--primary)" },
-  { icon: GitBranch, value: "v4 Hook",   label: "Uniswap v4 Native",        accent: "var(--primary)" },
-  { icon: Zap,       value: "2× Yield",  label: "Lending + Swap Fees",      accent: "var(--primary)" },
+  { icon: Wallet,    value: "Stellar",   label: "Built on Stellar",    accent: "var(--primary)" },
+  { icon: Layers,    value: "0-100",      label: "Liquidity Score",     accent: "var(--primary)" },
+  { icon: Zap,       value: "Instant",    label: "Real-time Analysis",  accent: "var(--primary)" },
 ];
 
 const stagger = {
@@ -62,9 +62,9 @@ export default function Home() {
             style={{ letterSpacing: "-0.04em", lineHeight: 1.0, color: "var(--foreground)" }}
             className="text-7xl sm:text-8xl font-black mb-6"
           >
-            Yield-Native<br />
-            <span style={{ color: "var(--primary)" }}>Liquidity</span><br />
-            Hooks.
+            Liquidity<br />
+            <span style={{ color: "var(--primary)" }}>Identity</span><br />
+            Layer.
           </motion.h1>
 
           {/* Sub */}
@@ -73,16 +73,16 @@ export default function Home() {
             style={{ color: "var(--foreground-muted)", lineHeight: 1.65 }}
             className="text-xl mb-10 max-w-lg"
           >
-            ForgeX stacks ERC-4626 vault interest with Uniswap v4 swap fees into one
-            automated position. Two yield sources. One vault.
+            FluxID turns any Stellar wallet into a real-time financial identity.
+            Understand how money behaves, not just how much it holds.
           </motion.p>
 
           {/* Flow chips */}
           <motion.div variants={item} className="flex flex-wrap items-center gap-2 mb-10">
             {[
-              { icon: Layers, label: "ERC-4626 Vaults" },
-              { icon: GitBranch, label: "Uniswap v4 Hook" },
-              { icon: Cpu, label: "AI Analytics" },
+              { icon: Wallet, label: "Stellar Wallet" },
+              { icon: Layers, label: "Liquidity Score" },
+              { icon: Cpu, label: "Risk Analysis" },
             ].map(({ icon: Icon, label }, i, arr) => (
               <div key={label} className="flex items-center gap-2">
                 <div
@@ -101,8 +101,11 @@ export default function Home() {
 
           {/* CTA */}
           <motion.div variants={item} className="flex flex-wrap gap-3">
+            <Link href="/dashboard" className="btn btn-primary text-sm flex items-center gap-2">
+              Launch App <Zap size={13} />
+            </Link>
             <Link href="#how-it-works" className="btn btn-outline text-sm flex items-center gap-2">
-              How ForgeX Works <ArrowRight size={13} />
+              How FluxID Works <ArrowRight size={13} />
             </Link>
           </motion.div>
         </motion.div>
@@ -137,7 +140,7 @@ export default function Home() {
           >
             <Image
               src="/hero-hook.png"
-              alt="VultHook"
+              alt="FluxID"
               width={500}
               height={500}
               style={{
@@ -206,7 +209,7 @@ export default function Home() {
         >
           <span className="label block mb-3">How it works</span>
           <h2 style={{ color: "var(--foreground)", letterSpacing: "-0.03em" }} className="text-4xl font-black">
-            Three layers.<br />One position.
+            Three layers.<br />One identity.
           </h2>
         </motion.div>
 
@@ -309,10 +312,10 @@ export default function Home() {
             style={{ color: "var(--foreground)", letterSpacing: "-0.04em" }}
             className="text-4xl font-black mb-4"
           >
-            Start stacking yield today.
+            Start analyzing wallets today.
           </h2>
           <p style={{ color: "var(--foreground-muted)" }} className="text-base mb-8">
-            Connect your wallet. Create a vault. Let VultHook handle the rest.
+            Connect your Freighter wallet. Analyze any wallet. Understand financial behavior.
           </p>
           <Link href="/dashboard" className="btn btn-primary text-sm inline-flex items-center gap-2">
             <Zap size={14} /> Launch App
@@ -327,13 +330,13 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Image src="/forgex-logo.png" alt="ForgeX" width={48} height={48} />
+            <Image src="/logo.svg" alt="FluxID" width={48} height={48} />
             <span style={{ color: "var(--foreground-dim)", fontSize: 24, letterSpacing: "0.06em", fontWeight: 700 }}>
-              FORGEX : VULT
+              FLUXID
             </span>
           </div>
           <span style={{ color: "var(--foreground-dim)", fontSize: 11 }}>
-            © 2026 ForgeX Protocol · Built on Base
+            © 2026 FluxID · Built on Stellar
           </span>
         </div>
       </footer>
