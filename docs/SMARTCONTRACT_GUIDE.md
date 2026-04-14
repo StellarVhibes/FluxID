@@ -1,23 +1,23 @@
-# Stellar Smart Contract Guide: Building with Soroban 🌟
+# Stellar Smart Contract Guide: Building with Soroban
 
 Welcome to the comprehensive guide for building smart contracts on the Stellar network using **Soroban**. This guide is designed to help you understand the "why" and "how" of Stellar's ecosystem and get you shipping decentralized applications quickly.
 
-## 1. The Stellar Vision 🌍
+## 1. The Stellar Vision
 
 **What is Stellar?**
-Stellar is a decentralized, open network created to move money and store value. Its primary mission is **financial inclusion**—connecting the world's financial systems to ensure that money can move as easily as email.
+Stellar is a decentralized, open network created to move money and store value. Its primary mission is **financial inclusion**-connecting the world's financial systems to ensure that money can move as easily as email.
 
 **Why was it built?**
 - **Asset Issuance:** Stellar makes it incredibly easy to issue digital representations of real-world assets (fiat currencies, stocks, gold).
 - **Speed & Cost:** Transactions settle in seconds (3-5s) and cost fractions of a cent ($0.00001).
 - **The "Anchor" Model:** It connects banks, payment systems, and people, acting as a bridge between traditional finance (TradFi) and blockchain.
 
-**Enter Soroban** 🧠
+**Enter Soroban**
 Soroban is the smart contract platform added to Stellar. While Stellar's base layer handles payments and asset issuance efficiently, **Soroban** enables Turing-complete programmability. It allows you to build DeFi protocols, DAOs, and complex logic that interact seamlessly with Stellar's existing assets.
 
 ---
 
-## 2. Setting Up Your Environment 🛠️
+## 2. Setting Up Your Environment
 
 Soroban contracts are written in **Rust** and compiled to **WebAssembly (Wasm)**.
 
@@ -71,7 +71,7 @@ Forget `msg.sender`. Soroban uses a powerful **Auth Framework**.
 
 ---
 
-## 4. Hello World: Your First Contract 👋
+## 4. Hello World: Your First Contract
 
 Create a new project:
 ```bash
@@ -102,7 +102,7 @@ impl HelloContract {
 
 ---
 
-## 5. Testing (The "Superpower") 🧪
+## 5. Testing (The "Superpower")
 
 Soroban allows you to run contracts **natively** on your machine without a local blockchain. It's incredibly fast.
 
@@ -126,7 +126,7 @@ Run it with `cargo test`.
 
 ---
 
-## 6. Deployment & Interaction 🚀
+## 6. Deployment & Interaction
 
 1.  **Build:**
     ```bash
@@ -150,7 +150,7 @@ Run it with `cargo test`.
         --to Dev
     ```
 
-## 7. Resources & Tools 📚
+## 7. Resources & Tools
 - **Stellar Laboratory:** Explore the network state.
 - **Soroban Docs:** [developers.stellar.org/docs](https://developers.stellar.org/docs)
 - **Rust Book:** Essential for mastering the language quirks.
@@ -167,4 +167,4 @@ FluxID uses Soroban to store and retrieve liquidity scores. Key patterns:
 
 ---
 
-*Happy Building! 🚀*
+*Happy Building on Stellar!*

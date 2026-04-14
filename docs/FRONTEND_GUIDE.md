@@ -1,10 +1,10 @@
-# Stellar Frontend Integration Guide: Building dApps on Stellar 🌐
+# Stellar Frontend Integration Guide
 
 This guide covers how to build a modern frontend that interacts with Stellar smart contracts (Soroban). We will focus on using the **Freighter Wallet** and the **Stellar SDK**.
 
 ---
 
-## 1. The Stack 🥞
+## 1. The Stack
 
 To build a robust Stellar dApp, you'll typically use:
 - **Frontend Framework:** Next.js (React) is standard.
@@ -14,14 +14,14 @@ To build a robust Stellar dApp, you'll typically use:
 
 ---
 
-## 2. Installation 📦
+## 2. Installation
 
 Add the necessary packages to your project:
 ```bash
 npm install @stellar/freighter-api @stellar/stellar-sdk
 ```
 
-### 2.1 Prerequisites: Funding Your Test Wallet 💸
+### 2.1 Prerequisites: Funding Your Test Wallet
 
 Before you can send any transaction, your Freighter wallet needs testnet XLM.
 
@@ -32,7 +32,7 @@ Before you can send any transaction, your Freighter wallet needs testnet XLM.
 
 ---
 
-## 3. Wallet Connection (Freighter) 👛
+## 3. Wallet Connection (Freighter)
 
 Freighter is the "MetaMask" of Stellar. You need to check if it's installed and request access.
 
@@ -175,7 +175,7 @@ function calculateLiquidityScore(metrics: LiquidityMetrics): LiquidityScore {
 
 ---
 
-## 6. Invoking Smart Contracts 📝
+## 6. Invoking Smart Contracts
 
 Interacting with a Soroban contract involves three steps:
 1.  **Build Transaction:** Create an operation to invoke the contract function.
@@ -233,7 +233,7 @@ async function queryLiquidityScore(userAddress: string) {
 
 ---
 
-## 7. Checklist for Integration ✅
+## 7. Checklist for Integration
 
 - [ ] **Network Config:** Ensure your app points to the right RPC (Testnet vs Mainnet).
 - [ ] **Passphrase:** Use the correct Network Passphrase.
@@ -242,4 +242,4 @@ async function queryLiquidityScore(userAddress: string) {
 
 ---
 
-*Ready to build the future of financial identity? 🚀*
+*Ready to build the future of financial identity on Stellar.*

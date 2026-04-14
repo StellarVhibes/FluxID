@@ -1,14 +1,14 @@
-# Smart Contract Issues - FluxID 🏊🆔
+# Smart Contract Issues - FluxID
 
 This document tracks the detailed development tasks for FluxID Soroban smart contracts.
 
 ---
 
-## 🏛️ Core Architecture
+## Core Architecture
 
 ### Issue #SC-1: Liquidity Score Storage
 **Priority:** Critical
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Description:** Store and retrieve liquidity scores for wallet addresses.
 - **Tasks:**
   - [ ] Initialize `liquidity_identity` project.
@@ -18,7 +18,7 @@ This document tracks the detailed development tasks for FluxID Soroban smart con
 
 ### Issue #SC-2: Risk Level Computation
 **Priority:** Critical
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Description:** Compute risk levels based on liquidity metrics.
 - **Tasks:**
   - [ ] Implement `compute_risk(env, metrics: LiquidityMetrics) -> RiskLevel`.
@@ -27,7 +27,7 @@ This document tracks the detailed development tasks for FluxID Soroban smart con
 
 ### Issue #SC-3: On-Chain Identity Token (Future)
 **Priority:** Medium
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Description:** Non-transferable identity token representing wallet reliability.
 - **Tasks:**
   - [ ] Design token contract structure.
@@ -36,11 +36,11 @@ This document tracks the detailed development tasks for FluxID Soroban smart con
 
 ---
 
-## 🔐 Access Control
+## Access Control
 
 ### Issue #SC-4: Score Update Authorization
 **Priority:** High
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Description:** Only authorized oracles can update scores.
 - **Tasks:**
   - [ ] Implement `update_score` restricted to Oracle/Admin.
@@ -48,11 +48,11 @@ This document tracks the detailed development tasks for FluxID Soroban smart con
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Issue #SC-5: Score Calculation Tests
 **Priority:** High
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Description:** Verify score computation logic.
 - **Tasks:**
   - [ ] Test score initialization.

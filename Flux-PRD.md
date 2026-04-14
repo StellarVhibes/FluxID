@@ -1,18 +1,18 @@
-# 🌐 FluxID — Liquidity Identity Layer on Stellar
+# Flux-PRD.md - Product Requirements Document
 
-## 🧠 Overview
+---
+
+## Overview
 
 FluxID is a liquidity intelligence layer built on Stellar that turns any wallet into a real-time financial identity.
 
 Instead of just showing balances or transaction history, FluxID looks at _how money behaves_ — how it flows in, flows out, and how stable that flow is over time.
 
-The goal is simple:
-
-> Help people and platforms understand **how financially reliable a wallet is**, not just how much it holds.
+The goal is simple: Help people and platforms understand **how financially reliable a wallet is**, not just how much it holds.
 
 ---
 
-## ❗ Problem
+## Problem
 
 Right now, both traditional finance and crypto miss something important:
 
@@ -29,13 +29,13 @@ Even in Web3:
 
 - Wallets are mostly anonymous
 - Reputation is fragmented
-- There’s no standard way to measure financial reliability
+- There's no standard way to measure financial reliability
 
 So trust becomes guesswork.
 
 ---
 
-## 💡 Solution
+## Solution
 
 FluxID introduces a **Liquidity Identity** — a dynamic score that reflects how money moves through a wallet over time.
 
@@ -54,11 +54,9 @@ And produces:
 
 ---
 
-# 🚀 MVP (5-Day Build Sprint — What We Will Ship)
+## MVP Features (5-Day Build Sprint)
 
-We are keeping this extremely focused and buildable within the sprint.
-
-### ✅ Core Features
+### Core Features
 
 - Wallet connection (Freighter / Stellar wallet)
 - Fetch recent transaction history (via Stellar SDK / Horizon)
@@ -70,151 +68,111 @@ We are keeping this extremely focused and buildable within the sprint.
   - Liquidity score
   - Flow summary (basic visualization)
   - Risk indicator (Low / Medium / High)
-- Lightweight suggestion system:
-  - Example: “Based on your flow, consider locking a portion of incoming funds”
+- Lightweight suggestion system
 
----
-
-### 🧪 What We’ll Keep Simple (for speed & honesty)
+### What We Keep Simple
 
 - AI will be **rule-based + heuristic**, not heavy ML
 - Predictions will be **basic but clear** (no overpromising)
 - No complex integrations — focus on one clean flow
 
----
+### MVP Outcome
 
-### 🎯 MVP Outcome
-
-A working product where:
-
-> A user connects their wallet → instantly gets a liquidity score → understands their financial behavior → sees a simple recommendation.
+A user connects their wallet, instantly gets a liquidity score, understands their financial behavior, and sees a simple recommendation.
 
 Clean, fast, demo-ready.
 
 ---
 
-# 🛠 Tech Stack
+## Tech Stack
 
 ### Blockchain
-
 - Stellar SDK (JavaScript)
 - Soroban (minimal usage for extensibility)
 
 ### Data / Logic
-
 - Rule-based scoring engine (JavaScript / Node.js)
 
 ### Frontend
-
 - Next.js (mobile-first PWA)
 - TypeScript
 - Tailwind CSS
 
 ### Wallet
-
 - Freighter Wallet
 
 ---
 
-# ⚡ Demo Flow
+## Demo Flow
 
 1. User connects wallet
 2. System fetches transaction history
 3. Liquidity score is calculated
-4. Dashboard displays:
-   - Score
-   - Risk level
-   - Flow insight
+4. Dashboard displays: Score, Risk level, Flow insight
 5. User sees a simple actionable suggestion
 
 ---
 
-# 🔮 Post-Grant Vision (Bold Version — What We Build Next)
+## Post-Grant Vision
 
 Once funded, FluxID evolves into a full **Liquidity Identity Infrastructure Layer**.
 
----
+### Bold Features
 
-## 🔥 Bold Features
+1. **Liquidity Identity Token (On-Chain)**
+   - Non-transferable identity token (Soroban-based)
+   - Represents wallet's financial reliability
+   - Continuously updated based on behavior
 
-### 1. Liquidity Identity Token (On-Chain)
+2. **Advanced Predictive Engine**
+   - Forecast: Cash flow stress, Default probability, Liquidity gaps
+   - Move from rule-based to real ML models
 
-- Non-transferable identity token (Soroban-based)
-- Represents wallet’s financial reliability
-- Continuously updated based on behavior
+3. **Programmable Trust Layer**
+   - Other apps can query FluxID:
+     - Lending protocols
+     - Remittance apps (like IntentRemit)
+     - Payroll systems
 
----
+4. **Smart Financial Actions**
+   - Auto-lock funds based on behavior
+   - Suggest goal-based allocations
+   - Integrate directly into remittance flows
 
-### 2. Advanced Predictive Engine
+5. **Privacy Layer (Future)**
+   - Selective disclosure (ZK-based in later phase)
+   - Users control what part of their identity is shared
 
-- Forecast:
-  - Cash flow stress
-  - Default probability
-  - Liquidity gaps
-- Move from rule-based → real ML models
-
----
-
-### 3. Programmable Trust Layer
-
-- Other apps can query FluxID:
-  - Lending protocols
-  - Remittance apps (e.g., IntentRemit)
-  - Payroll systems
-
-Example:
-
-- “Only allow access if score > threshold”
-- “Adjust financial terms dynamically”
-
----
-
-### 4. Smart Financial Actions
-
-- Auto-lock funds based on behavior
-- Suggest goal-based allocations
-- Integrate directly into remittance flows
-
----
-
-### 5. Privacy Layer (Future)
-
-- Selective disclosure (ZK-based in later phase)
-- Users control what part of their identity is shared
-
----
-
-## 🧠 Long-Term Vision
+### Long-Term Vision
 
 FluxID becomes:
-
 - A **credit layer for Web3**
 - A **trust engine for global transactions**
 - A **financial identity system for emerging markets**
 
 ---
 
-## 🔖 Naming
+## Naming
 
 - Product: **FluxID**
 - Concept: **Liquidity Identity Layer**
 
 ---
 
-## 🔮 Post-Grant Vision (Bold Version — What We Build Next)
+## Post-Grant Vision (Bold Version)
 
 Once funded, FluxID evolves beyond a simple scoring tool into a full Liquidity Identity Infrastructure Layer on Stellar.
 
-### 🔥 1. On-Chain Liquidity Identity (Core Primitive)
+### 1. On-Chain Liquidity Identity (Core Primitive)
 
 - Non-transferable identity token (Soroban-based)
 - Represents a wallet's financial behavior over time
 - Continuously updated using on-chain transaction data
 - Becomes a portable, verifiable financial identity across applications
 
-### 🔥 2. Advanced Liquidity Intelligence Engine
+### 2. Advanced Liquidity Intelligence Engine
 
-- Move from rule-based logic → real predictive models
+- Move from rule-based logic to real predictive models
 - Analyze:
   - Cash flow patterns
   - Income stability
@@ -224,9 +182,9 @@ Once funded, FluxID evolves beyond a simple scoring tool into a full Liquidity I
   - Default probability
   - Short-term financial gaps
 
-> This transforms FluxID into a real-time risk engine, not just a scoring tool.
+This transforms FluxID into a real-time risk engine, not just a scoring tool.
 
-### 🔥 3. Programmable Trust & Integration Layer
+### 3. Programmable Trust & Integration Layer
 
 FluxID becomes infrastructure other apps can build on.
 
@@ -239,11 +197,10 @@ FluxID becomes infrastructure other apps can build on.
   - Remittance apps (like IntentRemit) to optimize fund allocation
 
 Example:
-
 - "Only unlock funds if score > threshold"
 - "Adjust lending terms dynamically based on behavior"
 
-### 🔥 4. Cross-Platform Reputation Aggregation
+### 4. Cross-Platform Reputation Aggregation
 
 - Extend beyond single-wallet analysis
 - Combine:
@@ -251,9 +208,9 @@ Example:
   - Optional off-chain signals (future phase)
 - Create: A unified financial identity across ecosystems
 
-> This is where FluxID moves closer to a global trust layer, not just a Stellar tool.
+This is where FluxID moves closer to a global trust layer, not just a Stellar tool.
 
-### 🔥 5. Smart Financial Automation Layer
+### 5. Smart Financial Automation Layer
 
 - Auto-trigger actions based on liquidity behavior:
   - Auto-lock funds
@@ -261,10 +218,9 @@ Example:
   - Integrate directly into remittance flows
 
 Example:
-
 - "Based on your pattern, 30% of incoming funds will be automatically preserved"
 
-### 🔥 6. Privacy & Selective Disclosure (Future)
+### 6. Privacy & Selective Disclosure (Future)
 
 - Introduce privacy-preserving identity sharing (ZK layer later)
 - Users control:
@@ -273,10 +229,9 @@ Example:
 
 ---
 
-## 🧠 Long-Term Vision
+## Long-Term Vision
 
 FluxID becomes:
-
 - A **credit layer for Web3**
 - A **risk engine for global finance**
 - A **trust infrastructure for emerging markets**

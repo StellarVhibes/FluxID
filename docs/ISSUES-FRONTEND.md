@@ -1,14 +1,14 @@
-# Frontend Issues - FluxID 🎨
+# Frontend Issues - FluxID
 
 This document tracks the detailed UI/UX and integration tasks for the FluxID dashboard.
 
 ---
 
-## 🚀 Phase 1: Foundation
+## Phase 1: Foundation
 
 ### Issue #FE-1: Project Scaffold & Theme
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Critical
 **Description:** Initialize Next.js app with FluxID branding.
 - **Tasks:**
@@ -18,7 +18,7 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ### Issue #FE-2: Freighter Wallet Integration
 **Category:** `[INTEGRATION]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Critical
 **Description:** Global wallet state management.
 - **Tasks:**
@@ -29,11 +29,11 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ---
 
-## 📊 Phase 2: Liquidity Dashboard
+## Phase 2: Liquidity Dashboard
 
 ### Issue #FE-3: Wallet Connection Flow
 **Category:** `[UI/INTEGRATION]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** High
 **Description:** Connect wallet and fetch account data.
 - **Tasks:**
@@ -44,7 +44,7 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ### Issue #FE-4: Liquidity Score Display
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** High
 **Description:** Display computed liquidity score prominently.
 - **Tasks:**
@@ -55,7 +55,7 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ### Issue #FE-5: Risk Indicator
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** High
 **Description:** Visual risk level display.
 - **Tasks:**
@@ -65,11 +65,11 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ---
 
-## 📈 Phase 3: Flow Analytics
+## Phase 3: Flow Analytics
 
 ### Issue #FE-6: Transaction Flow Chart
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Medium
 **Description:** Visualize money flow patterns.
 - **Tasks:**
@@ -80,7 +80,7 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ### Issue #FE-7: Flow Summary Statistics
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Medium
 **Description:** Summary metrics of financial behavior.
 - **Tasks:**
@@ -91,11 +91,11 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ---
 
-## 💡 Phase 4: Suggestions
+## Phase 4: Suggestions
 
 ### Issue #FE-8: Actionable Recommendations
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Medium
 **Description:** AI-powered suggestions based on behavior.
 - **Tasks:**
@@ -105,11 +105,11 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ---
 
-## 🧪 Phase 5: Testing & Polish
+## Phase 5: Testing & Polish
 
 ### Issue #FE-9: Error Handling
 **Category:** `[ERROR]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Low
 **Description:** Graceful error states.
 - **Tasks:**
@@ -119,7 +119,7 @@ This document tracks the detailed UI/UX and integration tasks for the FluxID das
 
 ### Issue #FE-10: Responsive Design
 **Category:** `[UI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Low
 **Description:** Mobile-first PWA.
 - [ ] Test on mobile devices.

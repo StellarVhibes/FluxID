@@ -1,14 +1,14 @@
-# Backend & AI Roadmap 🧠⚙️
+# Backend & AI Roadmap
 
 This document tracks the backend infrastructure and AI scoring engine for FluxID.
 
 ---
 
-## 🏗️ Phase 1: Data Pipeline
+## Phase 1: Data Pipeline
 
 ### Issue #BK-1: Transaction Data Ingestion
 **Category:** `[DATA]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Critical
 **Description:** Fetch and process transaction data from Horizon.
 - **Tasks:**
@@ -19,7 +19,7 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ### Issue #BK-2: Transaction Storage
 **Category:** `[INFRA]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Critical
 **Description:** Store processed transactions for analysis.
 - **Tasks:**
@@ -29,11 +29,11 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ---
 
-## 🎯 Phase 2: Scoring Engine
+## Phase 2: Scoring Engine
 
 ### Issue #BK-3: Rule-Based Scoring Logic
 **Category:** `[AI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Critical
 **Description:** Implement liquidity score calculation.
 - **Tasks:**
@@ -44,7 +44,7 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ### Issue #BK-4: Risk Level Classification
 **Category:** `[AI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** High
 **Description:** Classify risk based on score.
 - **Tasks:**
@@ -54,11 +54,11 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ---
 
-## 📡 Phase 3: API Layer
+## Phase 3: API Layer
 
 ### Issue #BK-5: Score API Endpoint
 **Category:** `[API]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** High
 **Description:** Serve scores to frontend.
 - **Tasks:**
@@ -69,11 +69,11 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ---
 
-## 🤖 Phase 4: Suggestions Engine
+## Phase 4: Suggestions Engine
 
 ### Issue #BK-6: Recommendation System
 **Category:** `[AI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Medium
 **Description:** Generate actionable financial suggestions.
 - **Tasks:**
@@ -83,11 +83,11 @@ This document tracks the backend infrastructure and AI scoring engine for FluxID
 
 ---
 
-## ⚡ Phase 5: Future Enhancements
+## Phase 5: Future Enhancements
 
 ### Issue #BK-7: ML Model Integration (Future)
 **Category:** `[AI]`
-**Status:** ❌ PENDING
+**Status:** PENDING
 **Priority:** Low
 **Description:** Upgrade from rule-based to ML predictions.
 - **Tasks:**
