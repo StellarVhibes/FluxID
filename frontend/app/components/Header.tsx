@@ -30,6 +30,10 @@ export default function Header() {
               width={52} 
               height={52}
             />
+            <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: "0.04em" }}>
+              <span style={{ color: "#8FA828" }}>Flux</span>
+              <span style={{ color: "var(--foreground)" }}>ID</span>
+            </span>
           </Link>
         </div>
 

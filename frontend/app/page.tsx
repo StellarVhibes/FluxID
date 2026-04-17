@@ -345,10 +345,11 @@ export default function Home() {
         className="py-8 px-5"
       >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Image src="/logo.svg" alt="FluxID" width={48} height={48} />
-            <span style={{ color: "var(--foreground-dim)", fontSize: 24, letterSpacing: "0.06em", fontWeight: 700 }}>
-              FLUXID
+          <div className="flex items-center gap-2">
+            <Image src="/fluxID-logo.png" alt="FluxID" width={36} height={36} />
+            <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: "0.04em" }}>
+              <span style={{ color: "#8FA828" }}>Flux</span>
+              <span style={{ color: "var(--foreground)" }}>ID</span>
             </span>
           </div>
           <span style={{ color: "var(--foreground-dim)", fontSize: 11 }}>
