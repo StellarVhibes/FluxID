@@ -246,37 +246,43 @@ export default function Home() {
               }}
               className="rounded-2xl p-6 group cursor-default"
             >
-              {/* Top glow bar — slides in on hover */}
-              <motion.div
-                initial={{ scaleX: 0, opacity: 0 }}
-                whileHover={{ scaleX: 1, opacity: 1 }}
-                transition={{ duration: 0.25 }}
-                style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0,
-                  height: 2,
-                  background: "linear-gradient(90deg, transparent, var(--primary), transparent)",
-                  transformOrigin: "left",
-                }}
-              />
+              {/* Tag */}
+              <span className="pill pill-primary text-[10px] mb-3 inline-block">{tag}</span>
 
-              {/* Step number */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 18, right: 18,
-                  color: "var(--border)",
-                  fontWeight: 900,
-                  fontSize: 36,
-                  lineHeight: 1,
-                  letterSpacing: "-0.04em",
-                  userSelect: "none",
-                  transition: "color 0.2s",
-                }}
-                className="group-hover:text-[var(--primary-muted)]"
-              >
-                0{i + 1}
+              {/* Icon and title row */}
+              <div className="flex items-start gap-3 mb-3">
+                <div 
+                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: "var(--primary)" }}
+                >
+                  <Icon size={18} style={{ color: "var(--background)" }} />
+                </div>
+                <h3
+                  style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}
+                  className="leading-tight"
+                >
+                  {title}
+                </h3>
               </div>
+
+              {/* Description */}
+              <p style={{ color: "var(--foreground-muted)", fontSize: 14, lineHeight: 1.6 }}>
+                {desc}
+              </p>
+
+              {/* Learn more - slides up on hover */}
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                whileHover={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18 }}
+                style={{ color: "var(--primary)", fontSize: 12, fontWeight: 700 }}
+                className="mt-5 flex items-center gap-1"
+              >
+                Learn more <ArrowRight size={11} />
+              </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
               {/* Icon */}
               <div
