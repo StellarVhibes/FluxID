@@ -76,7 +76,7 @@ export default function Home() {
           <motion.h1
             variants={item}
             style={{ letterSpacing: "-0.04em", lineHeight: 1.0, color: "var(--foreground)" }}
-            className="text-7xl sm:text-8xl font-black mb-6"
+            className="text-7xl sm:text-8xl font-black mb-4"
           >
             Liquidity<br />
             <span style={{ color: "var(--primary)" }}>Identity</span><br />
@@ -87,14 +87,14 @@ export default function Home() {
           <motion.p
             variants={item}
             style={{ color: "var(--foreground-muted)", lineHeight: 1.65 }}
-            className="text-xl mb-10 max-w-lg"
+            className="text-xl mb-5 max-w-lg"
           >
             FluxID turns any Stellar wallet into a real-time financial identity.
             Understand how money behaves, not just how much it holds.
           </motion.p>
 
           {/* Flow chips */}
-          <motion.div variants={item} className="flex flex-wrap items-center gap-2 mb-10">
+          <motion.div variants={item} className="flex flex-wrap items-center gap-2 mb-6">
             {[
               { icon: Wallet, label: "Stellar Wallet" },
               { icon: Layers, label: "Liquidity Score" },
