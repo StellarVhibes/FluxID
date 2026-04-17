@@ -1,4 +1,4 @@
-import { Server } from "@stellar/stellar-sdk";
+import Server from "@stellar/stellar-sdk";
 
 const HORIZON_URL = process.env.NEXT_PUBLIC_HORIZON_URL || "https://horizon-testnet.stellar.org";
 

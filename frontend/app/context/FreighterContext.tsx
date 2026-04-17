@@ -27,15 +27,17 @@ export function FreighterProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Window not available");
       }
 
-      const freighter = await import("@stellar/freighter-api");
+const freighter = await import("@stellar/freighter-api");
+       
+      const connected = (await freighter.isConnected()) as boolean;
       
-      const { isConnected } = await freighter.isConnected();
-      
-      if (!isConnected) {
+      if (!connected) {
         throw new Error("Freighter wallet not installed. Please install Freighter to continue.");
       }
 
-      const { publicKey, error: freighterError } = await freighter.getPublicKey();
+      const result = await freighter.getPublicKey() as { publicKey?: string; error?: string };
+      const publicKey = result.publicKey;
+      const freighterError = result.error;
       
       if (freighterError) {
         throw new Error(freighterError);

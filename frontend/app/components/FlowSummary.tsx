@@ -7,9 +7,10 @@ import { ArrowDownLeft, ArrowUpRight, Activity, DollarSign } from "lucide-react"
 interface FlowSummaryProps {
   data: FlowSummaryType | null;
   isLoading?: boolean;
+  className?: string;
 }
 
-export default function FlowSummary({ data, isLoading }: FlowSummaryProps) {
+export default function FlowSummary({ data, isLoading, className = "" }: FlowSummaryProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

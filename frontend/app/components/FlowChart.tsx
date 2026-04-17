@@ -6,9 +6,10 @@ import { TransactionData } from "../../lib/scoring";
 interface FlowChartProps {
   transactions: TransactionData[];
   isLoading?: boolean;
+  className?: string;
 }
 
-export default function FlowChart({ transactions, isLoading }: FlowChartProps) {
+export default function FlowChart({ transactions, isLoading, className = "" }: FlowChartProps) {
   if (isLoading) {
     return (
       <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-6">
