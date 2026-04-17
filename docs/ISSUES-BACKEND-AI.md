@@ -140,102 +140,117 @@ Everything else supports that.
 
 Add basic caching (optional)
 
-Notes:
+**Notes:**
 
-This endpoint powers the entire demo
-
-Must be fast and reliable
-
-Phase 4: Suggestions Engine (Lightweight)
-Issue #BK-6: Recommendation Logic
-Category: [AI]
-Status: PENDING
-Priority: Medium
-
-Description: Generate simple behavioral suggestions.
-
-Tasks:
-
-Rule-based suggestion system
-
-Limit to 1–2 suggestions per wallet
-
-Keep language simple and human
-
-Examples:
-
-“Your spending is inconsistent — try stabilizing outflows.”
-
-“You receive funds regularly — consider saving a fixed portion.”
-
-Phase 5: Optional Integration (If Time Allows)
-Issue #BK-7: Smart Contract Sync
-Category: [INTEGRATION]
-Status: PENDING
-Priority: Medium
-
-Description: Push computed score to Soroban contract.
-
-Tasks:
-
-Call set_score(wallet, score)
-
-Sync backend → on-chain storage
-
-Handle failures gracefully
-
-Notes:
-
-Not required for demo
-
-Only implement if time permits
+- This endpoint powers the entire demo
+- Must be fast and reliable
 
 ---
 
-Post-Grant Expansion (Future — OmniFlow Level)
+## Phase 4: Suggestions Engine (Lightweight)
+
+### Issue #BK-6: Recommendation Logic
+
+**Category:** [AI]  
+**Status:** PENDING  
+**Priority:** Medium
+
+**Description:** Generate simple behavioral suggestions.
+
+**Tasks:**
+
+- [ ] Rule-based suggestion system
+- [ ] Limit to 1–2 suggestions per wallet
+- [ ] Keep language simple and human
+
+**Examples:**
+
+- "Your spending is inconsistent — try stabilizing outflows."
+- "You receive funds regularly — consider saving a fixed portion."
+
+---
+
+## Phase 5: Optional Integration (If Time Allows)
+
+### Issue #BK-7: Smart Contract Sync
+
+**Category:** [INTEGRATION]  
+**Status:** PENDING  
+**Priority:** Medium
+
+**Description:** Push computed score to Soroban contract.
+
+**Tasks:**
+
+- [ ] Call set_score(wallet, score)
+- [ ] Sync backend → on-chain storage
+- [ ] Handle failures gracefully
+
+**Notes:**
+
+- Not required for demo
+- Only implement if time permits
+
+---
+
+## Post-Grant Expansion (Future — OmniFlow Level)
 
 These define long-term direction, not MVP.
 
-1. Advanced Data Pipeline
-   Persistent storage (PostgreSQL)
-   Historical transaction indexing
-   Real-time streaming updates
-2. Machine Learning Models
-   Predict liquidity stress
-   Forecast default probability
-   Behavioral pattern detection
-3. Multi-Wallet Intelligence
-   Aggregate identity across wallets
-   Cross-platform financial profiles
-4. Intelligent Recommendation Engine
-   Personalized financial strategies
-   Dynamic behavior-based suggestions
-5. API for External Platforms
-   Public endpoints for:
-   Lending platforms
-   Remittance apps
-   Marketplaces
-   Final Guideline
+### 1. Advanced Data Pipeline
+
+- Persistent storage (PostgreSQL)
+- Historical transaction indexing
+- Real-time streaming updates
+
+### 2. Machine Learning Models
+
+- Predict liquidity stress
+- Forecast default probability
+- Behavioral pattern detection
+
+### 3. Multi-Wallet Intelligence
+
+- Aggregate identity across wallets
+- Cross-platform financial profiles
+
+### 4. Intelligent Recommendation Engine
+
+- Personalized financial strategies
+- Dynamic behavior-based suggestions
+
+### 5. API for External Platforms
+
+Public endpoints for:
+
+- Lending platforms
+- Remittance apps
+- Marketplaces
+
+---
+
+## Final Guideline
 
 For hackathon success:
 
 Backend must be:
 
-Fast
-Simple
-Reliable
-Demo-ready
+- Fast
+- Simple
+- Reliable
+- Demo-ready
 
 Not:
 
-Complex
-Overengineered
-Feature-heavy
-Success Metric
+- Complex
+- Overengineered
+- Feature-heavy
+
+## Success Metric
 
 During demo:
 
-Wallet is analyzed instantly
-Score is returned correctly
-Insight is understandable
-No API failures
+- Wallet is analyzed instantly
+- Score is returned correctly
+- Insight is understandable
+- No API failures
