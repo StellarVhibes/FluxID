@@ -396,4 +396,12 @@ All frontend issues have been implemented:
 - Phase 3: Supporting Insights (COMPLETE)
 - Phase 4: Suggestions (COMPLETE)
 - Phase 5: UX Polish (COMPLETE)
-- Phase 6: UI/UX Patterns (IN PROGRESS)
+- Phase 6: UI/UX Patterns (COMPLETE)
+- Phase 7: Motion & Micro-Interactions (COMPLETE)
+- Phase 8: Responsive Design (COMPLETE)
+
+Additional hardening during this pass:
+
+- Fixed broken `@stellar/stellar-sdk` import in `lib/scoring.ts` (now `Horizon.Server`)
+- Switched transaction-history fetch to the dedicated `/payments` endpoint for accurate inflow/outflow classification
+- Wired `analyzeWallet` to call the backend `/score/:accountId` first when `NEXT_PUBLIC_AI_BACKEND_URL` is set, with local scoring as a fallback

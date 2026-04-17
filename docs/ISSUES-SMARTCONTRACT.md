@@ -34,18 +34,19 @@ Keep contracts minimal, fast, and demo-ready.
 ### Issue #SC-2: Liquidity Score Storage
 
 **Priority:** Critical  
-**Status:** PENDING
+**Status:** COMPLETED
 
 **Description:** Store and retrieve liquidity scores for wallet addresses.
 
 **Tasks:**
 
-- [ ] Define `DataKey` enum:
+- [x] Define `DataKey` enum:
   - `Score(Address)`
   - `LastUpdated(Address)`
-- [ ] Implement `set_score(env, wallet: Address, score: u32)`
-- [ ] Implement `get_score(env, wallet: Address) -> u32`
-- [ ] Implement `get_last_updated(env, wallet: Address)`
+  - `RiskLevel(Address)`
+- [x] Implement `set_score(env, admin: Address, wallet: Address, score: u32, risk: RiskLevel)`
+- [x] Implement `get_score(env, wallet: Address) -> u32`
+- [x] Implement `get_last_updated(env, wallet: Address) -> Option<u64>`
 
 **Notes:**
 
@@ -57,22 +58,23 @@ Keep contracts minimal, fast, and demo-ready.
 ### Issue #SC-3: Risk Level Mapping (Optional On-Chain)
 
 **Priority:** Medium  
-**Status:** PENDING
+**Status:** COMPLETED
 
 **Description:** Map score to risk level (optional for MVP).
 
 **Tasks:**
 
-- [ ] Define `RiskLevel` enum:
+- [x] Define `RiskLevel` enum:
   - `Low`
   - `Medium`
   - `High`
-- [ ] Implement `get_risk(score: u32) -> RiskLevel`
+- [x] Store risk alongside score (`RiskLevel(Address)` key)
+- [x] Expose `get_risk(env, wallet: Address) -> Option<RiskLevel>`
 
 **Notes:**
 
-- Prefer computing risk on frontend/backend for flexibility
-- Only include on-chain if needed for demo
+- Risk is computed off-chain (backend) and stored on-chain for flexibility
+- Frontend/backend remain authoritative for computation
 
 ---
 
@@ -81,20 +83,20 @@ Keep contracts minimal, fast, and demo-ready.
 ### Issue #SC-4: Score Update Authorization
 
 **Priority:** High  
-**Status:** PENDING
+**Status:** COMPLETED
 
 **Description:** Restrict who can update scores.
 
 **Tasks:**
 
-- [ ] Define `Admin` address
-- [ ] Restrict `set_score` to admin/oracle
-- [ ] Implement basic auth using Soroban auth framework
+- [x] Define `Admin` address (stored in instance storage via `init`)
+- [x] Restrict `set_score` to admin using `require_auth` + stored-admin check
+- [x] `transfer_admin` for future rotation
 
 **Notes:**
 
-- Keep simple (single admin is enough for MVP)
-- No complex roles needed
+- Single admin model (MVP)
+- No complex roles
 
 ---
 
@@ -103,20 +105,22 @@ Keep contracts minimal, fast, and demo-ready.
 ### Issue #SC-5: Public Query Interface
 
 **Priority:** High  
-**Status:** PENDING
+**Status:** COMPLETED
 
 **Description:** Allow external apps to query scores.
 
 **Tasks:**
 
-- [ ] Expose:
-  - `get_score(wallet)`
-  - `get_risk(wallet)` (optional)
-- [ ] Ensure functions are read-optimized
+- [x] Expose `get_score(wallet)`
+- [x] Expose `get_risk(wallet)`
+- [x] Expose `get_wallet_info(wallet)` (score + risk + last_updated)
+- [x] Expose `get_last_updated(wallet)`
+- [x] Expose `get_all_wallets_with_scores(wallets)` for batch queries
+- [x] Read functions use persistent storage and are read-optimized
 
 **Notes:**
 
-- This supports your “decision layer” positioning
+- Supports the “decision layer” positioning
 - Critical for demo narrative
 
 ---
@@ -126,16 +130,21 @@ Keep contracts minimal, fast, and demo-ready.
 ### Issue #SC-6: Contract Testing
 
 **Priority:** High  
-**Status:** PENDING
+**Status:** COMPLETED
 
 **Description:** Ensure contract reliability.
 
 **Tasks:**
 
-- [ ] Test score storage and retrieval
-- [ ] Test unauthorized access rejection
-- [ ] Test edge cases (no score, zero score)
-- [ ] Test multiple wallet entries
+- [x] Test score storage and retrieval
+- [x] Test unauthorized access rejection (admin-only `set_score`)
+- [x] Test edge cases (no score returns 0, missing risk returns None)
+- [x] Test multiple wallet entries
+- [x] Test `transfer_admin`
+- [x] Test `last_updated` timestamp recording
+- [x] Test `get_wallet_info` happy + nonexistent paths
+
+10/10 tests pass (`cargo test`).
 
 ---
 
@@ -219,3 +228,14 @@ During demo:
 - Contract interaction does not fail
 
 That’s enough to prove the concept.
+
+---
+
+## Implementation Complete
+
+All smart contract issues have been implemented and tested:
+
+- Phase 1: MVP Contract (COMPLETE) — SC-1, SC-2, SC-3
+- Phase 2: Access Control (COMPLETE) — SC-4
+- Phase 3: Integration Layer (COMPLETE) — SC-5
+- Phase 4: Testing (COMPLETE) — SC-6 (10/10 tests passing)

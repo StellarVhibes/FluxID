@@ -16,46 +16,46 @@ Everything else supports that.
 ### Issue #BK-1: Transaction Data Fetching
 
 **Category:** [DATA]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Critical
 
 **Description:** Fetch wallet transaction data from Stellar.
 
 **Tasks:**
 
-- [ ] Setup Node.js service (lightweight)
-- [ ] Connect to Horizon API
-- [ ] Fetch recent transactions for a wallet
-- [ ] Extract payment operations only
-- [ ] Classify:
+- [x] Setup Node.js service (Fastify — lightweight)
+- [x] Connect to Horizon API (testnet + mainnet)
+- [x] Fetch recent payments for a wallet (with retry + timeout)
+- [x] Extract payment operations only (filter native + credit_alphanum)
+- [x] Classify:
   - Inflow (incoming funds)
   - Outflow (outgoing funds)
 
 **Notes:**
 
-- Do NOT overbuild ingestion pipeline
-- Only fetch what is needed for scoring
+- Implemented in `src/services/horizon.service.ts`
+- Only payment operations used — ingestion stays lean
 
 ---
 
 ### Issue #BK-2: In-Memory Processing (No Heavy DB)
 
 **Category:** [INFRA]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Critical
 
 **Description:** Process transactions without heavy infrastructure.
 
 **Tasks:**
 
-- [ ] Process transactions in-memory
-- [ ] Normalize data (amount, timestamp, type)
-- [ ] Optional: lightweight caching (Redis or in-app)
+- [x] Process transactions in-memory (no DB dependency)
+- [x] Normalize data (amount, timestamp, type)
+- [x] Lightweight in-memory TTL cache (`src/services/cache.service.ts`)
 
 **Notes:**
 
-- Avoid full database setup for MVP
-- Speed > persistence for demo
+- Speed > persistence for MVP
+- Cache TTL configurable via `CACHE_TTL_SECONDS`
 
 ---
 
@@ -64,47 +64,48 @@ Everything else supports that.
 ### Issue #BK-3: Rule-Based Liquidity Score
 
 **Category:** [AI]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Critical
 
 **Description:** Compute wallet trust score (0–100).
 
 **Tasks:**
 
-- [ ] Inflow consistency:
-  - Detect regular income patterns
-- [ ] Outflow stability:
-  - Detect erratic vs controlled spending
-- [ ] Transaction frequency:
-  - Measure activity level
-- [ ] Combine into final score (0–100)
+- [x] Inflow consistency (coefficient-of-variation on inter-arrival times)
+- [x] Outflow stability (coefficient-of-variation on amounts)
+- [x] Transaction frequency (normalized activity level)
+- [x] Flow stability (inflow/outflow ratio)
+- [x] Counterparty diversity
+- [x] Volume component
+- [x] Weighted combination into final score (0–100)
 
 **Output:**
 
 - `score: number`
+- `metrics: ScoreMetrics` (all sub-scores exposed for transparency)
 
 **Notes:**
 
-- Keep logic simple and explainable
-- No ML for MVP
+- Implemented in `src/services/scoring.service.ts`
+- Pure functions, deterministic, no ML
 
 ---
 
 ### Issue #BK-4: Risk Classification
 
 **Category:** [AI]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** High
 
 **Description:** Convert score into simple risk level.
 
 **Tasks:**
 
-- [ ] Define thresholds:
-  - Low: > 70
-  - Medium: 40 – 70
+- [x] Thresholds:
+  - Low: >= 70
+  - Medium: 40 – 69
   - High: < 40
-- [ ] Generate short explanation string
+- [x] Generate short explanation string (driven by sub-scores)
 
 **Output:**
 
@@ -118,32 +119,41 @@ Everything else supports that.
 ### Issue #BK-5: Core Score Endpoint
 
 **Category:** [API]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Critical
 
 **Description:** Serve score to frontend.
 
 **Tasks:**
 
-- [ ] Setup Express or Fastify server
-- [ ] Endpoint: `GET /score/{wallet}`
-- [ ] Response format:
+- [x] Fastify server setup (`src/app.ts`)
+- [x] `GET /score/:accountId?network=&refresh=&sync=`
+- [x] Response format:
 
 ```json
 {
-  "score": 82,
-  "risk": "Low",
-  "insight": "Consistent inflow and stable spending",
-  "suggestion": "Consider saving a portion of incoming funds"
+  "success": true,
+  "data": {
+    "accountId": "G...",
+    "score": 82,
+    "risk": "Low",
+    "insight": "Consistent inflow patterns, stable spending behavior",
+    "suggestion": "Consider saving a portion of incoming funds",
+    "metrics": { "...": "..." },
+    "lastUpdated": "2026-04-17T...",
+    "cached": false
+  }
 }
 ```
 
-Add basic caching (optional)
+- [x] TTL-based caching
+- [x] Input validation (Stellar key format + network)
+- [x] Supporting endpoints: `/payments/:accountId`, `/transactions/:accountId`, `/health`
 
 **Notes:**
 
 - This endpoint powers the entire demo
-- Must be fast and reliable
+- 400 on malformed address, 404 on missing account, 503 on Horizon failure
 
 ---
 
@@ -152,21 +162,22 @@ Add basic caching (optional)
 ### Issue #BK-6: Recommendation Logic
 
 **Category:** [AI]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Medium
 
 **Description:** Generate simple behavioral suggestions.
 
 **Tasks:**
 
-- [ ] Rule-based suggestion system
-- [ ] Limit to 1–2 suggestions per wallet
-- [ ] Keep language simple and human
+- [x] Rule-based suggestion system (`generateInsightAndSuggestion`)
+- [x] Limit to 1 primary suggestion per wallet
+- [x] Simple, human language
 
 **Examples:**
 
-- "Your spending is inconsistent — try stabilizing outflows."
-- "You receive funds regularly — consider saving a fixed portion."
+- "Try to establish more consistent income sources"
+- "Consider stabilizing your outflows for better financial health"
+- "Consider saving a portion of incoming funds"
 
 ---
 
@@ -175,21 +186,24 @@ Add basic caching (optional)
 ### Issue #BK-7: Smart Contract Sync
 
 **Category:** [INTEGRATION]  
-**Status:** PENDING  
+**Status:** COMPLETED  
 **Priority:** Medium
 
 **Description:** Push computed score to Soroban contract.
 
 **Tasks:**
 
-- [ ] Call set_score(wallet, score)
-- [ ] Sync backend → on-chain storage
-- [ ] Handle failures gracefully
+- [x] `ContractService.syncScore(wallet, score, risk)` — real Soroban RPC call
+- [x] Calls `set_score(admin, wallet, score, risk)` on deployed contract
+- [x] Confirms transaction status (polls until SUCCESS/FAIL)
+- [x] Graceful no-op when `ADMIN_SECRET_KEY` or `CONTRACT_ID` unset
+- [x] Exposed via `POST /score/:accountId/sync` and `GET /score/:accountId?sync=true`
+- [x] Handle failures gracefully (returns structured `ContractSyncResult` with error)
 
 **Notes:**
 
-- Not required for demo
-- Only implement if time permits
+- Implemented in `src/services/contract.service.ts`
+- Requires `TESTNET_CONTRACT_ID` / `MAINNET_CONTRACT_ID` + `ADMIN_SECRET_KEY`
 
 ---
 
@@ -254,3 +268,15 @@ During demo:
 - Score is returned correctly
 - Insight is understandable
 - No API failures
+
+---
+
+## Implementation Complete
+
+All backend issues have been implemented:
+
+- Phase 1: Data Ingestion (COMPLETE) — BK-1, BK-2
+- Phase 2: Scoring Engine (COMPLETE) — BK-3, BK-4
+- Phase 3: API Layer (COMPLETE) — BK-5
+- Phase 4: Suggestions Engine (COMPLETE) — BK-6
+- Phase 5: Optional Integration (COMPLETE) — BK-7
