@@ -6,6 +6,7 @@ import { registerScoreRoutes } from './routes/score.routes.js';
 import { registerPaymentRoutes } from './routes/contract.routes.js';
 import { registerPaidRoutes } from './routes/paid.routes.js';
 import { registerMcpRoutes } from './routes/mcp.routes.js';
+import { registerOnChainRoutes } from './routes/onchain.routes.js';
 import { logger } from './utils/logger.js';
 
 export async function buildServer() {
@@ -22,6 +23,7 @@ export async function buildServer() {
   await registerPaymentRoutes(fastify);
   await registerPaidRoutes(fastify);
   await registerMcpRoutes(fastify);
+  await registerOnChainRoutes(fastify);
 
   fastify.setErrorHandler((error, _request, reply) => {
     logger.error({ error }, 'Unhandled error');

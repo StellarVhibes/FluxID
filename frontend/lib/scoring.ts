@@ -41,6 +41,11 @@ export interface WalletAnalysis {
   metrics: LiquidityMetrics;
   transactions: TransactionData[];
   flowSummary: FlowSummary;
+  insight?: string;
+  suggestion?: string;
+  aiInsight?: string;
+  aiSuggestions?: string[];
+  aiModel?: string;
   error?: string;
 }
 
@@ -190,6 +195,9 @@ type BackendScoreResponse = {
     risk: "Low" | "Medium" | "High";
     insight: string;
     suggestion: string;
+    aiInsight?: string;
+    aiSuggestions?: string[];
+    aiModel?: string;
     metrics: {
       totalVolumeXLM: number;
       transactionCount: number;
@@ -243,6 +251,11 @@ async function fetchFromBackend(address: string): Promise<WalletAnalysis | null>
       metrics,
       transactions,
       flowSummary: calculateFlowSummary(metrics),
+      insight: d.insight,
+      suggestion: d.suggestion,
+      aiInsight: d.aiInsight,
+      aiSuggestions: d.aiSuggestions,
+      aiModel: d.aiModel,
     };
   } catch (error) {
     console.error("Backend fetch failed:", error);

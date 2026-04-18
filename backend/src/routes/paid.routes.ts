@@ -4,6 +4,7 @@ import { calculateWalletScore } from '../services/scoring.service.js';
 import { cacheService } from '../services/cache.service.js';
 import { paymentService } from '../services/payment.service.js';
 import { createContractService } from '../services/contract.service.js';
+import { appendScoreHistory } from '../services/history.service.js';
 import { validateAccountId, validateNetwork } from '../utils/validators.js';
 import { logger } from '../utils/logger.js';
 import type { PaymentChallenge } from '../types/payment.types.js';
@@ -127,7 +128,16 @@ export async function paidScoreRoute(
           validatedNetwork,
           createHorizonService(validatedNetwork)
         ));
-      if (!cached) cacheService.set(validatedAccountId, validatedNetwork, result);
+      if (!cached) {
+        cacheService.set(validatedAccountId, validatedNetwork, result);
+        void appendScoreHistory({
+          wallet: validatedAccountId,
+          network: validatedNetwork,
+          score: result.score,
+          risk: result.risk,
+          timestamp: Date.now(),
+        });
+      }
 
       // SC-7: optionally sync score to contract after payment verification
       let onChain: { synced: boolean; txHash?: string; error?: string } | undefined;

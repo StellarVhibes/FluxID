@@ -356,7 +356,8 @@ Everything else supports that.
 
 ### Issue #FE-19a: Address Input as Primary Entry
 
-**Category:** [UX]  
+**Category:** [UX]
+**Status:** COMPLETED
 **Priority:** CRITICAL
 
 **Description:**
@@ -364,20 +365,26 @@ Make wallet address input the main way users interact with FluxID.
 
 **Tasks:**
 
-- [ ] Add wallet input field (hero section)
-- [ ] Add "Analyze Wallet" button
-- [ ] Validate Stellar address format
-- [ ] Call backend endpoint
-- [ ] Render results immediately
+- [x] Add wallet input field (hero section)
+- [x] Add "Analyze Wallet" button
+- [x] Validate Stellar address format (regex `^G[A-Z2-7]{55}$` + inline warning on bad input)
+- [x] Call backend endpoint (`GET /score/:accountId`)
+- [x] Render results immediately
 
 **UI Behavior:**
 
-- Input is PRIMARY
-- Wallet connect is SECONDARY
+- Input is PRIMARY (always rendered, no wallet gate)
+- Wallet connect is SECONDARY (optional "Use my wallet" / "Connect Freighter to autofill" affordance)
+- Hint: "No signature needed — scoring uses public on-chain data"
 
 **Notes:**
 
-This aligns with infrastructure positioning.
+Removed the prior hard redirect to `/` when Freighter not connected — the page now
+renders and functions for any visitor. Aligns with infrastructure positioning: platforms,
+agents, and remittance apps can score wallets they don't own.
+
+**Evidence:** `frontend/app/dashboard/page.tsx`, added Stellar regex validator, Enter-key
+submit, and removed `isConnected` gating.
 
 ## Phase 9: Agent Payment Visualization (Demo Booster)
 

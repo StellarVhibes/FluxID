@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useFreighter, truncateAddress } from "../context/FreighterContext";
 import { analyzeWallet, getSuggestions, WalletAnalysis } from "../../lib/scoring";
@@ -11,8 +10,13 @@ import { ScoreSkeleton } from "../components/Skeletons";
 import Onboarding from "../components/Onboarding";
 import { useToast } from "../components/Toast";
 import AnimatedScore from "../components/AnimatedScore";
-import Image from "next/image";
-import { Layers, Wallet, TrendingUp, AlertCircle, RefreshCw, AlertTriangle } from "lucide-react";
+import OnChainBadge from "../components/OnChainBadge";
+import { Layers, Wallet, TrendingUp, AlertCircle, RefreshCw, AlertTriangle, Info } from "lucide-react";
+
+const STELLAR_ADDRESS_RE = /^G[A-Z2-7]{55}$/;
+function isValidStellarAddress(addr: string): boolean {
+  return STELLAR_ADDRESS_RE.test(addr.trim());
+}
 
 import type { Variants } from "framer-motion";
 
@@ -22,8 +26,7 @@ const item: Variants = {
 };
 
 export default function Dashboard() {
-  const router = useRouter();
-  const { publicKey: address, isConnected, isLoading: isConnecting, error, connect } = useFreighter();
+  const { publicKey: address, isConnected, isLoading: isConnecting, error: freighterError, connect } = useFreighter();
   const { showToast } = useToast();
   const [analyzeAddress, setAnalyzeAddress] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -31,6 +34,7 @@ export default function Dashboard() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [analyzedAddress, setAnalyzedAddress] = useState<string | null>(null);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("fluxid_onboarding_seen");
@@ -39,38 +43,28 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!isConnecting && !isConnected) {
-      router.push("/");
-    }
-  }, [isConnecting, isConnected, router]);
-
   const handleCloseOnboarding = () => {
     setShowOnboarding(false);
     localStorage.setItem("fluxid_onboarding_seen", "true");
   };
 
-  useEffect(() => {
-    if (address && !analyzeAddress) {
-      setAnalyzeAddress(address);
-    }
-  }, [address, analyzeAddress]);
-
-  useEffect(() => {
-    if (isConnected && address) {
-      showToast(`Wallet connected: ${truncateAddress(address)}`, "success");
-    }
-  }, [isConnected, address, showToast]);
+  const trimmedInput = analyzeAddress.trim();
+  const inputLooksLikeAddress = trimmedInput.length > 0;
+  const inputIsValid = isValidStellarAddress(trimmedInput);
+  const showInvalidWarning = inputLooksLikeAddress && !inputIsValid;
 
   const handleAnalyze = async () => {
-    const targetAddress = analyzeAddress || address;
-    if (!targetAddress) return;
-    
+    if (!inputIsValid) {
+      setAnalysisError("Enter a valid Stellar address (starts with G, 56 chars).");
+      return;
+    }
+
     setIsAnalyzing(true);
     setAnalysisError(null);
     try {
-      const result = await analyzeWallet(targetAddress);
+      const result = await analyzeWallet(trimmedInput);
       setAnalysis(result);
+      setAnalyzedAddress(trimmedInput);
       setSuggestions(getSuggestions(result.score, result.metrics));
       showToast(`Score loaded: ${result.score.score}/100`, "success");
     } catch (err) {
@@ -80,36 +74,13 @@ export default function Dashboard() {
     }
   };
 
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 gap-6 text-center">
-        <Image src="/logo.svg" alt="FluxID" width={80} height={80} />
-        <h1 style={{ color: "var(--foreground)", letterSpacing: "-0.03em" }} className="text-4xl font-black">
-          FluxID
-        </h1>
-        <p style={{ color: "var(--foreground-muted)", fontSize: 18 }}>
-          Turn any wallet into a real-time financial identity.
-        </p>
-        <button
-          onClick={connect}
-          disabled={isConnecting}
-          className="btn btn-primary flex items-center gap-2"
-        >
-          <Wallet size={18} />
-          {isConnecting ? "Connecting..." : "Connect Wallet"}
-        </button>
-        {error && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-lg">
-            <AlertTriangle size={16} style={{ color: "#ef4444" }} />
-            <p style={{ color: "#ef4444", fontSize: 14 }}>{error}</p>
-          </div>
-        )}
-        <p style={{ color: "var(--foreground-dim)", fontSize: 12 }}>
-          Powered by Stellar
-        </p>
-      </div>
-    );
-  }
+  const handleUseMyWallet = async () => {
+    if (isConnected && address) {
+      setAnalyzeAddress(address);
+      return;
+    }
+    await connect();
+  };
 
   return (
     <div className="p-8">
@@ -117,9 +88,12 @@ export default function Dashboard() {
         <h1 style={{ color: "var(--foreground)", letterSpacing: "-0.03em" }} className="text-3xl font-black mb-2">
           Liquidity Score
         </h1>
-        {address && (
-          <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
-            Wallet: {truncateAddress(address)}
+        <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
+          Enter any Stellar wallet address to see its liquidity score and risk profile.
+        </p>
+        {analyzedAddress && (
+          <p style={{ color: "var(--foreground-dim)", fontSize: 13 }} className="mt-1">
+            Analyzing: {truncateAddress(analyzedAddress)}
           </p>
         )}
       </div>
@@ -135,26 +109,58 @@ export default function Dashboard() {
             type="text"
             value={analyzeAddress}
             onChange={(e) => setAnalyzeAddress(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && inputIsValid && !isAnalyzing) handleAnalyze();
+            }}
             placeholder="Enter Stellar wallet address (G...)"
-            className="flex-1 px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm"
+            spellCheck={false}
+            autoComplete="off"
+            className="flex-1 px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm font-mono"
           />
           <button
             onClick={handleAnalyze}
-            disabled={isAnalyzing || !analyzeAddress}
+            disabled={isAnalyzing || !inputIsValid}
             className="btn btn-primary flex items-center gap-2"
           >
             {isAnalyzing ? <RefreshCw size={16} className="animate-spin" /> : <TrendingUp size={16} />}
             {isAnalyzing ? "Analyzing..." : "Analyze"}
           </button>
         </div>
-        {address && (
+
+        {showInvalidWarning && (
+          <p style={{ color: "#eab308", fontSize: 12 }} className="mt-2 flex items-center gap-1">
+            <AlertTriangle size={12} />
+            Invalid address format. Stellar addresses start with G and are 56 characters long.
+          </p>
+        )}
+
+        <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
           <button
-            onClick={() => setAnalyzeAddress(address)}
+            onClick={handleUseMyWallet}
+            disabled={isConnecting}
             style={{ color: "var(--primary)", fontSize: 13 }}
-            className="mt-3 text-sm"
+            className="text-sm flex items-center gap-1 hover:underline disabled:opacity-60"
           >
-            Analyze my wallet ({truncateAddress(address)})
+            <Wallet size={13} />
+            {isConnected && address
+              ? `Use my wallet (${truncateAddress(address)})`
+              : isConnecting
+                ? "Connecting…"
+                : "Connect Freighter to autofill your address"}
           </button>
+          <span
+            style={{ color: "var(--foreground-dim)", fontSize: 11 }}
+            className="flex items-center gap-1"
+          >
+            <Info size={11} />
+            No signature needed — scoring uses public on-chain data.
+          </span>
+        </div>
+
+        {freighterError && (
+          <p style={{ color: "#ef4444", fontSize: 12 }} className="mt-2">
+            {freighterError}
+          </p>
         )}
       </motion.div>
 
@@ -212,10 +218,10 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <span 
+            <div className="flex items-center justify-center gap-3 mb-8 flex-wrap">
+              <span
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold"
-                style={{ 
+                style={{
                   background: analysis.score.riskLevel === "Low" ? "#22c55e20" : analysis.score.riskLevel === "Medium" ? "#eab30820" : "#ef444420",
                   color: analysis.score.riskLevel === "Low" ? "#22c55e" : analysis.score.riskLevel === "Medium" ? "#eab308" : "#ef4444"
                 }}
@@ -223,6 +229,7 @@ export default function Dashboard() {
                 <AlertCircle size={16} />
                 {analysis.score.riskLevel} Risk
               </span>
+              <OnChainBadge wallet={analyzedAddress} />
             </div>
           </motion.div>
 
@@ -266,16 +273,63 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
+          {(analysis.aiInsight || (analysis.aiSuggestions?.length ?? 0) > 0) && (
+            <motion.div
+              variants={item}
+              initial="hidden"
+              animate="show"
+              style={{ background: "var(--card)", border: "1px solid var(--primary)" }}
+              className="rounded-2xl p-6 mb-6"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>
+                  AI Insight
+                </h3>
+                <span
+                  style={{
+                    background: "var(--primary)",
+                    color: "var(--background)",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: 999,
+                  }}
+                >
+                  AI
+                </span>
+              </div>
+              {analysis.aiInsight && (
+                <p style={{ color: "var(--foreground)", fontSize: 14, lineHeight: 1.55 }} className="mb-3">
+                  {analysis.aiInsight}
+                </p>
+              )}
+              {analysis.aiSuggestions && analysis.aiSuggestions.length > 0 && (
+                <ul className="space-y-2">
+                  {analysis.aiSuggestions.map((s, i) => (
+                    <li
+                      key={i}
+                      style={{ color: "var(--foreground-muted)", fontSize: 13 }}
+                      className="flex gap-2"
+                    >
+                      <span style={{ color: "var(--primary)" }}>→</span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </motion.div>
+          )}
+
           {suggestions.length > 0 && (
             <motion.div
               variants={item}
               initial="hidden"
               animate="show"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }} 
+              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
               className="rounded-2xl p-6"
             >
               <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }} className="mb-4">
-                Insights
+                Rule-based Insights
               </h3>
               <div className="space-y-3">
                 {suggestions.map((suggestion, i) => (
@@ -293,10 +347,11 @@ export default function Dashboard() {
         <div className="text-center py-12">
           <Layers size={48} style={{ color: "var(--primary)", margin: "0 auto 16px" }} />
           <h3 style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 20 }} className="mb-2">
-            Enter a wallet address to analyze
+            Score any Stellar wallet
           </h3>
-          <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
-            Connect your wallet or enter any Stellar address to see their liquidity score.
+          <p style={{ color: "var(--foreground-muted)", fontSize: 14 }} className="max-w-md mx-auto">
+            Paste an address above to get its liquidity score, risk level, and flow breakdown.
+            Wallet connection is optional — the score is computed from public on-chain history.
           </p>
         </div>
       )}

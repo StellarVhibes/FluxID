@@ -16,3 +16,11 @@ export interface ContractSyncResult {
   txHash?: string;
   error?: string;
 }
+
+export interface OnChainWalletInfo {
+  wallet: string;
+  score: number;
+  risk: 'Low' | 'Medium' | 'High';
+  lastUpdated: number;
+  onChain: true;
+}

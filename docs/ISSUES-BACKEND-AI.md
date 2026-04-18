@@ -261,31 +261,44 @@ Everything else supports that.
 
 ### Issue #BK-AI-1: Insight Generation
 
-**Category:** [AI]  
+**Category:** [AI]
+**Status:** COMPLETED
 **Priority:** Medium
 
 **Description:** Generate human-readable explanations from scoring output.
 
 **Tasks:**
 
-- [ ] Send structured scoring data to LLM
-- [ ] Generate 1-line insight
-- [ ] Generate enhanced explanation
+- [x] Send structured scoring data to LLM (Anthropic Claude, native `fetch`, no new deps)
+- [x] Generate 1-line insight (max ~25 words, neutral tone, grounded in sub-scores)
+- [x] Generate enhanced explanation (surfaced as `aiInsight` in `/score` response)
+
+**Fallback:** When `ANTHROPIC_API_KEY` is unset or the API call fails/timeouts, the
+response still includes the deterministic rule-based `insight` field. AI augmentation
+is strictly additive — it never blocks the score response.
+
+**Evidence:** `backend/src/services/ai.service.ts`, integrated in `backend/src/routes/score.routes.ts`.
 
 ---
 
 ### Issue #BK-AI-2: Suggestion Generation
 
-**Category:** [AI]  
+**Category:** [AI]
+**Status:** COMPLETED
 **Priority:** Medium
 
 **Description:** Generate actionable financial suggestions.
 
 **Tasks:**
 
-- [ ] Convert scoring signals into advice
-- [ ] Limit to 1–2 suggestions
-- [ ] Ensure clarity and simplicity
+- [x] Convert scoring signals into advice (prompt is weighted toward weakest sub-scores)
+- [x] Limit to 1–2 suggestions (enforced in the prompt and parser)
+- [x] Ensure clarity and simplicity (max ~15 words each, positive phrasing)
+
+Returned as `aiSuggestions: string[]` in the `/score` response; frontend renders them
+under an "AI Insight" card above the rule-based suggestions.
+
+**Evidence:** Same as BK-AI-1 — single `generateAiAugmentation()` call returns both.
 
 ---
 
@@ -360,3 +373,4 @@ All backend issues have been implemented:
 - Phase 4: Suggestions Engine (COMPLETE) — BK-6
 - Phase 5: Optional Integration (COMPLETE) — BK-7
 - Phase 6: Agentic AI Payments / X402 (COMPLETE) — BK-8, BK-9, BK-10, BK-11, BK-12
+- Phase X: AI Augmentation Layer (PARTIAL) — BK-AI-1, BK-AI-2 complete; BK-AI-3 deferred (Priority Low)
