@@ -257,31 +257,79 @@ Everything else supports that.
 
 **Evidence:** `backend/src/routes/mcp.routes.ts`
 
+---## Phase X: AI Augmentation Layer
+
+### Issue #BK-AI-1: Insight Generation
+
+**Category:** [AI]  
+**Priority:** Medium
+
+**Description:** Generate human-readable explanations from scoring output.
+
+**Tasks:**
+
+- [ ] Send structured scoring data to LLM
+- [ ] Generate 1-line insight
+- [ ] Generate enhanced explanation
+
 ---
+
+### Issue #BK-AI-2: Suggestion Generation
+
+**Category:** [AI]  
+**Priority:** Medium
+
+**Description:** Generate actionable financial suggestions.
+
+**Tasks:**
+
+- [ ] Convert scoring signals into advice
+- [ ] Limit to 1–2 suggestions
+- [ ] Ensure clarity and simplicity
+
+---
+
+### Issue #BK-AI-3: Pattern Interpretation (Optional)
+
+**Category:** [AI]  
+**Priority:** Low
+
+**Description:** Use AI to detect deeper behavioral patterns.
+
+**Tasks:**
+
+- [ ] Identify irregular income cycles
+- [ ] Detect spending spikes
+- [ ] Generate pattern-based insights
 
 ## Post-Grant Expansion (Future — OmniFlow Level)
 
 These define long-term direction, not MVP.
 
 ### 1. Advanced Data Pipeline
+
 - Persistent storage (PostgreSQL)
 - Historical transaction indexing
 - Real-time streaming updates
 
 ### 2. Machine Learning Models
+
 - Predict liquidity stress
 - Forecast default probability
 - Behavioral pattern detection
 
 ### 3. Multi-Wallet Intelligence
+
 - Aggregate identity across wallets
 - Cross-platform financial profiles
 
 ### 4. Intelligent Recommendation Engine
+
 - Personalized financial strategies
 - Dynamic behavior-based suggestions
 
 ### 5. API for External Platforms
+
 Public endpoints for lending platforms, remittance apps, marketplaces.
 
 ---

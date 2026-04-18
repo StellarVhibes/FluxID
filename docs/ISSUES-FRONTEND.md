@@ -354,6 +354,31 @@ Everything else supports that.
 
 ---
 
+### Issue #FE-19a: Address Input as Primary Entry
+
+**Category:** [UX]  
+**Priority:** CRITICAL
+
+**Description:**
+Make wallet address input the main way users interact with FluxID.
+
+**Tasks:**
+
+- [ ] Add wallet input field (hero section)
+- [ ] Add "Analyze Wallet" button
+- [ ] Validate Stellar address format
+- [ ] Call backend endpoint
+- [ ] Render results immediately
+
+**UI Behavior:**
+
+- Input is PRIMARY
+- Wallet connect is SECONDARY
+
+**Notes:**
+
+This aligns with infrastructure positioning.
+
 ## Phase 9: Agent Payment Visualization (Demo Booster)
 
 ### Issue #FE-19: Payment Flow UI (402 Simulation)

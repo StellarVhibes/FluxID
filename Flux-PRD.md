@@ -31,9 +31,9 @@ Because of this:
 
 Even in Web3:
 
-- Wallets are mostly anonymous  
-- Reputation is fragmented  
-- There's no standard way to measure financial reliability  
+- Wallets are mostly anonymous
+- Reputation is fragmented
+- There's no standard way to measure financial reliability
 
 So trust becomes guesswork.
 
@@ -53,15 +53,15 @@ FluxID introduces a **Liquidity Identity** — a dynamic score that reflects how
 
 It analyzes:
 
-- Income consistency  
-- Spending patterns  
-- Transaction frequency  
-- Flow stability  
+- Income consistency
+- Spending patterns
+- Transaction frequency
+- Flow stability
 
 And produces:
 
-- A **Liquidity Score (0–100)**  
-- A simple **risk signal (Low / Medium / High)**  
+- A **Liquidity Score (0–100)**
+- A simple **risk signal (Low / Medium / High)**
 - A clear view of financial behavior
 
 ## What FluxID Really Is (In Simple Terms)
@@ -80,13 +80,20 @@ At its core, it answers one simple question:
 
 Instead of platforms guessing or relying on incomplete signals, they can now:
 
-- Query a wallet’s behavior  
-- Get a simple trust score  
-- Make decisions instantly  
+- Query a wallet’s behavior
+- Get a simple trust score
+- Make decisions instantly
 
 Think of it this way:
 
 Instead of uncertainty, platforms now have a **clear, behavior-based signal**.
+
+FluxID analyzes wallet transaction history and returns:
+
+A Liquidity Score
+A Risk Level
+A Clear Explanation
+Actionable Suggestions
 
 ---
 
@@ -100,8 +107,8 @@ Instead of:
 
 They can do:
 
-- Score = 82 → Low risk → Approve loan  
-- Score = 34 → High risk → Reduce or reject  
+- Score = 82 → Low risk → Approve loan
+- Score = 34 → High risk → Reduce or reject
 
 No paperwork.  
 No traditional credit system.  
@@ -117,13 +124,13 @@ Instead of:
 
 They can do:
 
-- Consistent inflow + stable spending → Reliable worker  
+- Consistent inflow + stable spending → Reliable worker
 
 This enables:
 
-- Better payment terms  
-- Faster payouts  
-- Increased trust  
+- Better payment terms
+- Faster payouts
+- Increased trust
 
 ---
 
@@ -139,8 +146,8 @@ They can do:
 
 This leads to:
 
-- Smarter money usage  
-- Behavior-driven financial decisions  
+- Smarter money usage
+- Behavior-driven financial decisions
 
 ---
 
@@ -162,8 +169,8 @@ This unlocks more flexible financial models.
 
 Right now:
 
-- Web2 → Credit scores (slow, country-based)  
-- Web3 → No trust layer  
+- Web2 → Credit scores (slow, country-based)
+- Web3 → No trust layer
 
 FluxID introduces:
 
@@ -171,9 +178,9 @@ FluxID introduces:
 
 Better because:
 
-- It is real-time  
-- It is global  
-- It is based on real money movement  
+- It is real-time
+- It is global
+- It is based on real money movement
 
 ---
 
@@ -213,10 +220,10 @@ If asked “What is FluxID?”:
 
 This approach gives:
 
-- Clarity → One clear function  
-- Scalability → Many use cases  
-- Relevance → Solves a real problem  
-- Strong positioning → Infrastructure, not just an app  
+- Clarity → One clear function
+- Scalability → Many use cases
+- Relevance → Solves a real problem
+- Strong positioning → Infrastructure, not just an app
 
 ---
 
@@ -248,34 +255,39 @@ While FluxID is designed as a general-purpose trust layer that any platform can 
 
 ### Why this group:
 
-- They rely heavily on cross-border payments  
-- They lack formal credit or reputation systems  
-- Trust directly affects how and when they get paid  
+- They rely heavily on cross-border payments
+- They lack formal credit or reputation systems
+- Trust directly affects how and when they get paid
 
 This group provides a clear, real-world use case to demonstrate how wallet-based trust scoring can solve actual financial problems.
 
-Over time, FluxID expands beyond this group into a broader infrastructure layer usable by lending platforms, marketplaces, and other financial systems.
----
+## Over time, FluxID expands beyond this group into a broader infrastructure layer usable by lending platforms, marketplaces, and other financial systems.
 
 ## MVP Features (5-Day Build Sprint)
 
 ### Core Features
 
-- Wallet connection (Freighter / Stellar wallet)  
-- Fetch recent transaction history (via Stellar SDK / Horizon)  
+- Wallet connection (Freighter / Stellar wallet)
+- Fetch recent transaction history (via Stellar SDK / Horizon)
 
 - Rule-based Liquidity Score:
-  - Inflow consistency  
-  - Outflow volatility  
-  - Transaction frequency  
+  - Inflow consistency
+  - Outflow volatility
+  - Transaction frequency
 
 - Simple dashboard:
-  - Large, clear Liquidity Score display  
-  - Flow summary (basic visualization)  
-  - Risk indicator (Low / Medium / High)  
+  - Large, clear Liquidity Score display
+  - Flow summary (basic visualization)
+  - Risk indicator (Low / Medium / High)
 
-- Lightweight suggestion system  
-  - Example: “Based on your flow, consider preserving part of incoming funds”  
+- Lightweight suggestion system
+  - Example: “Based on your flow, consider preserving part of incoming funds”
+
+### Address-Based Analysis (Primary Entry)
+
+- Users can input any Stellar wallet address
+- System analyzes wallet without requiring ownership
+- Enables infrastructure use cases (lending, marketplaces, AI agents)
 
 ---
 
@@ -283,10 +295,10 @@ Over time, FluxID expands beyond this group into a broader infrastructure layer 
 
 The interface will be:
 
-- Clean and minimal  
-- Score-first (visible immediately on load)  
-- Easy to understand in under 3 seconds  
-- Mobile-first  
+- Clean and minimal
+- Score-first (visible immediately on load)
+- Easy to understand in under 3 seconds
+- Mobile-first
 
 Design priority:
 
@@ -296,9 +308,9 @@ Design priority:
 
 ### What We Keep Simple
 
-- AI will be **rule-based + heuristic**, not heavy ML  
-- Predictions will be **basic but clear** (no overpromising)  
-- No complex integrations — focus on one clean flow  
+- AI will be **rule-based + heuristic**, not heavy ML
+- Predictions will be **basic but clear** (no overpromising)
+- No complex integrations — focus on one clean flow
 
 ---
 
@@ -314,33 +326,50 @@ Clean, fast, demo-ready.
 
 ## Tech Stack
 
-### Blockchain  
-- Stellar SDK (JavaScript)  
-- Soroban (minimal usage for extensibility)  
+### Blockchain
 
-### Data / Logic  
-- Rule-based scoring engine (JavaScript / Node.js)  
+- Stellar SDK (JavaScript)
+- Soroban (minimal usage for extensibility)
 
-### Frontend  
-- Next.js (mobile-first PWA)  
-- TypeScript  
-- Tailwind CSS  
+### Data / Logic
 
-### Wallet  
-- Freighter Wallet  
+- Rule-based scoring engine (JavaScript / Node.js)
+
+### Frontend
+
+- Next.js (mobile-first PWA)
+- TypeScript
+- Tailwind CSS
+
+### Wallet
+
+- Freighter Wallet
 
 ---
 
 ## Demo Flow
 
-1. User connects wallet  
-2. System fetches transaction history  
-3. Liquidity score is calculated  
+## Demo Flow
+
+### Mode 1: Analyze Any Wallet (Primary)
+
+1. User enters wallet address
+2. System fetches transaction history
+3. Liquidity score is calculated
 4. Dashboard displays:
-   - Score  
-   - Risk level  
-   - Flow insight  
-5. User sees a simple actionable suggestion  
+   - Score
+   - Risk level
+   - Flow insight
+   - Breakdown & factors
+5. User sees actionable suggestions
+
+---
+
+### Mode 2: Analyze Your Wallet (Optional)
+
+1. User connects wallet
+2. Address is auto-filled
+3. Analysis runs automatically
 
 ---
 
@@ -352,25 +381,25 @@ Once funded, FluxID evolves into a full **Liquidity Identity Infrastructure Laye
 
 ### 1. On-Chain Liquidity Identity (Core Primitive)
 
-- Non-transferable identity token (Soroban-based)  
-- Represents a wallet's financial behavior over time  
-- Continuously updated using on-chain transaction data  
-- Becomes a portable, verifiable financial identity across applications  
+- Non-transferable identity token (Soroban-based)
+- Represents a wallet's financial behavior over time
+- Continuously updated using on-chain transaction data
+- Becomes a portable, verifiable financial identity across applications
 
 ---
 
 ### 2. Advanced Liquidity Intelligence Engine
 
-- Move from rule-based logic to real predictive models  
+- Move from rule-based logic to real predictive models
 - Analyze:
-  - Cash flow patterns  
-  - Income stability  
-  - Spending volatility  
+  - Cash flow patterns
+  - Income stability
+  - Spending volatility
 
 - Forecast:
-  - Liquidity stress  
-  - Default probability  
-  - Short-term financial gaps  
+  - Liquidity stress
+  - Default probability
+  - Short-term financial gaps
 
 Transforms FluxID into a real-time risk engine, not just a scoring tool.
 
@@ -381,28 +410,28 @@ Transforms FluxID into a real-time risk engine, not just a scoring tool.
 FluxID becomes infrastructure other apps can build on.
 
 - Public query endpoints / smart contract interfaces:
-  - `/score/{wallet}`  
-  - `/risk/{wallet}`  
+  - `/score/{wallet}`
+  - `/risk/{wallet}`
 
 Enables:
 
-- Lending protocols to assess borrowers  
-- Payroll systems to verify reliability  
-- Remittance apps (like IntentRemit) to optimize fund allocation  
+- Lending protocols to assess borrowers
+- Payroll systems to verify reliability
+- Remittance apps (like IntentRemit) to optimize fund allocation
 
 Example:
 
-- "Only unlock funds if score > threshold"  
-- "Adjust lending terms dynamically based on behavior"  
+- "Only unlock funds if score > threshold"
+- "Adjust lending terms dynamically based on behavior"
 
 ---
 
 ### 4. Cross-Platform Reputation Aggregation
 
-- Extend beyond single-wallet analysis  
+- Extend beyond single-wallet analysis
 - Combine:
-  - On-chain behavior  
-  - Optional off-chain signals (future phase)  
+  - On-chain behavior
+  - Optional off-chain signals (future phase)
 
 Creates a unified financial identity across ecosystems.
 
@@ -411,22 +440,22 @@ Creates a unified financial identity across ecosystems.
 ### 5. Smart Financial Automation Layer
 
 - Auto-trigger actions based on liquidity behavior:
-  - Auto-lock funds  
-  - Auto-suggest savings allocations  
-  - Integrate directly into remittance flows  
+  - Auto-lock funds
+  - Auto-suggest savings allocations
+  - Integrate directly into remittance flows
 
 Example:
 
-- "Based on your pattern, 30% of incoming funds will be automatically preserved"  
+- "Based on your pattern, 30% of incoming funds will be automatically preserved"
 
 ---
 
 ### 6. Privacy & Selective Disclosure (Future)
 
-- Privacy-preserving identity sharing (ZK layer later)  
+- Privacy-preserving identity sharing (ZK layer later)
 - Users control:
-  - What data is visible  
-  - What score components are shared  
+  - What data is visible
+  - What score components are shared
 
 ---
 
@@ -434,13 +463,13 @@ Example:
 
 FluxID becomes:
 
-- A **credit layer for Web3**  
-- A **risk engine for global finance**  
-- A **trust infrastructure for emerging markets**  
+- A **credit layer for Web3**
+- A **risk engine for global finance**
+- A **trust infrastructure for emerging markets**
 
 ---
 
 ## Naming
 
-- Product: **FluxID**  
+- Product: **FluxID**
 - Concept: **Liquidity Identity Layer**

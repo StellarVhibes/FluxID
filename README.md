@@ -214,16 +214,59 @@ Why:
 
 ## Demo Flow
 
-1. User connects wallet
-2. Transaction history is fetched
-3. Liquidity score is calculated
+### Analyze Any Wallet (Primary)
+
+1. Enter a Stellar wallet address
+2. Click “Analyze”
+3. System processes transaction history
 4. Dashboard displays:
-   - Score
-   - Risk level
-   - Flow insight
-5. User sees a simple suggestion
+   - Liquidity Score
+   - Risk Level
+   - Score Breakdown
+   - Top Risk Factors
+   - Suggestions
 
 ---
+
+### Analyze Your Wallet (Optional)
+
+1. Connect wallet
+2. Address is auto-filled
+3. Analysis runs automatically
+
+---
+
+## API-First Design
+
+FluxID is built as infrastructure.
+
+Any platform or system can query:
+
+GET /score/{wallet}
+
+This enables:
+
+- Lending platforms
+- Marketplaces
+- Remittance systems
+- AI agents
+
+To evaluate wallet trust instantly.
+
+---
+
+## AI Layer (Explainability)
+
+FluxID uses a hybrid approach:
+
+- Rule-based engine → computes score and risk
+- AI models → generate explanations and suggestions
+
+This ensures:
+
+- Deterministic scoring
+- Clear, human-readable insights
+- Better decision support
 
 ## Tech Stack
 
