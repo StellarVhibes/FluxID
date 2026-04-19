@@ -105,7 +105,7 @@ export default function FlowChart({ transactions, usd, isLoading, className = ""
 
           return (
             <div key={date} className="flex-1 flex flex-col items-center gap-2">
-              <div className="w-full flex gap-1 h-36">
+              <div className="w-full flex items-end gap-1 h-36">
                 <div
                   style={{
                     height: `${(inflow / maxValue) * 100}%`,
