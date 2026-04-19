@@ -18,6 +18,25 @@ export async function buildServer() {
     origin: true,
   });
 
+  fastify.get('/', async () => ({
+    name: 'FluxID Backend',
+    description: 'Liquidity Identity scoring service — turn any Stellar wallet into a trust score.',
+    status: 'ok',
+    network: appConfig.stellarNetwork,
+    endpoints: {
+      health: 'GET /health',
+      score: 'GET /score/:accountId?network=&refresh=&sync=',
+      syncScore: 'POST /score/:accountId/sync',
+      scoreHistory: 'GET /score/:accountId/history?limit=&since=',
+      onChainScore: 'GET /onchain/score/:wallet',
+      onChainBatch: 'POST /onchain/batch  body: { wallets: string[], mode?: "per-wallet" | "contract" }',
+      paidScore: 'GET /paid/score/:accountId?requestId=',
+      mcpTools: 'GET /mcp/tools',
+      mcpInvoke: 'POST /mcp/tools/call  body: { name, arguments }',
+    },
+    docs: 'See README.md and docs/ in the repo for full usage.',
+  }));
+
   fastify.get('/health', healthRoute);
   await registerScoreRoutes(fastify);
   await registerPaymentRoutes(fastify);

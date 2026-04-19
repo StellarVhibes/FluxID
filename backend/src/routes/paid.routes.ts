@@ -5,6 +5,7 @@ import { cacheService } from '../services/cache.service.js';
 import { paymentService } from '../services/payment.service.js';
 import { createContractService } from '../services/contract.service.js';
 import { appendScoreHistory } from '../services/history.service.js';
+import { generateExplanation } from '../services/explainability/index.js';
 import { validateAccountId, validateNetwork } from '../utils/validators.js';
 import { logger } from '../utils/logger.js';
 import type { PaymentChallenge } from '../types/payment.types.js';
@@ -86,10 +87,12 @@ export async function paidScoreRoute(
             createHorizonService(validatedNetwork)
           ));
         if (!cached) cacheService.set(validatedAccountId, validatedNetwork, result);
+        const explanation = await generateExplanation(result);
         return reply.send({
           success: true,
           data: {
             ...result,
+            explanation,
             payment: { status: 'paid', txHash: existing.txHash, requestId: existing.requestId },
           },
         });
@@ -155,10 +158,13 @@ export async function paidScoreRoute(
         };
       }
 
+      const explanation = await generateExplanation(result);
+
       return reply.send({
         success: true,
         data: {
           ...result,
+          explanation,
           payment: {
             status: 'paid',
             txHash: verification.txHash,

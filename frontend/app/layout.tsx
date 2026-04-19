@@ -43,7 +43,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      {/* suppressHydrationWarning on body: password-manager / form-filler extensions
+          inject attributes like `fdprocessedid` before React hydrates. Without this
+          suppression those extensions trigger a spurious hydration mismatch. */}
+      <body className="antialiased" suppressHydrationWarning>
         <Providers>
           <FreighterProvider>
             <ToastProvider>

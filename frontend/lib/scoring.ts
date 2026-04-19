@@ -1,6 +1,16 @@
 import { Horizon } from "@stellar/stellar-sdk";
 
-const HORIZON_URL = process.env.NEXT_PUBLIC_HORIZON_URL || "https://horizon-testnet.stellar.org";
+export type StellarNetwork = "mainnet" | "testnet";
+
+const HORIZON_URLS: Record<StellarNetwork, string> = {
+  mainnet: "https://horizon.stellar.org",
+  testnet: "https://horizon-testnet.stellar.org",
+};
+
+function horizonUrlFor(network: StellarNetwork): string {
+  return process.env.NEXT_PUBLIC_HORIZON_URL || HORIZON_URLS[network];
+}
+
 const AI_BACKEND_URL = process.env.NEXT_PUBLIC_AI_BACKEND_URL || "";
 
 export interface LiquidityMetrics {
@@ -27,6 +37,7 @@ export interface TransactionData {
   amount: number;
   type: "inflow" | "outflow";
   address: string;
+  asset: string;
 }
 
 export interface FlowSummary {
@@ -36,16 +47,46 @@ export interface FlowSummary {
   averageTransaction: number;
 }
 
+export interface AssetDirection {
+  XLM: number;
+  USDC: number;
+  other: Array<{ code: string; issuer?: string; label: string; amount: number; count: number }>;
+}
+
+export interface AssetsBreakdown {
+  inflow: AssetDirection;
+  outflow: AssetDirection;
+}
+
+export interface UsdValuation {
+  inflow: number | null;
+  outflow: number | null;
+  xlmPriceUsd: number | null;
+  priceSource: string | null;
+  priceFetchedAt: string | null;
+  unsupportedInflowCount: number;
+  unsupportedOutflowCount: number;
+  note: string;
+}
+
+export type ExplanationSource = "llm" | "rule-based";
+
+export interface Explanation {
+  insight: string;
+  suggestions: string[];
+  source: ExplanationSource;
+  model?: string;
+  generatedAt: string;
+}
+
 export interface WalletAnalysis {
   score: LiquidityScore;
   metrics: LiquidityMetrics;
   transactions: TransactionData[];
   flowSummary: FlowSummary;
-  insight?: string;
-  suggestion?: string;
-  aiInsight?: string;
-  aiSuggestions?: string[];
-  aiModel?: string;
+  assets?: AssetsBreakdown;
+  usd?: UsdValuation;
+  explanation?: Explanation;
   error?: string;
 }
 
@@ -55,12 +96,18 @@ type PaymentRecord = {
   to: string;
   amount: string;
   asset_type: string;
+  asset_code?: string;
+  asset_issuer?: string;
   created_at: string;
   transaction_successful?: boolean;
 };
 
-export async function fetchWalletPayments(address: string, limit = 100): Promise<PaymentRecord[]> {
-  const server = new Horizon.Server(HORIZON_URL);
+export async function fetchWalletPayments(
+  address: string,
+  network: StellarNetwork = "mainnet",
+  limit = 100
+): Promise<PaymentRecord[]> {
+  const server = new Horizon.Server(horizonUrlFor(network));
 
   try {
     const response = await server
@@ -72,7 +119,9 @@ export async function fetchWalletPayments(address: string, limit = 100): Promise
 
     return response.records as unknown as PaymentRecord[];
   } catch (error) {
-    console.error("Error fetching payments:", error);
+    // 404s are expected when a wallet exists on one network but not another —
+    // return empty instead of throwing, caller handles the empty-state UX.
+    console.warn("fetchWalletPayments failed for", address, network, error);
     return [];
   }
 }
@@ -86,6 +135,8 @@ function parsePayments(payments: PaymentRecord[], walletAddress: string): Transa
 
     const amount = parseFloat(p.amount) || 0;
     const isOutflow = p.from === walletAddress;
+    const asset =
+      p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
 
     parsed.push({
       id: p.id,
@@ -93,6 +144,7 @@ function parsePayments(payments: PaymentRecord[], walletAddress: string): Transa
       amount,
       type: isOutflow ? "outflow" : "inflow",
       address: isOutflow ? p.to : p.from,
+      asset,
     });
   }
 
@@ -193,11 +245,9 @@ type BackendScoreResponse = {
   data?: {
     score: number;
     risk: "Low" | "Medium" | "High";
-    insight: string;
-    suggestion: string;
-    aiInsight?: string;
-    aiSuggestions?: string[];
-    aiModel?: string;
+    explanation?: Explanation;
+    assets?: AssetsBreakdown;
+    usd?: UsdValuation;
     metrics: {
       totalVolumeXLM: number;
       transactionCount: number;
@@ -218,16 +268,19 @@ type BackendScoreResponse = {
   error?: string;
 };
 
-async function fetchFromBackend(address: string): Promise<WalletAnalysis | null> {
+async function fetchFromBackend(
+  address: string,
+  network: StellarNetwork = "mainnet"
+): Promise<WalletAnalysis | null> {
   if (!AI_BACKEND_URL) return null;
 
   try {
-    const response = await fetch(`${AI_BACKEND_URL}/score/${address}`);
+    const response = await fetch(`${AI_BACKEND_URL}/score/${address}?network=${network}`);
     const json = (await response.json()) as BackendScoreResponse;
     if (!json.success || !json.data) return null;
 
     const d = json.data;
-    const payments = await fetchWalletPayments(address);
+    const payments = await fetchWalletPayments(address, network);
     const transactions = parsePayments(payments, address);
 
     const metrics: LiquidityMetrics = {
@@ -251,11 +304,9 @@ async function fetchFromBackend(address: string): Promise<WalletAnalysis | null>
       metrics,
       transactions,
       flowSummary: calculateFlowSummary(metrics),
-      insight: d.insight,
-      suggestion: d.suggestion,
-      aiInsight: d.aiInsight,
-      aiSuggestions: d.aiSuggestions,
-      aiModel: d.aiModel,
+      assets: d.assets,
+      usd: d.usd,
+      explanation: d.explanation,
     };
   } catch (error) {
     console.error("Backend fetch failed:", error);
@@ -263,11 +314,14 @@ async function fetchFromBackend(address: string): Promise<WalletAnalysis | null>
   }
 }
 
-export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
-  const fromBackend = await fetchFromBackend(address);
+export async function analyzeWallet(
+  address: string,
+  network: StellarNetwork = "mainnet"
+): Promise<WalletAnalysis> {
+  const fromBackend = await fetchFromBackend(address, network);
   if (fromBackend) return fromBackend;
 
-  const payments = await fetchWalletPayments(address);
+  const payments = await fetchWalletPayments(address, network);
   return localAnalyze(address, payments);
 }
 

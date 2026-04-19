@@ -4,7 +4,7 @@ import { calculateWalletScore } from '../services/scoring.service.js';
 import { cacheService } from '../services/cache.service.js';
 import { createContractService } from '../services/contract.service.js';
 import { appendScoreHistory, getScoreHistory } from '../services/history.service.js';
-import { generateAiAugmentation } from '../services/ai.service.js';
+import { generateExplanation } from '../services/explainability/index.js';
 import { validateAccountId, validateNetwork } from '../utils/validators.js';
 import { logger } from '../utils/logger.js';
 
@@ -35,9 +35,13 @@ export async function scoreRoute(request: FastifyRequest<{ Params: ScoreParams; 
     if (!shouldRefresh) {
       const cached = cacheService.get(validatedAccountId, validatedNetwork);
       if (cached) {
+        // Cache holds the deterministic ScoreResult (score, risk, metrics, assets, usd).
+        // The Explanation is always regenerated so consumers never see a missing field
+        // and the LLM layer stays in the loop even on cached reads.
+        const explanation = await generateExplanation(cached);
         return reply.send({
           success: true,
-          data: { ...cached, cached: true },
+          data: { ...cached, cached: true, explanation },
         });
       }
     }
@@ -56,10 +60,11 @@ export async function scoreRoute(request: FastifyRequest<{ Params: ScoreParams; 
       timestamp: Date.now(),
     });
 
-    // Optional LLM-powered insight rewriting (BK-AI-1 / BK-AI-2).
-    // Fails open — when ANTHROPIC_API_KEY is unset or the call errors, the
-    // rule-based insight/suggestion on `result` stays as the response.
-    const aiAugmentation = await generateAiAugmentation(result);
+    // AI Explainability Layer (BK-AI-1 / BK-AI-2).
+    // LLM primary when ANTHROPIC_API_KEY is set; deterministic rule-based
+    // fallback otherwise. Always returns a populated Explanation whose
+    // `source` field tells the consumer which layer produced it.
+    const explanation = await generateExplanation(result);
 
     // On-chain sync only fires on explicit opt-in via ?sync=true or the dedicated
     // POST /score/:accountId/sync endpoint. Reads never trigger writes implicitly.
@@ -80,9 +85,7 @@ export async function scoreRoute(request: FastifyRequest<{ Params: ScoreParams; 
         ...result,
         cached: false,
         onChain,
-        aiInsight: aiAugmentation?.insight,
-        aiSuggestions: aiAugmentation?.suggestions,
-        aiModel: aiAugmentation?.model,
+        explanation,
       },
     });
   } catch (error) {

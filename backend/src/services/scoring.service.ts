@@ -1,6 +1,15 @@
 import type { PaymentData } from '../types/stellar.types.js';
-import type { ScoreMetrics, ScoreResult, RiskLevel } from '../types/scoring.types.js';
+import type {
+  ScoreMetrics,
+  ScoreResult,
+  RiskLevel,
+  AssetsBreakdown,
+  AssetDirectionBreakdown,
+  UsdValuation,
+} from '../types/scoring.types.js';
 import type { NetworkType } from '../config/stellar.config.js';
+import { classifyAsset } from '../utils/asset.js';
+import { getXlmUsdPrice } from './price.service.js';
 import { logger } from '../utils/logger.js';
 
 const METRIC_WEIGHTS = {
@@ -105,38 +114,92 @@ function classifyRisk(score: number): RiskLevel {
   return 'High';
 }
 
-function generateInsightAndSuggestion(metrics: ScoreMetrics & { overallScore: number }): { insight: string; suggestion: string } {
-  const insights: string[] = [];
-  const suggestions: string[] = [];
+function emptyDirection(): AssetDirectionBreakdown {
+  return { XLM: 0, USDC: 0, other: [] };
+}
 
-  if (metrics.inflowScore >= 70) {
-    insights.push('Consistent inflow patterns');
-  } else if (metrics.inflowScore < 40) {
-    insights.push('Irregular income patterns');
-    suggestions.push('Try to establish more consistent income sources');
+function addToDirection(dir: AssetDirectionBreakdown, payment: PaymentData): void {
+  const classified = classifyAsset(payment.asset);
+  if (classified.kind === 'XLM') {
+    dir.XLM += payment.amount;
+    return;
+  }
+  if (classified.kind === 'USDC') {
+    dir.USDC += payment.amount;
+    return;
+  }
+  const existing = dir.other.find(
+    (o) => o.code === classified.code && o.issuer === classified.issuer
+  );
+  if (existing) {
+    existing.amount += payment.amount;
+    existing.count += 1;
+  } else {
+    dir.other.push({
+      code: classified.code,
+      issuer: classified.issuer,
+      label: classified.label,
+      amount: payment.amount,
+      count: 1,
+    });
+  }
+}
+
+export function computeAssetsBreakdown(payments: PaymentData[]): AssetsBreakdown {
+  const assets: AssetsBreakdown = { inflow: emptyDirection(), outflow: emptyDirection() };
+  for (const p of payments) {
+    addToDirection(p.isIncoming ? assets.inflow : assets.outflow, p);
+  }
+  return assets;
+}
+
+export async function buildUsdValuation(assets: AssetsBreakdown): Promise<UsdValuation> {
+  const quote = await getXlmUsdPrice();
+
+  const unsupportedInflowCount = assets.inflow.other.reduce((sum, o) => sum + o.count, 0);
+  const unsupportedOutflowCount = assets.outflow.other.reduce((sum, o) => sum + o.count, 0);
+
+  if (!quote) {
+    const usdcOnlyInflow = assets.inflow.USDC;
+    const usdcOnlyOutflow = assets.outflow.USDC;
+    // If the wallet only transacted in USDC we can still report USD; otherwise null.
+    const canValue = (dir: AssetDirectionBreakdown): boolean =>
+      dir.XLM === 0 && dir.other.every((o) => o.amount === 0);
+    return {
+      inflow: canValue(assets.inflow) ? usdcOnlyInflow : null,
+      outflow: canValue(assets.outflow) ? usdcOnlyOutflow : null,
+      xlmPriceUsd: null,
+      priceSource: null,
+      priceFetchedAt: null,
+      unsupportedInflowCount,
+      unsupportedOutflowCount,
+      note:
+        'XLM price unavailable — USD totals shown only if the wallet trades USDC exclusively. Other assets are tracked separately and not converted.',
+    };
   }
 
-  if (metrics.outflowScore >= 70) {
-    insights.push('stable spending behavior');
-  } else if (metrics.outflowScore < 40) {
-    insights.push('volatile spending patterns');
-    suggestions.push('Consider stabilizing your outflows for better financial health');
-  }
-
-  if (metrics.flowStabilityScore >= 70) {
-    insights.push('balanced financial flow');
-  }
-
-  if (metrics.overallScore >= 70 && suggestions.length === 0) {
-    suggestions.push('Consider saving a portion of incoming funds');
-  }
+  const inflowUsd = assets.inflow.XLM * quote.usd + assets.inflow.USDC;
+  const outflowUsd = assets.outflow.XLM * quote.usd + assets.outflow.USDC;
 
   return {
-    insight: insights.join(', ') || 'Limited transaction history',
-    suggestion: suggestions[0] || 'Continue maintaining healthy financial habits',
+    inflow: inflowUsd,
+    outflow: outflowUsd,
+    xlmPriceUsd: quote.usd,
+    priceSource: quote.source,
+    priceFetchedAt: quote.fetchedAt,
+    unsupportedInflowCount,
+    unsupportedOutflowCount,
+    note:
+      unsupportedInflowCount + unsupportedOutflowCount > 0
+        ? 'Totals include XLM (converted) and USDC. Other assets tracked separately but not converted to USD.'
+        : 'Totals include XLM (converted at the live CoinGecko rate) and USDC (pegged 1:1).',
   };
 }
 
+// NOTE: the sub-scores below (CV-based metrics) still operate on raw amounts regardless of asset.
+// This means a wallet mixing XLM + USDC gets amounts summed as if they were the same unit, which
+// inflates volume-like components. Fix-up requires picking a canonical unit (USD) and changing every
+// wallet's score. Out of scope for the asset-breakdown pass; tracked for a future scoring overhaul.
 export function computeScore(payments: PaymentData[]): { score: number; metrics: Omit<ScoreMetrics, 'overallScore'> } {
   const inflowScore = calculateInflowScore(payments);
   const outflowScore = calculateOutflowScore(payments);
@@ -187,12 +250,14 @@ export async function calculateWalletScore(
   
   if (payments.length === 0) {
     logger.warn({ accountId }, 'No payments found for account');
+    const emptyAssets: AssetsBreakdown = {
+      inflow: { XLM: 0, USDC: 0, other: [] },
+      outflow: { XLM: 0, USDC: 0, other: [] },
+    };
     return {
       accountId,
       score: 0,
       risk: 'High',
-      insight: 'No transaction history available',
-      suggestion: 'Start making transactions to build your liquidity identity',
       metrics: {
         totalVolumeXLM: 0,
         transactionCount: 0,
@@ -209,13 +274,16 @@ export async function calculateWalletScore(
         flowStabilityScore: 0,
         volumeScore: 0,
       },
+      assets: emptyAssets,
+      usd: await buildUsdValuation(emptyAssets),
       lastUpdated: new Date().toISOString(),
     };
   }
 
   const { score, metrics } = computeScore(payments);
   const risk = classifyRisk(score);
-  const { insight, suggestion } = generateInsightAndSuggestion({ ...metrics, overallScore: score });
+  const assets = computeAssetsBreakdown(payments);
+  const usd = await buildUsdValuation(assets);
 
   logger.info({ accountId, score, risk }, 'Score calculated');
 
@@ -223,9 +291,9 @@ export async function calculateWalletScore(
     accountId,
     score,
     risk,
-    insight,
-    suggestion,
     metrics,
+    assets,
+    usd,
     lastUpdated: new Date().toISOString(),
   };
 }

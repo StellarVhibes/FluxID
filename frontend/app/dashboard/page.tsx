@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useFreighter, truncateAddress } from "../context/FreighterContext";
-import { analyzeWallet, getSuggestions, WalletAnalysis } from "../../lib/scoring";
+import { analyzeWallet, WalletAnalysis, StellarNetwork } from "../../lib/scoring";
 import FlowChart from "../components/FlowChart";
 import FlowSummary from "../components/FlowSummary";
 import { ScoreSkeleton } from "../components/Skeletons";
@@ -11,6 +11,8 @@ import Onboarding from "../components/Onboarding";
 import { useToast } from "../components/Toast";
 import AnimatedScore from "../components/AnimatedScore";
 import OnChainBadge from "../components/OnChainBadge";
+import AssetBreakdown from "../components/AssetBreakdown";
+import ExplanationCard from "../components/ExplanationCard";
 import { Layers, Wallet, TrendingUp, AlertCircle, RefreshCw, AlertTriangle, Info } from "lucide-react";
 
 const STELLAR_ADDRESS_RE = /^G[A-Z2-7]{55}$/;
@@ -32,9 +34,9 @@ export default function Dashboard() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<WalletAnalysis | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [analyzedAddress, setAnalyzedAddress] = useState<string | null>(null);
+  const [network, setNetwork] = useState<StellarNetwork>("mainnet");
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("fluxid_onboarding_seen");
@@ -62,11 +64,10 @@ export default function Dashboard() {
     setIsAnalyzing(true);
     setAnalysisError(null);
     try {
-      const result = await analyzeWallet(trimmedInput);
+      const result = await analyzeWallet(trimmedInput, network);
       setAnalysis(result);
       setAnalyzedAddress(trimmedInput);
-      setSuggestions(getSuggestions(result.score, result.metrics));
-      showToast(`Score loaded: ${result.score.score}/100`, "success");
+      showToast(`Score loaded: ${result.score.score}/100 (${network})`, "success");
     } catch (err) {
       setAnalysisError(err instanceof Error ? err.message : "Analysis failed. Please try again.");
     } finally {
@@ -104,7 +105,7 @@ export default function Dashboard() {
         style={{ background: "var(--card)", border: "1px solid var(--border)" }}
         className="rounded-2xl p-6 mb-8"
       >
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <input
             type="text"
             value={analyzeAddress}
@@ -115,8 +116,33 @@ export default function Dashboard() {
             placeholder="Enter Stellar wallet address (G...)"
             spellCheck={false}
             autoComplete="off"
-            className="flex-1 px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm font-mono"
+            className="flex-1 min-w-[280px] px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm font-mono"
           />
+          <div
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 12 }}
+            className="flex items-center p-1"
+            role="radiogroup"
+            aria-label="Network"
+          >
+            {(["mainnet", "testnet"] as StellarNetwork[]).map((n) => (
+              <button
+                key={n}
+                role="radio"
+                aria-checked={network === n}
+                onClick={() => setNetwork(n)}
+                disabled={isAnalyzing}
+                style={{
+                  background: network === n ? "var(--primary)" : "transparent",
+                  color: network === n ? "var(--background)" : "var(--foreground-muted)",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+                className="px-3 py-2 rounded-lg uppercase transition-colors disabled:opacity-60"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleAnalyze}
             disabled={isAnalyzing || !inputIsValid}
@@ -233,9 +259,22 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          <FlowSummary data={analysis.flowSummary} isLoading={isAnalyzing} className="mb-6" />
+          <FlowSummary
+            data={analysis.flowSummary}
+            assets={analysis.assets}
+            usd={analysis.usd}
+            isLoading={isAnalyzing}
+            className="mb-6"
+          />
 
-          <FlowChart transactions={analysis.transactions} isLoading={isAnalyzing} className="mb-6" />
+          <AssetBreakdown assets={analysis.assets} usd={analysis.usd} className="mb-6" />
+
+          <FlowChart
+            transactions={analysis.transactions}
+            usd={analysis.usd}
+            isLoading={isAnalyzing}
+            className="mb-6"
+          />
 
           <motion.div
             variants={item}
@@ -273,73 +312,8 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {(analysis.aiInsight || (analysis.aiSuggestions?.length ?? 0) > 0) && (
-            <motion.div
-              variants={item}
-              initial="hidden"
-              animate="show"
-              style={{ background: "var(--card)", border: "1px solid var(--primary)" }}
-              className="rounded-2xl p-6 mb-6"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>
-                  AI Insight
-                </h3>
-                <span
-                  style={{
-                    background: "var(--primary)",
-                    color: "var(--background)",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: "2px 8px",
-                    borderRadius: 999,
-                  }}
-                >
-                  AI
-                </span>
-              </div>
-              {analysis.aiInsight && (
-                <p style={{ color: "var(--foreground)", fontSize: 14, lineHeight: 1.55 }} className="mb-3">
-                  {analysis.aiInsight}
-                </p>
-              )}
-              {analysis.aiSuggestions && analysis.aiSuggestions.length > 0 && (
-                <ul className="space-y-2">
-                  {analysis.aiSuggestions.map((s, i) => (
-                    <li
-                      key={i}
-                      style={{ color: "var(--foreground-muted)", fontSize: 13 }}
-                      className="flex gap-2"
-                    >
-                      <span style={{ color: "var(--primary)" }}>→</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </motion.div>
-          )}
+          <ExplanationCard explanation={analysis.explanation} />
 
-          {suggestions.length > 0 && (
-            <motion.div
-              variants={item}
-              initial="hidden"
-              animate="show"
-              style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-              className="rounded-2xl p-6"
-            >
-              <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }} className="mb-4">
-                Rule-based Insights
-              </h3>
-              <div className="space-y-3">
-                {suggestions.map((suggestion, i) => (
-                  <p key={i} style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
-                    {suggestion}
-                  </p>
-                ))}
-              </div>
-            </motion.div>
-          )}
         </>
       )}
 

@@ -1,21 +1,45 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FlowSummary as FlowSummaryType } from "../../lib/scoring";
-import { ArrowDownLeft, ArrowUpRight, Activity, DollarSign } from "lucide-react";
+import { AssetsBreakdown, FlowSummary as FlowSummaryType, UsdValuation } from "../../lib/scoring";
+import { ArrowDownLeft, ArrowUpRight, Activity, Coins } from "lucide-react";
 
 interface FlowSummaryProps {
   data: FlowSummaryType | null;
+  assets?: AssetsBreakdown;
+  usd?: UsdValuation;
   isLoading?: boolean;
   className?: string;
 }
 
-export default function FlowSummary({ data, isLoading, className = "" }: FlowSummaryProps) {
+function formatAmount(n: number, maxFrac = 2): string {
+  return n.toLocaleString(undefined, { maximumFractionDigits: maxFrac });
+}
+
+function formatUsd(n: number): string {
+  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}`;
+}
+
+function directionCaption(dir: { XLM: number; USDC: number; other: unknown[] }): string {
+  const parts: string[] = [];
+  if (dir.XLM > 0) parts.push(`${formatAmount(dir.XLM)} XLM`);
+  if (dir.USDC > 0) parts.push(`${formatAmount(dir.USDC)} USDC`);
+  if (dir.other.length > 0) {
+    const totalCount = dir.other.reduce(
+      (sum: number, o) => sum + ((o as { count: number }).count ?? 1),
+      0
+    );
+    parts.push(`+${totalCount} other`);
+  }
+  return parts.length > 0 ? parts.join(" · ") : "—";
+}
+
+export default function FlowSummary({ data, assets, usd, isLoading, className = "" }: FlowSummaryProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 ${className}`}>
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="animate-pulse h-24 bg-var(--surface) rounded-xl" />
+          <div key={i} className="animate-pulse h-28 bg-var(--surface) rounded-xl" />
         ))}
       </div>
     );
@@ -23,55 +47,110 @@ export default function FlowSummary({ data, isLoading, className = "" }: FlowSum
 
   if (!data) return null;
 
+  const hasUsd = Boolean(usd && (usd.inflow !== null || usd.outflow !== null));
+  const inflowCaption = assets ? directionCaption(assets.inflow) : `${formatAmount(data.totalInflow)} (mixed)`;
+  const outflowCaption = assets ? directionCaption(assets.outflow) : `${formatAmount(data.totalOutflow)} (mixed)`;
+
+  const inflowPrimary =
+    hasUsd && usd?.inflow !== null && usd?.inflow !== undefined
+      ? formatUsd(usd.inflow)
+      : inflowCaption;
+  const outflowPrimary =
+    hasUsd && usd?.outflow !== null && usd?.outflow !== undefined
+      ? formatUsd(usd.outflow)
+      : outflowCaption;
+
   const stats = [
-    { 
-      label: "Total Inflow", 
-      value: `$${data.totalInflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
-      icon: ArrowDownLeft, 
-      color: "#22c55e" 
+    {
+      label: "Total Inflow",
+      primary: inflowPrimary,
+      caption: hasUsd ? inflowCaption : null,
+      icon: ArrowDownLeft,
+      color: "#22c55e",
     },
-    { 
-      label: "Total Outflow", 
-      value: `$${data.totalOutflow.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
-      icon: ArrowUpRight, 
-      color: "#ef4444" 
+    {
+      label: "Total Outflow",
+      primary: outflowPrimary,
+      caption: hasUsd ? outflowCaption : null,
+      icon: ArrowUpRight,
+      color: "#ef4444",
     },
-    { 
-      label: "Transactions", 
-      value: data.transactionCount.toString(), 
-      icon: Activity, 
-      color: "var(--primary)" 
+    {
+      label: "Transactions",
+      primary: data.transactionCount.toString(),
+      caption: null,
+      icon: Activity,
+      color: "var(--primary)",
     },
-    { 
-      label: "Avg Transaction", 
-      value: `$${data.averageTransaction.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 
-      icon: DollarSign, 
-      color: "var(--foreground)" 
+    {
+      label: "Assets",
+      primary: assets ? assetCountLabel(assets) : "—",
+      caption: usd?.xlmPriceUsd
+        ? `XLM = ${formatUsd(usd.xlmPriceUsd)}`
+        : usd
+          ? "XLM price unavailable"
+          : null,
+      icon: Coins,
+      color: "var(--foreground)",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {stats.map((stat, i) => (
-        <motion.div
-          key={stat.label}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
-          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-          className="rounded-xl p-4"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <stat.icon size={14} style={{ color: stat.color }} />
-            <span style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 600 }} className="uppercase">
-              {stat.label}
-            </span>
-          </div>
-          <p style={{ color: stat.color, fontWeight: 900, fontSize: 20 }}>
-            {stat.value}
-          </p>
-        </motion.div>
-      ))}
+    <div className={`space-y-3 ${className}`}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            style={{ background: "var(--card)", border: "1px solid var(--border)" }}
+            className="rounded-xl p-4"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <stat.icon size={14} style={{ color: stat.color }} />
+              <span
+                style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 600 }}
+                className="uppercase"
+              >
+                {stat.label}
+              </span>
+            </div>
+            <p style={{ color: stat.color, fontWeight: 900, fontSize: 20, lineHeight: 1.1 }}>
+              {stat.primary}
+            </p>
+            {stat.caption && (
+              <p
+                style={{ color: "var(--foreground-muted)", fontSize: 11 }}
+                className="mt-1 truncate"
+                title={stat.caption}
+              >
+                {stat.caption}
+              </p>
+            )}
+          </motion.div>
+        ))}
+      </div>
+      {usd?.note && (
+        <p style={{ color: "var(--foreground-dim)", fontSize: 11 }} className="italic">
+          {usd.note}
+          {usd.priceFetchedAt && usd.xlmPriceUsd !== null
+            ? ` Price fetched ${new Date(usd.priceFetchedAt).toLocaleTimeString()} from ${usd.priceSource}.`
+            : ""}
+        </p>
+      )}
     </div>
   );
+}
+
+function assetCountLabel(assets: AssetsBreakdown): string {
+  const kinds = new Set<string>();
+  for (const dir of [assets.inflow, assets.outflow]) {
+    if (dir.XLM > 0) kinds.add("XLM");
+    if (dir.USDC > 0) kinds.add("USDC");
+    for (const o of dir.other) kinds.add(o.code);
+  }
+  if (kinds.size === 0) return "None";
+  if (kinds.size <= 3) return Array.from(kinds).join(", ");
+  return `${kinds.size} assets`;
 }

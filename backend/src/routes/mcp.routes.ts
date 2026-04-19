@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
 import { createHorizonService } from '../services/horizon.service.js';
 import { calculateWalletScore } from '../services/scoring.service.js';
 import { cacheService } from '../services/cache.service.js';
+import { generateExplanation } from '../services/explainability/index.js';
 import { validateAccountId, validateNetwork } from '../utils/validators.js';
 import { logger } from '../utils/logger.js';
 
@@ -9,8 +10,8 @@ const ANALYZE_WALLET_TOOL = {
   name: 'analyze_wallet',
   description:
     'Analyze a Stellar wallet and return its FluxID liquidity score (0-100), ' +
-    'risk level (Low/Medium/High), insight, suggestion, and full metrics. ' +
-    'Use this to assess a wallet\'s financial reliability.',
+    'risk level (Low/Medium/High), human-readable explanation (insight + suggestions), ' +
+    'and full metrics. Use this to assess a wallet\'s financial reliability.',
   input_schema: {
     type: 'object',
     properties: {
@@ -43,12 +44,17 @@ async function analyzeWallet(body: AnalyzeWalletBody) {
   const network = validateNetwork(body.network ?? 'testnet');
 
   const cached = cacheService.get(accountId, network);
-  if (cached) return cached;
+  const result =
+    cached ??
+    (await (async () => {
+      const horizonService = createHorizonService(network);
+      const r = await calculateWalletScore(accountId, network, horizonService);
+      cacheService.set(accountId, network, r);
+      return r;
+    })());
 
-  const horizonService = createHorizonService(network);
-  const result = await calculateWalletScore(accountId, network, horizonService);
-  cacheService.set(accountId, network, result);
-  return result;
+  const explanation = await generateExplanation(result);
+  return { ...result, explanation };
 }
 
 export async function mcpToolsRoute(_request: FastifyRequest, reply: FastifyReply) {

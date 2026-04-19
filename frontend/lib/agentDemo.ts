@@ -30,8 +30,13 @@ export interface PaymentChallenge {
 export interface PaidScoreResult {
   score: number;
   risk: "Low" | "Medium" | "High";
-  insight: string;
-  suggestion: string;
+  explanation?: {
+    insight: string;
+    suggestions: string[];
+    source: "llm" | "rule-based";
+    model?: string;
+    generatedAt: string;
+  };
   metrics: Record<string, number>;
   lastUpdated: string;
   payment?: { status: "paid"; txHash?: string; requestId: string };

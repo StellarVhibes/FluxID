@@ -212,7 +212,8 @@ export default function AgentDemo() {
               style={{ color: "var(--foreground)", fontWeight: 900, fontSize: 56 }}
             />
             <div style={{ color: "var(--foreground-muted)", fontSize: 13, marginTop: 4 }}>
-              {score.risk} risk · {score.insight}
+              {score.risk} risk
+              {score.explanation?.insight ? ` · ${score.explanation.insight}` : ""}
             </div>
             {score.payment?.txHash && (
               <div
