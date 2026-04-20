@@ -4,10 +4,18 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useFreighter, truncateAddress } from "../context/FreighterContext";
-import { Wallet, LogOut, Bell, ChevronDown } from "lucide-react";
+import { Wallet, LogOut, Bell, ChevronDown, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const { publicKey: address, isConnected, isLoading, connect, disconnect } = useFreighter();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <motion.header
@@ -37,55 +45,78 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Right: Notifications + Wallet */}
-        <div className="flex items-center gap-4">
-          <button 
-            style={{ color: "var(--foreground-muted)" }}
-            className="p-2 rounded-lg hover:bg-[var(--surface)] transition-colors"
+        {/* Right: Notifications + Theme + Wallet */}
+        <div className="flex items-center gap-2">
+          {/* All in one border container */}
+          <div 
+            style={{ 
+              background: "var(--surface)", 
+              border: "1px solid var(--border)",
+              borderRadius: 10
+            }}
+            className="flex items-center gap-1 p-1"
           >
-            <Bell size={18} />
-          </button>
-
-          {isConnected && address ? (
-            <div className="flex items-center gap-2">
-              <div 
-                style={{ 
-                  background: "var(--surface)", 
-                  border: "1px solid var(--border)",
-                  padding: "6px 12px",
-                  borderRadius: 10
-                }}
-                className="flex items-center gap-2"
-              >
-                <Wallet size={14} style={{ color: "var(--primary)" }} />
-                <span style={{ color: "var(--foreground)", fontSize: 13, fontWeight: 600 }}>
-                  {truncateAddress(address)}
-                </span>
-                <ChevronDown size={14} style={{ color: "var(--foreground-muted)" }} />
-              </div>
-              <button
-                onClick={disconnect}
-                style={{ 
-                  background: "var(--surface)", 
-                  padding: 8,
-                  borderRadius: 10
-                }}
-                className="hover:bg-[var(--border)] transition-colors"
-                title="Disconnect"
-              >
-                <LogOut size={16} style={{ color: "var(--foreground-muted)" }} />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={connect}
-              disabled={isLoading}
-              className="btn btn-outline text-sm py-2 flex items-center gap-2 disabled:opacity-60"
+            {/* Notification */}
+            <button 
+              style={{ color: "var(--foreground-muted)" }}
+              className="p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
             >
-              <Wallet size={14} />
-              {isLoading ? "Connecting..." : "Connect Wallet"}
+              <Bell size={18} />
             </button>
-          )}
+
+            {/* Theme Toggle */}
+            {mounted && (
+              <button 
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                style={{ color: "var(--foreground-muted)" }}
+                className="p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
+              >
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            )}
+
+            {/* Connect Wallet or Address */}
+            {isConnected && address ? (
+              <>
+                <div 
+                  style={{ 
+                    background: "var(--card)", 
+                    border: "1px solid var(--border)",
+                    padding: "6px 12px",
+                    borderRadius: 8
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Wallet size={14} style={{ color: "var(--primary)" }} />
+                  <span style={{ color: "var(--foreground)", fontSize: 13, fontWeight: 600 }}>
+                    {truncateAddress(address)}
+                  </span>
+                  <ChevronDown size={14} style={{ color: "var(--foreground-muted)" }} />
+                </div>
+                <button
+                  onClick={disconnect}
+                  style={{ 
+                    background: "var(--card)", 
+                    padding: 8,
+                    borderRadius: 8
+                  }}
+                  className="hover:bg-[var(--border)] transition-colors"
+                  title="Disconnect"
+                >
+                  <LogOut size={16} style={{ color: "var(--foreground-muted)" }} />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={connect}
+                disabled={isLoading}
+                className="btn btn-primary text-sm py-1.5 flex items-center gap-2 disabled:opacity-60"
+              >
+                <Wallet size={14} />
+                {isLoading ? "..." : "Connect"}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </motion.header>
