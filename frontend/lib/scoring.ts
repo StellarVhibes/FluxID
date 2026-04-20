@@ -320,10 +320,30 @@ function localAnalyze(
   const metrics = calculateLiquidityMetrics(payments, address, swapPayments);
   const score = calculateLiquidityScore(metrics);
   const transactions = parsePayments(payments, address);
+  
+  // Add swap transactions
+  const swapTransactions: TransactionData[] = swapPayments.map((p) => {
+    const asset = p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
+    return {
+      id: p.id,
+      date: new Date(p.created_at).toISOString().split("T")[0],
+      amount: parseFloat(p.amount) || 0,
+      type: "swap" as const,
+      address: p.from === address ? p.to : p.from,
+      asset,
+      swapDetails: {
+        fromAsset: "XLM", // Simplified - actual implementation would need source asset
+        toAsset: asset,
+        fromAmount: parseFloat(p.amount) || 0,
+        toAmount: parseFloat(p.amount) || 0,
+      },
+    };
+  });
+
   return {
     score,
     metrics,
-    transactions,
+    transactions: [...transactions, ...swapTransactions].sort((a, b) => b.date.localeCompare(a.date)),
     flowSummary: calculateFlowSummary(metrics),
   };
 }

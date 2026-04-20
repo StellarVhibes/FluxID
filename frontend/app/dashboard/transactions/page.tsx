@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowDownLeft, ArrowUpRight, Activity, Filter } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Activity, Filter, ArrowLeftRight } from "lucide-react";
 import { useAnalysis } from "../context/AnalysisContext";
 import { truncateAddress } from "../../context/FreighterContext";
 import type { TransactionData } from "../../../lib/scoring";
 
-type DirectionFilter = "all" | "inflow" | "outflow";
+type DirectionFilter = "all" | "inflow" | "outflow" | "swap";
 
 function formatAmount(amount: number): string {
   return amount.toLocaleString(undefined, { maximumFractionDigits: 4 });
@@ -33,8 +33,9 @@ export default function TransactionsPage() {
 
   const stats = useMemo(() => {
     const inCount = txs.filter((t) => t.type === "inflow").length;
-    const outCount = txs.length - inCount;
-    return { inCount, outCount, total: txs.length };
+    const outCount = txs.filter((t) => t.type === "outflow").length;
+    const swapCount = txs.filter((t) => t.type === "swap").length;
+    return { inCount, outCount, swapCount, total: txs.length };
   }, [txs]);
 
   return (
@@ -69,10 +70,11 @@ export default function TransactionsPage() {
 
       {analysis && !isAnalyzing && (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <StatCard label="Total" value={stats.total} color="var(--foreground)" />
             <StatCard label="Inflows" value={stats.inCount} color="#22c55e" />
             <StatCard label="Outflows" value={stats.outCount} color="#ef4444" />
+            <StatCard label="Swaps" value={stats.swapCount} color="#8FA828" />
           </div>
 
           <div
@@ -90,7 +92,7 @@ export default function TransactionsPage() {
                 style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10 }}
                 className="flex items-center p-0.5"
               >
-                {(["all", "inflow", "outflow"] as DirectionFilter[]).map((f) => (
+                {(["all", "inflow", "outflow", "swap"] as DirectionFilter[]).map((f) => (
                   <button
                     key={f}
                     onClick={() => setFilter(f)}
@@ -143,9 +145,13 @@ export default function TransactionsPage() {
                             <span style={{ color: "#22c55e" }} className="inline-flex items-center gap-1 text-xs font-semibold">
                               <ArrowDownLeft size={12} /> IN
                             </span>
-                          ) : (
+                          ) : tx.type === "outflow" ? (
                             <span style={{ color: "#ef4444" }} className="inline-flex items-center gap-1 text-xs font-semibold">
                               <ArrowUpRight size={12} /> OUT
+                            </span>
+                          ) : (
+                            <span style={{ color: "#8FA828" }} className="inline-flex items-center gap-1 text-xs font-semibold">
+                              <ArrowLeftRight size={12} /> SWAP
                             </span>
                           )}
                         </td>
@@ -158,13 +164,17 @@ export default function TransactionsPage() {
                         </td>
                         <td
                           className="px-5 py-3 text-right font-semibold"
-                          style={{ color: tx.type === "inflow" ? "#22c55e" : "#ef4444" }}
+                          style={{ 
+                            color: tx.type === "inflow" ? "#22c55e" : tx.type === "outflow" ? "#ef4444" : "#8FA828" 
+                          }}
                         >
-                          {tx.type === "inflow" ? "+" : "−"}
+                          {tx.type === "swap" ? "⇄" : tx.type === "inflow" ? "+" : "−"}
                           {formatAmount(tx.amount)}
                         </td>
                         <td className="px-5 py-3 text-right" style={{ color: "var(--foreground-muted)", fontSize: 12 }}>
-                          {assetLabel(tx.asset)}
+                          {tx.type === "swap" && tx.swapDetails 
+                            ? `${tx.swapDetails.fromAsset} → ${tx.swapDetails.toAsset.split(':')[0]}`
+                            : assetLabel(tx.asset)}
                         </td>
                       </motion.tr>
                     ))}
