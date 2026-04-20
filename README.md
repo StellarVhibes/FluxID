@@ -201,6 +201,22 @@ FluxID/
 
 ---
 
+## Post-MVP Roadmap
+
+After MVP, FluxID evolves from scoring one wallet to understanding entire user bases.
+
+> **Protocol Intelligence Layer** — A system for analyzing groups of wallets using trust scores.
+
+### What's Coming
+
+1. **User-Base Health Dashboard** — Monitor overall user quality (average score, distribution, trends)
+2. **Cohort & Segmentation Engine** — Query wallets by behavior (score > threshold, inflow > threshold)
+3. **Risk Heatmaps** — Visualize where risk is concentrated
+4. **Early Warning System** — Detect sudden changes in risk (e.g., "12% dropped below 50 in 24h")
+5. **AI Agent Layer** — Autonomous systems query scores, make decisions, pay per request
+
+---
+
 ## Vision
 
 > **Liquidity Identity**
