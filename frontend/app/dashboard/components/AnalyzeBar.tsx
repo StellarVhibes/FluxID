@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, Info, RefreshCw, TrendingUp, Wallet } from "lucide-react";
+import { AlertTriangle, Info, TrendingUp, Wallet } from "lucide-react";
 import { useFreighter, truncateAddress } from "../../context/FreighterContext";
 import { useToast } from "../../components/Toast";
 import { useAnalysis } from "../context/AnalysisContext";
+import { AnalyzingButton } from "../../components/Skeletons";
 import type { StellarNetwork } from "../../../lib/scoring";
 
 const STELLAR_ADDRESS_RE = /^G[A-Z2-7]{55}$/;
@@ -101,8 +102,7 @@ export default function AnalyzeBar() {
           disabled={isAnalyzing || !isValid}
           className="btn btn-primary flex items-center gap-2"
         >
-          {isAnalyzing ? <RefreshCw size={16} className="animate-spin" /> : <TrendingUp size={16} />}
-          {isAnalyzing ? "Analyzing..." : "Analyze"}
+          {isAnalyzing ? <AnalyzingButton /> : <><TrendingUp size={16} />Analyze</>}
         </button>
       </div>
 
