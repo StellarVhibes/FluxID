@@ -2,205 +2,438 @@
 
 **Liquidity Identity Layer on Stellar — Turn any wallet into a real-time financial identity.**
 
-[![Stellar](https://img.shields.io/badge/Built%20on-Stellar-14B48E)](https://stellar.org)
-[![AI](https://img.shields.io/badge/AI-Anthropic%20Claude-orange)](https://anthropic.com/)
-[![Hackathon](https://img.shields.io/badge/Hackathon-Stellar--Hub-blueviolet)]()
-
 ---
 
 ## Overview
 
-FluxID is a liquidity intelligence layer built on **Stellar** that turns any wallet into a real-time financial identity.
+FluxID is a liquidity intelligence layer built on Stellar that turns any wallet into a real-time financial identity.
 
-Instead of just showing balances, FluxID analyzes **how money behaves** — inflow patterns, outflow stability, transaction frequency, and flow consistency — and produces a simple, explainable trust score.
+Instead of just showing balances or transaction history, FluxID looks at how money behaves — how it flows in, flows out, and how stable that flow is over time.
 
-> **The Problem:** Traditional finance and crypto both track what you have, but not how you behave financially. Trust becomes guesswork.
-> 
-> **FluxID's Solution:** A dynamic Liquidity Identity — analyze any Stellar wallet address without permission, get a 0-100 trust score with risk level, and understand why through AI-generated insights.
+At its core, FluxID does one thing:
 
----
+It turns wallet behavior into a simple, explainable trust score.
 
-## Architecture
-
-```mermaid
-graph TD
-    User["User"] -->|enters address| FE["Frontend Next.js"]
-    FE -->|API request| BE["Backend Node.js"]
-    BE -->|fetch transactions| HR["Horizon API"]
-    HR -->|payments| BE
-    BE -->|calculate| SC["Scoring Engine"]
-    SC -->|analyze| AI["Claude AI"]
-    AI -->|insights| SC
-    SC -->|score + insights| BE
-    BE -->|response| FE
-    FE -->|display| Dash["Dashboard"]
-    
-    subgraph "Optional On-Chain"
-        BE -->|publish score| SC2["Soroban Contract"]
-    end
-```
-
-### Data Flow
-
-1. **User** enters Stellar wallet address in frontend
-2. **Frontend** sends request to backend API
-3. **Backend** fetches transactions via Stellar Horizon
-4. **Scoring Engine** calculates liquidity score (0-100) and risk level
-5. **Claude AI** analyzes patterns and generates behavior insights
-6. **Frontend** displays score, risk, and AI insights
-7. **Optional**: Score stored on Soroban for on-chain verification
+The goal is simple: help people and platforms understand how financially reliable a wallet is, not just how much it holds.
 
 ---
 
-## Stellar Integration
+## What FluxID Really Is
 
-FluxID is built natively on **Stellar** for all blockchain operations.
+FluxID is not just an app or a dashboard.
 
-### Horizon API — Transaction Fetching
+It is a decision layer.
 
-| Function | What It Does |
-|----------|-------------|
-| [`getPayments()`](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/horizon.service.ts#L36) | Fetches wallet payments via Horizon API |
-| [`getAccountTransactions()`](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/horizon.service.ts#L85) | Full transaction history |
-| [Swap filtering](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/horizon.service.ts#L62) | Excludes self-swaps from inflow/outflow |
+It answers one simple question:
 
-### Freighter Wallet — Connection
+"Can this wallet be trusted financially?"
 
-| Function | What It Does |
-|----------|-------------|
-| [`useFreighter()`](https://github.com/StellarVhibes/FluxID/blob/main/frontend/app/context/FreighterContext.tsx#L189) | Wallet connection hook |
-| [`connect()`](https://github.com/StellarVhibes/FluxID/blob/main/frontend/app/context/FreighterContext.tsx#L27) | Connect to Freighter |
-| [Sign payment](https://github.com/StellarVhibes/FluxID/blob/main/frontend/lib/agentDemo.ts#L10) | Agent payment signing |
+Instead of guessing, platforms can:
 
-### Soroban — On-Chain Storage (Optional)
-
-| Contract | What It Does |
-|----------|-------------|
-| [Score storage](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/routes/contract.routes.ts#L35) | Store scores on-chain |
-| [Get score](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/routes/contract.routes.ts#L71) | Read from contract |
+- Query a wallet's behavior
+- Get a trust score
+- Understand why that score exists
+- Make decisions instantly
 
 ---
 
-## AI Integration
+## Core Product Principle
 
-FluxID uses **Anthropic Claude** for explainable behavior insights.
+FluxID can analyze any wallet address without requiring ownership.
 
-### Claude AI — Behavior Analysis
+This means:
 
-| Function | What It Does |
-|----------|-------------|
-| [`explainBehavior()`](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/explainability/llm.ts#L10) | Claude Haiku integration |
-| [`getExplanation()`](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/explainability/index.ts#L8) | Entry point for AI |
-| [Score + AI](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/routes/score.routes.ts#L66) | Combined score + AI response |
+- No login required
+- No wallet connection required
+- No permission needed
 
-**What Claude Analyzes:**
-- Inflow/outflow consistency
-- Transaction patterns over time
-- Volume trends
-- Risk factors
-- Asset diversity
+Wallet connection exists only for:
 
-**Response:**
-```json
-{
-  "insight": "This wallet shows consistent incoming payments...",
-  "suggestions": ["Increase transaction frequency", "Diversify counterparties"]
-}
-```
+- Convenience (auto-fill)
+- Future identity features
+
+Not for access.
 
 ---
 
-## Agentic AI — X402 Payments
+## Problem
 
-FluxID enables AI agents to **pay for intelligence** using Stellar.
+Both traditional finance and crypto miss something critical:
 
-### Payment Flow
+They track what you have, but not how you behave financially.
 
-| Step | What Happens |
-|------|------------|
-| 1. Request | Agent requests `/paid/score/{wallet}` |
-| 2. 402 Response | [`HTTP 402 Payment Required`](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/routes/paid.routes.ts#L184) |
-| 3. Payment | Agent pays XLM via Freighter |
-| 4. Verify | [On-chain verification](https://github.com/StellarVhibes/FluxID/blob/main/backend/src/services/payment.service.ts#L92) |
-| 5. Score | Return score after payment |
+Because of this:
 
-### Agent Demo
+- Freelancers struggle to prove reliability
+- Payments get delayed due to lack of trust
+- Cross-border transactions carry uncertainty
+- Credit systems are slow, fragmented, or unavailable
 
-Live demo showing AI agent:
-- [Requesting score](https://github.com/StellarVhibes/FluxID/blob/main/frontend/lib/agentDemo.ts#L69)
-- [Signing payment](https://github.com/StellarVhibes/FluxID/blob/main/frontend/lib/agentDemo.ts#L58)
-- [Polling for result](https://github.com/StellarVhibes/FluxID/blob/main/frontend/lib/agentDemo.ts#L145)
+In Web3:
+
+- Wallets are anonymous
+- Reputation is fragmented
+- No standard trust layer exists
+
+So trust becomes guesswork.
 
 ---
 
-## Core Features
+## Solution
 
-| Feature | Description |
-|---------|------------|
-| Address-based analysis | Analyze any wallet without permission |
-| Liquidity Score | 0-100 trust score |
-| Risk Level | Low / Medium / High |
-| Flow breakdown | Inflows, outflows, swaps tracked separately |
-| Behavior insights | AI-generated explanation |
-| Suggestions | Actionable recommendations |
+FluxID introduces a Liquidity Identity — a dynamic score based on financial behavior.
+
+It analyzes:
+
+- Income consistency
+- Spending patterns
+- Transaction frequency
+- Flow stability
+
+And produces:
+
+- Liquidity Score (0–100)
+- Risk Level (Low / Medium / High)
+- Score Breakdown (inflow, outflow, frequency)
+- Key Risk Factors
+- Human-readable insights
+- Actionable suggestions
+
+---
+
+## Explainability (Core Differentiator)
+
+FluxID does not just output a score.
+
+It explains it.
+
+For every wallet, users can see:
+
+- Why the score was given
+- What patterns were detected
+- A breakdown of contributing factors
+- Transaction flow over time
+
+This ensures:
+
+- Transparency
+- Trust
+- Immediate understanding
+
+---
+
+## Why On-Chain Storage Matters
+
+While scoring is computed off-chain for speed and flexibility, storing results on-chain provides:
+
+- Verifiability → Scores can be independently checked
+- Portability → Any app can read the same trust signal
+- Transparency → No hidden or mutable backend logic
+
+This makes the smart contract the **source of truth**, while the backend remains the **computation engine**.
+
+---
+
+## Agentic AI Integration (X402 Payments)
+
+FluxID is designed for AI agents that can pay and act autonomously.
+
+### Problem
+
+AI agents can make decisions but cannot natively pay for APIs.
+
+### Solution
+
+FluxID integrates an X402-style payment flow:
+
+- Agent requests score
+- API returns 402 Payment Required
+- Agent pays using Stellar (XLM / USDC)
+- Request is retried automatically
+- Score is returned
+
+This enables:
+
+- Pay-per-request intelligence
+- Autonomous financial decision systems
+
+---
+
+## Real Use Cases
+
+FluxID is infrastructure — not just a product.
+
+### Lending Platforms
+
+- Score = 82 → Approve loan
+- Score = 34 → Reduce or reject
+
+### Freelance Platforms
+
+- Consistent inflow + stable spending → Reliable user
+
+### Remittance Apps
+
+- Detect behavior patterns → Suggest better allocation
+
+### Marketplaces
+
+- Trusted users → Enable flexible payments
+
+---
+
+## MVP Features
+
+### Core Features
+
+- Address-based wallet analysis (primary flow)
+- Optional wallet connection (Freighter)
+- Transaction fetch via Stellar Horizon
+
+- Rule-based scoring engine:
+  - Inflow consistency
+  - Outflow stability
+  - Transaction frequency
+
+- Dashboard:
+  - Liquidity score
+  - Risk level
+  - Score breakdown
+  - Key factors
+  - Flow visualization
+  - Insights & suggestions
+
+---
+
+## Demo Flow
+
+### Analyze Any Wallet (Primary)
+
+1. Enter wallet address
+2. Click "Analyze"
+3. System fetches transactions
+4. Score is computed
+
+Dashboard displays:
+
+- Score
+- Risk level
+- Breakdown
+- Factors
+- Flow graph
+- Insights
+- Suggestions
+
+---
+
+### Analyze Your Wallet (Optional)
+
+1. Connect wallet
+2. Address auto-fills
+3. Analysis runs
+
+---
+
+## API Design
+
+FluxID is API-first.
+`GET /score/{wallet}`
+
+Returns:
+
+- Score
+- Risk
+- Breakdown
+- Factors
+- Insights
+- Suggestions
+
+---
+
+## AI Layer (Explainability)
+
+FluxID uses a hybrid model:
+
+- Rule-based engine → scoring logic (deterministic)
+- AI models → explanations, reasoning, suggestions
+
+This ensures:
+
+- Consistent scoring
+- Clear explanations
+- Better usability
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Blockchain | Stellar (Horizon + Soroban) |
-| Backend | Node.js + Fastify |
-| Frontend | Next.js + TypeScript |
-| AI | Anthropic Claude (Haiku) |
-| Wallet | Freighter |
-| Styling | Tailwind CSS |
+### Blockchain
+
+- Stellar SDK (JavaScript)
+- Soroban (optional layer)
+
+### Backend
+
+- Node.js (scoring engine)
+
+### Frontend
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+
+### Wallet
+
+- Freighter Wallet
 
 ---
 
 ## Project Structure
 
-```
 FluxID/
-├── frontend/           # Next.js PWA
-│   ├── app/
-│   │   ├── dashboard/   # Main analysis
-│   │   ├── analytics/  # Flow charts
-│   │   ├── transactions/ # History
-│   │   ├── insights/   # AI explanations
-│   │   └── agent/     # Agent demo
-│   ├── components/     # UI components
-│   └── lib/          # Scoring + agent
-├── backend/           # Node.js scoring
-│   ├── src/
-│   │   ├── routes/     # API endpoints
-│   │   ├── services/   # Horizon + AI
-│   │   └── utils/     # Scoring
-├── smartcontract/     # Soroban contracts
-└── docs/            # Documentation
-```
+├── smartcontract/ # Soroban smart contracts
+├── frontend/ # Next.js PWA frontend
+├── docs/ # Development guides & issue trackers
+└── README.md # This file
 
 ---
 
 ## Getting Started
 
-```bash
-# Frontend
-cd frontend && npm install && npm run dev
+### Prerequisites
 
-# Backend  
-cd backend && npm install && npm run dev
+- Node.js v18+
+- Rust & Cargo (for Soroban)
+- Freighter Wallet
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
+### Smart Contracts
+
+```bash
+cd smartcontract
+cargo build
+
+```
+
+## Documentation
+
+./docs/ISSUES-SMARTCONTRACT.md
+./docs/ISSUES-FRONTEND.md
+./docs/ISSUES-BACKEND-AI.md
+
 ---
 
-## Key Links
+---
 
-- [Frontend](https://github.com/StellarVhibes/FluxID/tree/main/frontend)
-- [Backend](https://github.com/StellarVhibes/FluxID/tree/main/backend)
-- [Smart Contracts](https://github.com/StellarVhibes/FluxID/tree/main/smartcontract)
+## Post-MVP Roadmap
+
+### Overview
+
+After MVP, FluxID evolves from:
+
+- **Scoring one wallet**
+
+to:
+
+- **Understanding entire user bases**
+
+> **Protocol Intelligence Layer**
+
+FluxID becomes a system for analyzing groups of wallets using trust scores.
 
 ---
 
-*Built on Stellar by @bbkenny*
+### 1. User-Base Health Dashboard
+
+Platforms can monitor overall user quality.
+
+- Average score
+- Distribution (Low / Medium / High)
+- Score trends over time
+- Risk concentration
+
+---
+
+### 2. Cohort & Segmentation Engine
+
+Query wallets based on behavior.
+
+**Examples:**
+
+- Score > threshold
+- Monthly inflow > threshold
+- Interaction with contracts
+
+**Used for:**
+
+- Lead generation
+- Risk filtering
+- User targeting
+
+---
+
+### 3. Risk Heatmaps
+
+Understand where risk is concentrated.
+
+- High-risk clusters
+- Risky counterparties
+- Transaction relationships
+
+---
+
+### 4. Early Warning System
+
+Detect sudden changes in risk.
+
+- Score drops
+- Risk spikes
+- Behavioral anomalies
+
+**Example:**
+
+> "12% of users dropped below score 50 in 24 hours"
+
+---
+
+### 5. AI Agent Layer
+
+Enable autonomous systems to:
+
+- Query scores
+- Make decisions
+- Pay per request (X402)
+
+---
+
+## Vision
+
+FluxID is building a new primitive:
+
+> **Liquidity Identity**
+
+A real-time, behavior-based trust layer for financial systems.
+
+---
+
+## Naming
+
+| Type    | Name                     |
+| ------- | ------------------------ |
+| Product | FluxID                   |
+| Concept | Liquidity Identity Layer |
+
+---
+
+## Maintainers
+
+Project maintained by @bbkenny and @xqcxx
+
+//////
