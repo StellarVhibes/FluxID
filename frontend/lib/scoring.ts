@@ -312,6 +312,31 @@ export function calculateLiquidityScore(metrics: LiquidityMetrics): LiquiditySco
   };
 }
 
+function buildSwapTransactions(
+  swapPayments: PaymentRecord[],
+  walletAddress: string
+): TransactionData[] {
+  return swapPayments.map((p) => {
+    const asset =
+      p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
+    const amount = parseFloat(p.amount) || 0;
+    return {
+      id: p.id,
+      date: new Date(p.created_at).toISOString().split("T")[0],
+      amount,
+      type: "swap" as const,
+      address: p.from === walletAddress ? p.to : p.from,
+      asset,
+      swapDetails: {
+        fromAsset: "XLM",
+        toAsset: asset,
+        fromAmount: amount,
+        toAmount: amount,
+      },
+    };
+  });
+}
+
 function localAnalyze(
   address: string,
   payments: PaymentRecord[],
@@ -320,25 +345,7 @@ function localAnalyze(
   const metrics = calculateLiquidityMetrics(payments, address, swapPayments);
   const score = calculateLiquidityScore(metrics);
   const transactions = parsePayments(payments, address);
-  
-  // Add swap transactions
-  const swapTransactions: TransactionData[] = swapPayments.map((p) => {
-    const asset = p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
-    return {
-      id: p.id,
-      date: new Date(p.created_at).toISOString().split("T")[0],
-      amount: parseFloat(p.amount) || 0,
-      type: "swap" as const,
-      address: p.from === address ? p.to : p.from,
-      asset,
-      swapDetails: {
-        fromAsset: "XLM", // Simplified - actual implementation would need source asset
-        toAsset: asset,
-        fromAmount: parseFloat(p.amount) || 0,
-        toAmount: parseFloat(p.amount) || 0,
-      },
-    };
-  });
+  const swapTransactions = buildSwapTransactions(swapPayments, address);
 
   return {
     score,
@@ -388,8 +395,13 @@ async function fetchFromBackend(
     if (!json.success || !json.data) return null;
 
     const d = json.data;
-    const payments = await fetchWalletPayments(address, network);
+    // Backend /score strips self-swaps from its metrics, so fetch both here and
+    // layer swap data onto the backend numbers — otherwise the transactions tab
+    // and FlowSummary swap row show 0.
+    const { payments, swapPayments } = await fetchWalletPaymentsWithSwaps(address, network);
     const transactions = parsePayments(payments, address);
+    const swapTransactions = buildSwapTransactions(swapPayments, address);
+    const swapMetrics = calculateLiquidityMetrics([], address, swapPayments);
 
     const metrics: LiquidityMetrics = {
       totalInflow: d.metrics.inflowVolume,
@@ -397,8 +409,8 @@ async function fetchFromBackend(
       transactionCount: d.metrics.transactionCount,
       inflowCount: d.metrics.inflowCount,
       outflowCount: d.metrics.outflowCount,
-      swaps: [],
-      totalSwapValue: 0,
+      swaps: swapMetrics.swaps,
+      totalSwapValue: swapMetrics.totalSwapValue,
     };
 
     return {
@@ -412,7 +424,9 @@ async function fetchFromBackend(
         },
       },
       metrics,
-      transactions,
+      transactions: [...transactions, ...swapTransactions].sort((a, b) =>
+        b.date.localeCompare(a.date)
+      ),
       flowSummary: calculateFlowSummary(metrics),
       assets: d.assets,
       usd: d.usd,
