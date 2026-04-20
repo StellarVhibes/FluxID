@@ -93,7 +93,7 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
 
   // For inflow/outflow - show USD as primary, XLM/USDC breakdown as caption
   const inflowColor = hasUsd && inflowUsd !== null ? "#22c55e" : "var(--foreground)";
-  const outflowColor = hasUsd && usd?.outflow !== null && usd?.outflow !== undefined ? "#ef4444" : "var(--foreground)";
+  const outflowColor = hasUsd && outflowUsd !== null ? "#ef4444" : "var(--foreground)";
 
   const stats = [
     {
