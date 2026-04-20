@@ -222,12 +222,12 @@ export default function Home() {
                 background: "rgba(24, 27, 12, 0.85)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
-                borderRadius: 40,
+                borderRadius: 0,
                 position: "relative",
                 overflow: "visible",
                 boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
               }}
-              className="rounded-[40px] p-8 group cursor-default"
+              className="p-8 group cursor-default"
             >
               {/* Number orb at top */}
               <div 
@@ -239,19 +239,6 @@ export default function Home() {
               >
                 <span style={{ color: "var(--background)", fontWeight: 900, fontSize: 20 }}>
                   0{i + 1}
-                </span>
-              </div>
-
-              {/* Tab peeking from top-right */}
-              <div 
-                className="absolute -top-3 -right-4 px-3 py-1 rounded-full"
-                style={{ 
-                  background: "var(--primary)",
-                  opacity: 0.8
-                }}
-              >
-                <span style={{ color: "var(--background)", fontSize: 10, fontWeight: 700 }}>
-                  {tag}
                 </span>
               </div>
 
