@@ -70,11 +70,10 @@ export default function Dashboard() {
         <div className="text-center py-12">
           <Layers size={48} style={{ color: "var(--primary)", margin: "0 auto 16px" }} />
           <h3 style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 20 }} className="mb-2">
-            Score any Stellar wallet
+            Enter a wallet address to get its liquidity score and understand its financial behavior instantly.
           </h3>
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }} className="max-w-md mx-auto">
-            Paste an address above and click Analyze. Results stay available as you switch
-            between Analytics, Transactions, and Insights tabs.
+            Results stay available across Analytics, Transactions, and Insights.
           </p>
         </div>
       )}
