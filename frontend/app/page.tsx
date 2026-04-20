@@ -209,7 +209,7 @@ export default function Home() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {FEATURES.map(({ icon: Icon, title, desc, tag }, i) => (
             <motion.div
               key={title}
@@ -219,20 +219,44 @@ export default function Home() {
               transition={{ duration: 0.5, delay: i * 0.12 }}
               whileHover={{ y: -6, transition: { duration: 0.22, ease: "easeOut" } }}
               style={{
-                background: "rgba(24, 27, 12, 0.65)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "rgba(24, 27, 12, 0.85)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                borderRadius: 40,
                 position: "relative",
-                overflow: "hidden",
+                overflow: "visible",
+                boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
               }}
-              className="rounded-2xl p-6 group cursor-default"
+              className="rounded-[40px] p-8 group cursor-default"
             >
-              {/* Tag */}
-              <span className="pill pill-primary text-[10px] mb-3 inline-block">{tag}</span>
+              {/* Number orb at top */}
+              <div 
+                className="absolute -top-5 left-8 w-14 h-14 rounded-full flex items-center justify-center"
+                style={{ 
+                  background: "var(--primary)",
+                  boxShadow: "0 0 24px var(--primary-glow)"
+                }}
+              >
+                <span style={{ color: "var(--background)", fontWeight: 900, fontSize: 20 }}>
+                  0{i + 1}
+                </span>
+              </div>
 
-              {/* Icon and title row */}
-              <div className="flex items-center gap-3 mb-3">
+              {/* Tab peeking from top-right */}
+              <div 
+                className="absolute -top-3 -right-4 px-3 py-1 rounded-full"
+                style={{ 
+                  background: "var(--primary)",
+                  opacity: 0.8
+                }}
+              >
+                <span style={{ color: "var(--background)", fontSize: 10, fontWeight: 700 }}>
+                  {tag}
+                </span>
+              </div>
+
+              {/* Icon and title */}
+              <div className="flex items-center gap-3 mb-4 mt-4">
                 <div 
                   className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                   style={{ background: "transparent", border: "1px solid var(--border)" }}
@@ -240,15 +264,14 @@ export default function Home() {
                   <Icon size={18} style={{ color: "var(--primary)" }} />
                 </div>
                 <h3
-                  style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 17, letterSpacing: "-0.02em" }}
-                  className="leading-tight"
+                  style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 20, letterSpacing: "-0.02em" }}
                 >
                   {title}
                 </h3>
               </div>
 
               {/* Description */}
-              <p style={{ color: "var(--foreground-muted)", fontSize: 14, lineHeight: 1.6 }}>
+              <p style={{ color: "var(--foreground-muted)", fontSize: 14, lineHeight: 1.7 }}>
                 {desc}
               </p>
 
@@ -258,7 +281,7 @@ export default function Home() {
                 whileHover={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.18 }}
                 style={{ color: "var(--primary)", fontSize: 12, fontWeight: 700 }}
-                className="mt-5 flex items-center gap-1"
+                className="mt-6 flex items-center gap-1"
               >
                 Learn more <ArrowRight size={11} />
               </motion.div>
