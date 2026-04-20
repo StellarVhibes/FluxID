@@ -17,32 +17,37 @@ interface TourStep {
 const steps: TourStep[] = [
   {
     title: "Welcome to FluxID",
-    content: "FluxID turns any Stellar wallet into a real-time financial identity. Use the 'Show me around' button to get started.",
+    content:
+      "FluxID turns any Stellar wallet into a real-time financial identity. Use the 'Show me around' button to get started.",
     layout: "welcome",
     imageUrl: "/nav-dashboardUI.png",
   },
   {
     selector: "#tour-wallet-input",
     title: "Wallet Input",
-    content: "Enter any Stellar wallet address to analyze. No permissions needed — scoring uses public on-chain data.",
+    content:
+      "Enter any Stellar wallet address to analyze. No permissions needed, scoring uses public on-chain data.",
     imageUrl: "/nav-walletinput.png",
   },
   {
     selector: "#tour-score-display",
     title: "Liquidity Score",
-    content: "Every wallet gets a score from 0–100 based on income consistency, spending patterns, and activity level.",
+    content:
+      "Every wallet gets a score from 0–100 based on income consistency, spending patterns, and activity level.",
     imageUrl: "/nav-scoredisplay.png",
   },
   {
     selector: "#tour-risk-indicator",
     title: "Risk Assessment",
-    content: "Quickly understand risk levels at a glance — Low, Medium, or High — to make informed decisions.",
+    content:
+      "Quickly understand risk levels at a glance; Low, Medium, or High, to make informed decisions.",
     imageUrl: "/nav-riskindicator.png",
   },
   {
     selector: "#tour-recent-flow",
     title: "Flow Analytics",
-    content: "Visualize money movement with clear inflow vs outflow charts to spot patterns instantly.",
+    content:
+      "Visualize money movement with clear inflow vs outflow charts to spot patterns instantly.",
     imageUrl: "/nav-recentflow.png",
   },
 ];
@@ -53,7 +58,11 @@ interface OnboardingProps {
   initialStep?: number;
 }
 
-export default function Onboarding({ isOpen, onClose, initialStep = 0 }: OnboardingProps) {
+export default function Onboarding({
+  isOpen,
+  onClose,
+  initialStep = 0,
+}: OnboardingProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -68,17 +77,23 @@ export default function Onboarding({ isOpen, onClose, initialStep = 0 }: Onboard
   const totalSteps = steps.length;
   const isWelcomeLayout = step?.layout === "welcome";
 
-  const updateRect = useCallback((stepIndex: number = currentStep) => {
-    const selector = steps[stepIndex]?.selector;
-    if (!selector) {
-      setRect(null);
-      return;
-    }
-    const el = typeof document !== "undefined" ? document.querySelector(selector) : null;
-    if (el) {
-      setRect(el.getBoundingClientRect());
-    }
-  }, [currentStep]);
+  const updateRect = useCallback(
+    (stepIndex: number = currentStep) => {
+      const selector = steps[stepIndex]?.selector;
+      if (!selector) {
+        setRect(null);
+        return;
+      }
+      const el =
+        typeof document !== "undefined"
+          ? document.querySelector(selector)
+          : null;
+      if (el) {
+        setRect(el.getBoundingClientRect());
+      }
+    },
+    [currentStep],
+  );
 
   useEffect(() => {
     if (isWelcomeLayout) {
@@ -120,9 +135,14 @@ export default function Onboarding({ isOpen, onClose, initialStep = 0 }: Onboard
     const selector = steps[currentStep]?.selector;
     if (!selector) return;
 
-    const el = typeof document !== "undefined" ? document.querySelector(selector) : null;
+    const el =
+      typeof document !== "undefined" ? document.querySelector(selector) : null;
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
       setTimeout(() => updateRect(currentStep), 500);
     }
   }, [currentStep, isWelcomeLayout, rect, steps, updateRect]);
@@ -160,9 +180,11 @@ export default function Onboarding({ isOpen, onClose, initialStep = 0 }: Onboard
     let left = rect.left + rect.width / 2 - tooltipWidth / 2;
 
     if (left < padding) left = padding;
-    else if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
+    else if (left + tooltipWidth > window.innerWidth - padding)
+      left = window.innerWidth - tooltipWidth - padding;
 
-    if (top + tooltipHeight > window.innerHeight - padding) top = rect.top - tooltipHeight + 20;
+    if (top + tooltipHeight > window.innerHeight - padding)
+      top = rect.top - tooltipHeight + 20;
 
     return { top, left };
   };

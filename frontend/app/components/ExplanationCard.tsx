@@ -29,7 +29,7 @@ export default function ExplanationCard({ explanation, className = "" }: Props) 
         <div className="flex items-center gap-2">
           <Sparkles size={16} style={{ color: isLlm ? "var(--primary)" : "var(--foreground-muted)" }} />
           <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>
-            Explanation
+            Behavior Summary
           </h3>
           <span
             style={{

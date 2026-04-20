@@ -14,7 +14,7 @@ export default function InsightsPage() {
         Insights
       </h1>
       <p style={{ color: "var(--foreground-muted)", fontSize: 14 }} className="mb-6">
-        Human-readable explanation of what this wallet&apos;s behavior actually looks like.
+        Understand what this wallet's activity says about its financial behavior.
       </p>
 
       {isAnalyzing && (
