@@ -60,20 +60,26 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
       ? formatUsd(usd.outflow)
       : outflowCaption;
 
+  // For inflow/outflow - show USD as primary, XLM/USDC breakdown as caption
+  const inflowColor = hasUsd && usd?.inflow !== null && usd?.inflow !== undefined ? "#22c55e" : "var(--foreground)";
+  const outflowColor = hasUsd && usd?.outflow !== null && usd?.outflow !== undefined ? "#ef4444" : "var(--foreground)";
+
   const stats = [
     {
       label: "Total Inflow",
       primary: inflowPrimary,
-      caption: hasUsd ? inflowCaption : null,
+      caption: inflowCaption,
       icon: ArrowDownLeft,
-      color: "#22c55e",
+      color: inflowColor,
+      isPrimaryUsd: hasUsd && usd?.inflow !== null && usd?.inflow !== undefined,
     },
     {
       label: "Total Outflow",
       primary: outflowPrimary,
-      caption: hasUsd ? outflowCaption : null,
+      caption: outflowCaption,
       icon: ArrowUpRight,
-      color: "#ef4444",
+      color: outflowColor,
+      isPrimaryUsd: hasUsd && usd?.outflow !== null && usd?.outflow !== undefined,
     },
     {
       label: "Transactions",
@@ -81,6 +87,7 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
       caption: null,
       icon: Activity,
       color: "var(--primary)",
+      isPrimaryUsd: false,
     },
     {
       label: "Assets",
@@ -92,6 +99,7 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
           : null,
       icon: Coins,
       color: "var(--foreground)",
+      isPrimaryUsd: false,
     },
   ];
 
@@ -116,7 +124,14 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
                 {stat.label}
               </span>
             </div>
-            <p style={{ color: stat.color, fontWeight: 900, fontSize: 20, lineHeight: 1.1 }}>
+            <p 
+              style={{ 
+                color: stat.color, 
+                fontWeight: 900, 
+                fontSize: stat.isPrimaryUsd ? 24 : 20, 
+                lineHeight: 1.1 
+              }}
+            >
               {stat.primary}
             </p>
             {stat.caption && (
