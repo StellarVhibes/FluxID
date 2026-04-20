@@ -228,7 +228,8 @@ export function calculateLiquidityMetrics(
     }
   }
 
-  // Track swaps/conversions
+  // Track swaps/conversions using the actual source & destination assets from
+  // the path-payment record so pairs like USDC→XLM don't collapse into XLM→XLM.
   const swapMap = new Map<string, SwapInfo>();
   let totalSwapValue = 0;
 
@@ -236,24 +237,31 @@ export function calculateLiquidityMetrics(
     if (p.transaction_successful === false) continue;
     if (p.asset_type !== "native" && !p.asset_type?.startsWith("credit_")) continue;
 
-    const amount = parseFloat(p.amount) || 0;
-    const asset = p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
-    const key = `XLM→${asset}`; // Simplified: assume source is XLM for path payments
+    const toAmount = parseFloat(p.amount) || 0;
+    const fromAmount = parseFloat(p.source_amount ?? p.amount) || 0;
+    const toAsset =
+      p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
+    const fromAsset =
+      !p.source_asset_type || p.source_asset_type === "native"
+        ? "XLM"
+        : `${p.source_asset_code ?? ""}:${p.source_asset_issuer ?? ""}`;
+    const key = `${fromAsset}→${toAsset}`;
 
     const existing = swapMap.get(key);
     if (existing) {
-      existing.fromAmount += amount;
+      existing.fromAmount += fromAmount;
+      existing.toAmount += toAmount;
       existing.count++;
     } else {
       swapMap.set(key, {
-        fromAsset: "XLM",
-        toAsset: asset,
-        fromAmount: amount,
-        toAmount: amount,
+        fromAsset,
+        toAsset,
+        fromAmount,
+        toAmount,
         count: 1,
       });
     }
-    totalSwapValue += amount;
+    totalSwapValue += toAmount;
   }
 
   return {

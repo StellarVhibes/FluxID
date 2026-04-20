@@ -46,7 +46,7 @@ function directionCaption(dir: { XLM: number; USDC: number; other: unknown[] }):
     );
     parts.push(`+${totalCount} other`);
   }
-  return parts.length > 0 ? parts.join(" · ") : ",";
+  return parts.length > 0 ? parts.join(" · ") : "—";
 }
 
 export default function FlowSummary({ data, assets, usd, isLoading, className = "" }: FlowSummaryProps) {
@@ -95,9 +95,16 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
   const inflowColor = hasUsd && inflowUsd !== null ? "#22c55e" : "var(--foreground)";
   const outflowColor = hasUsd && outflowUsd !== null ? "#ef4444" : "var(--foreground)";
 
-  // Format swaps for display
-  const swapsLabel = data.swaps && data.swaps.length > 0 
-    ? data.swaps.map(s => `${s.fromAsset}→${s.toAsset.split(':')[0]}`).join(" · ")
+  // Format swaps for display. When there are multiple distinct pairs, include
+  // per-pair counts so "USDC → XLM (2) · XLM → USDC (1)" is readable at a glance.
+  const showSwapCounts = (data.swaps?.length ?? 0) > 1;
+  const swapsLabel = data.swaps && data.swaps.length > 0
+    ? data.swaps
+        .map((s) => {
+          const pair = `${s.fromAsset} → ${s.toAsset.split(":")[0]}`;
+          return showSwapCounts ? `${pair} (${s.count})` : pair;
+        })
+        .join(" · ")
     : null;
   
   const stats = [

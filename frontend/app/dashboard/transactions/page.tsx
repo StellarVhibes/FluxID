@@ -21,7 +21,7 @@ function assetLabel(asset: string): string {
 }
 
 export default function TransactionsPage() {
-  const { analysis, analyzedAddress, network, isAnalyzing } = useAnalysis();
+  const { analysis, analyzedAddress, isAnalyzing } = useAnalysis();
   const [filter, setFilter] = useState<DirectionFilter>("all");
 
   const txs: TransactionData[] = analysis?.transactions ?? [];
@@ -47,7 +47,7 @@ export default function TransactionsPage() {
           </h1>
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
             {analyzedAddress
-              ? `Full transaction history for ${truncateAddress(analyzedAddress)} on ${network}.`
+              ? "Complete transaction history for this wallet"
               : "Analyze a wallet to see its transactions."}
           </p>
         </div>
@@ -164,17 +164,25 @@ export default function TransactionsPage() {
                         </td>
                         <td
                           className="px-5 py-3 text-right font-semibold"
-                          style={{ 
-                            color: tx.type === "inflow" ? "#22c55e" : tx.type === "outflow" ? "#ef4444" : "#8FA828" 
+                          style={{
+                            color: tx.type === "inflow" ? "#22c55e" : tx.type === "outflow" ? "#ef4444" : "#8FA828"
                           }}
                         >
-                          {tx.type === "swap" ? "⇄" : tx.type === "inflow" ? "+" : "−"}
-                          {formatAmount(tx.amount)}
+                          {tx.type === "swap" && tx.swapDetails ? (
+                            <>
+                              ⇄ {formatAmount(tx.swapDetails.fromAmount)} {tx.swapDetails.fromAsset}
+                              {" → "}
+                              {formatAmount(tx.swapDetails.toAmount)} {tx.swapDetails.toAsset.split(":")[0]}
+                            </>
+                          ) : (
+                            <>
+                              {tx.type === "inflow" ? "+" : "−"}
+                              {formatAmount(tx.amount)}
+                            </>
+                          )}
                         </td>
                         <td className="px-5 py-3 text-right" style={{ color: "var(--foreground-muted)", fontSize: 12 }}>
-                          {tx.type === "swap" && tx.swapDetails 
-                            ? `${tx.swapDetails.fromAsset} → ${tx.swapDetails.toAsset.split(':')[0]}`
-                            : assetLabel(tx.asset)}
+                          {tx.type === "swap" ? "—" : assetLabel(tx.asset)}
                         </td>
                       </motion.tr>
                     ))}
