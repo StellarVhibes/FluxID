@@ -10,21 +10,21 @@ import Onboarding from "./components/Onboarding";
 const FEATURES = [
   {
     icon: Wallet,
-    title: "Wallet Connection",
-    desc: "Connect your Freighter wallet to analyze any Stellar wallet's financial behavior and liquidity patterns.",
-    tag: "Stellar",
+    title: "Wallet Input",
+    desc: "Paste any Stellar address. No permissions. No friction. Just input → analyze.",
+    tag: "Input",
   },
   {
     icon: Layers,
     title: "Liquidity Score",
-    desc: "Get a dynamic score (0-100) that reflects income consistency, spending patterns, and transaction stability.",
-    tag: "Real-Time",
+    desc: "We look at income consistency, spending patterns, and activity level. Then turn that into a simple score from 0–100.",
+    tag: "0-100",
   },
   {
     icon: Cpu,
-    title: "Risk Assessment",
-    desc: "AI-powered risk signals (Low/Medium/High) to understand financial reliability at a glance.",
-    tag: "AI-Powered",
+    title: "Risk Insight",
+    desc: "You don't just get a number. You see why the score is what it is and what could be improved.",
+    tag: "Analysis",
   },
 ];
 
@@ -89,16 +89,17 @@ export default function Home() {
             style={{ color: "var(--foreground-muted)", lineHeight: 1.65 }}
             className="text-xl mb-5 max-w-lg"
           >
-            FluxID turns any Stellar wallet into a real-time financial identity.
-            Understand how money behaves, not just how much it holds.
+            Not just balances… Not just transactions… See how money actually behaves.
+            <br /><br />
+            Paste a wallet. Get a score. That's it.
           </motion.p>
 
           {/* Flow chips */}
           <motion.div variants={item} className="flex flex-wrap items-center gap-2 mb-6">
             {[
-              { icon: Wallet, label: "Stellar Wallet" },
-              { icon: Layers, label: "Liquidity Score" },
-              { icon: Cpu, label: "Risk Analysis" },
+              { icon: Wallet, label: "Wallet Input" },
+              { icon: Layers, label: "0-100 Score" },
+              { icon: Cpu, label: "Risk Insight" },
             ].map(({ icon: Icon, label }, i, arr) => (
               <div key={label} className="flex items-center gap-2">
                 <div
@@ -118,10 +119,10 @@ export default function Home() {
           {/* CTA */}
           <motion.div variants={item} className="flex flex-wrap gap-3">
             <Link href="/dashboard" className="btn btn-primary text-sm flex items-center gap-2">
-              Launch App <Zap size={13} />
+              Analyze a Wallet <Zap size={13} />
             </Link>
             <Link href="#how-it-works" className="btn btn-outline text-sm flex items-center gap-2">
-              How FluxID Works <ArrowRight size={13} />
+              How it Works <ArrowRight size={13} />
             </Link>
           </motion.div>
         </motion.div>
@@ -298,7 +299,7 @@ export default function Home() {
             Start analyzing wallets today.
           </h2>
           <p style={{ color: "var(--foreground-muted)" }} className="text-sm mb-4">
-            Connect your Freighter wallet. Analyze any wallet. Understand financial behavior.
+            Seriously — just paste an address and see what comes out.
           </p>
           <Link href="/dashboard" className="btn btn-primary text-sm inline-flex items-center gap-2">
             <Zap size={14} /> Launch App
