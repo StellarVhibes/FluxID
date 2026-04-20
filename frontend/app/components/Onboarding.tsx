@@ -25,21 +25,25 @@ const steps: TourStep[] = [
     selector: "#tour-wallet-input",
     title: "Wallet Input",
     content: "Enter any Stellar wallet address to analyze. No permissions needed — scoring uses public on-chain data.",
+    imageUrl: "/nav-walletinput.png",
   },
   {
     selector: "#tour-score-display",
     title: "Liquidity Score",
     content: "Every wallet gets a score from 0–100 based on income consistency, spending patterns, and activity level.",
+    imageUrl: "/nav-scoredisplay.png",
   },
   {
     selector: "#tour-risk-indicator",
     title: "Risk Assessment",
     content: "Quickly understand risk levels at a glance — Low, Medium, or High — to make informed decisions.",
+    imageUrl: "/nav-riskindicator.png",
   },
   {
     selector: "#tour-recent-flow",
     title: "Flow Analytics",
     content: "Visualize money movement with clear inflow vs outflow charts to spot patterns instantly.",
+    imageUrl: "/nav-recentflow.png",
   },
 ];
 
@@ -212,6 +216,59 @@ export default function Onboarding({ isOpen, onClose, initialStep = 0 }: Onboard
                   className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-[#8FA828] text-black text-sm font-medium hover:bg-[#7a9220] transition-colors"
                 >
                   Show me around
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!rect && step.imageUrl) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/60 p-4">
+        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-[38.25rem] flex flex-col shadow-2xl border border-[#2d2e33]">
+          {step.imageUrl && (
+            <div className="relative w-full h-[19.375rem]">
+              <Image
+                src={step.imageUrl}
+                alt={step.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          <div className="w-full p-6 flex flex-col gap-2">
+            <div>
+              <h2 className="text-xl md:text-2xl font-medium text-white">
+                {step.title}
+              </h2>
+            </div>
+
+            <p className="text-sm md:text-base text-gray-400 leading-relaxed">
+              {step.content}
+            </p>
+
+            <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-xs text-gray-500">{`${currentStep + 1} of ${totalSteps}`}</p>
+
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-gray-600 text-gray-300 text-sm hover:bg-white/5 transition-colors"
+                >
+                  Maybe later
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-[#8FA828] text-black text-sm font-medium hover:bg-[#7a9220] transition-colors"
+                >
+                  {isLastStep ? "Close" : "Next"}
                 </button>
               </div>
             </div>
