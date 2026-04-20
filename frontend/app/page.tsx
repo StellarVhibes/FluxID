@@ -219,7 +219,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: i * 0.12 }}
               whileHover={{ y: -6, transition: { duration: 0.22, ease: "easeOut" } }}
               style={{
-                background: "rgba(24, 27, 12, 0.85)",
+                background: "var(--card)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
                 borderTopLeftRadius: 40,
@@ -228,7 +228,7 @@ export default function Home() {
                 borderBottomRightRadius: 40,
                 position: "relative",
                 overflow: "visible",
-                boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+                border: "1px solid var(--border)",
               }}
               className="rounded-tl-[40px] rounded-bl-[40px] rounded-br-[40px] p-8 group cursor-default"
             >
@@ -237,7 +237,6 @@ export default function Home() {
                 className="absolute -top-5 left-8 w-14 h-14 rounded-full flex items-center justify-center"
                 style={{ 
                   background: "var(--primary)",
-                  boxShadow: "0 0 24px var(--primary-glow)"
                 }}
               >
                 <span style={{ color: "var(--background)", fontWeight: 900, fontSize: 20 }}>
