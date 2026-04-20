@@ -13,7 +13,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Header />
         <Sidebar />
         <div
-          className="fixed right-4 bottom-4"
+          className="fixed right-4 bottom-4 mt-6"
           style={{ left: "calc(var(--sidebar-width, 248px) + 28px)", top: 104 }}
         >
           <div

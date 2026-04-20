@@ -62,7 +62,7 @@ export default function Sidebar() {
         border: "1px solid var(--border)",
         borderRadius: 20
       }}
-      className="fixed left-4 top-[104px] bottom-4 flex flex-col overflow-hidden z-30"
+      className="fixed left-4 top-[104px] bottom-4 mt-6 flex flex-col overflow-hidden z-30"
     >
       <nav className="flex-1 space-y-1 py-4 px-3 overflow-y-auto">
         {navItems.map((item) => {
