@@ -104,6 +104,7 @@ function DashboardSummary({
         variants={item}
         style={{ background: "var(--card)", border: "1px solid var(--border)" }}
         className="rounded-2xl p-6 md:col-span-2 flex items-center gap-6 flex-wrap"
+        id="tour-score-display"
       >
         <div className="relative shrink-0">
           <svg width="160" height="160" viewBox="0 0 160 160">
@@ -124,7 +125,7 @@ function DashboardSummary({
           </div>
         </div>
         <div className="flex-1 min-w-[200px]">
-          <div className="flex items-center gap-2 flex-wrap mb-2">
+          <div className="flex items-center gap-2 flex-wrap mb-2" id="tour-risk-indicator">
             <span
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold"
               style={{ background: `${riskColor}20`, color: riskColor }}
@@ -154,6 +155,7 @@ function DashboardSummary({
         variants={item}
         style={{ background: "var(--card)", border: "1px solid var(--border)" }}
         className="rounded-2xl p-6"
+        id="tour-recent-flow"
       >
         <h3 style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 700 }} className="uppercase mb-4">
           Recent Flow

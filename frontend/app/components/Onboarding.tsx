@@ -1,38 +1,116 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X } from "lucide-react";
 import Image from "next/image";
+
+interface TourStep {
+  selector?: string;
+  title: string;
+  content: string;
+  position?: "left" | "right" | "top" | "bottom";
+  layout?: "spotlight" | "welcome";
+  imageUrl?: string;
+}
+
+const steps: TourStep[] = [
+  {
+    title: "Welcome to FluxID",
+    content: "FluxID turns any Stellar wallet into a real-time financial identity. Use the 'Show me around' button to get started.",
+    layout: "welcome",
+    imageUrl: "/nav-dashboardUI.png",
+  },
+  {
+    selector: "#tour-wallet-input",
+    title: "Wallet Input",
+    content: "Enter any Stellar wallet address to analyze. No permissions needed — scoring uses public on-chain data.",
+  },
+  {
+    selector: "#tour-score-display",
+    title: "Liquidity Score",
+    content: "Every wallet gets a score from 0–100 based on income consistency, spending patterns, and activity level.",
+  },
+  {
+    selector: "#tour-risk-indicator",
+    title: "Risk Assessment",
+    content: "Quickly understand risk levels at a glance — Low, Medium, or High — to make informed decisions.",
+  },
+  {
+    selector: "#tour-recent-flow",
+    title: "Flow Analytics",
+    content: "Visualize money movement with clear inflow vs outflow charts to spot patterns instantly.",
+  },
+];
 
 interface OnboardingProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const steps = [
-  {
-    title: "Your Liquidity Score",
-    description: "Every wallet gets a unique score based on transaction history. Higher scores mean better financial behavior.",
-  },
-  {
-    title: "Risk Assessment",
-    description: "Quickly understand risk levels at a glance — Low, Medium, or High — to make informed decisions.",
-  },
-  {
-    title: "Flow Analytics",
-    description: "Visualize money movement with clear inflow vs outflow charts to spot patterns instantly.",
-  },
-];
-
 export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(0);
     }
   }, [isOpen]);
+
+  const step = steps[currentStep];
+  const totalSteps = steps.length;
+  const isWelcomeLayout = step?.layout === "welcome";
+
+  const updateRect = useCallback((stepIndex: number = currentStep) => {
+    const selector = steps[stepIndex]?.selector;
+    if (!selector) {
+      setRect(null);
+      return;
+    }
+    const el = typeof document !== "undefined" ? document.querySelector(selector) : null;
+    if (el) {
+      setRect(el.getBoundingClientRect());
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (isWelcomeLayout) {
+      setRect(null);
+      return;
+    }
+    updateRect(currentStep);
+  }, [isWelcomeLayout, currentStep, updateRect]);
+
+  useEffect(() => {
+    if (!isOpen || isWelcomeLayout) return;
+
+    const handleScroll = () => {
+      if (steps[currentStep]?.selector) {
+        updateRect(currentStep);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, [isOpen, isWelcomeLayout, currentStep, steps, updateRect]);
+
+  useEffect(() => {
+    if (isWelcomeLayout || !rect) return;
+
+    const selector = steps[currentStep]?.selector;
+    if (!selector) return;
+
+    const el = typeof document !== "undefined" ? document.querySelector(selector) : null;
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      setTimeout(() => updateRect(currentStep), 500);
+    }
+  }, [currentStep, isWelcomeLayout, rect, steps, updateRect]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -42,87 +120,220 @@ export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
     }
   };
 
-  const handleSkip = () => {
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleClose = () => {
     onClose();
   };
 
-  if (!isOpen) return null;
+  const getTooltipStyle = () => {
+    if (!rect) return { top: 0, left: 0 };
+    const tooltipWidth = 300;
+    const tooltipHeight = 200;
+    const padding = 20;
+
+    let top = rect.bottom + 40;
+    let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+
+    if (left < padding) left = padding;
+    else if (left + tooltipWidth > window.innerWidth - padding) left = window.innerWidth - tooltipWidth - padding;
+
+    if (top + tooltipHeight > window.innerHeight - padding) top = rect.top - tooltipHeight + 20;
+
+    return { top, left };
+  };
+
+  const tooltipStyle = getTooltipStyle();
+  const isLastStep = currentStep === steps.length - 1;
+
+  if (!isOpen || !step) return null;
+
+  if (isWelcomeLayout) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/60 p-4">
+        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-[38.25rem] flex flex-col shadow-2xl border border-[#2d2e33]">
+          {step.imageUrl && (
+            <div className="relative w-full h-[19.375rem]">
+              <Image
+                src={step.imageUrl}
+                alt={step.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          <div className="w-full p-6 flex flex-col gap-2">
+            <div>
+              <h2 className="text-xl md:text-2xl font-medium text-white">
+                {step.title}
+              </h2>
+            </div>
+
+            <p className="text-sm md:text-base text-gray-400 leading-relaxed">
+              {step.content}
+            </p>
+
+            <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-xs text-gray-500">{`${currentStep + 1} of ${totalSteps}`}</p>
+
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-gray-600 text-gray-300 text-sm hover:bg-white/5 transition-colors"
+                >
+                  Maybe later
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-[#8FA828] text-black text-sm font-medium hover:bg-[#7a9220] transition-colors"
+                >
+                  Show me around
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!rect) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center px-4"
-        style={{ background: "rgba(0, 0, 0, 0.7)" }}
+    <>
+      {/* Overlay with cutout */}
+      <div
+        className="fixed inset-0 z-[9999] pointer-events-auto"
+        style={{
+          background: "rgba(0, 0, 0, 0.5)",
+          clipPath: `polygon(
+            0% 0%,
+            0% 100%,
+            ${rect.left - 8}px 100%,
+            ${rect.left - 8}px ${rect.top - 8}px,
+            ${rect.left + rect.width + 8}px ${rect.top - 8}px,
+            ${rect.left + rect.width + 8}px ${rect.top + rect.height + 8}px,
+            ${rect.left - 8}px ${rect.top + rect.height + 8}px,
+            ${rect.left - 8}px 100%,
+            100% 100%,
+            100% 0%
+          )`,
+        }}
+      />
+
+      {/* Click blocker for highlighted area */}
+      <div
+        className="fixed z-[9999] pointer-events-auto"
+        style={{
+          top: rect.top - 8,
+          left: rect.left - 8,
+          width: rect.width + 16,
+          height: rect.height + 16,
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+
+      {/* Highlight Box */}
+      <div
+        className="transition-colors duration-200 ease-linear fixed rounded-xl z-[10000] pointer-events-none border-2 border-white"
+        style={{
+          top: rect.top - 8,
+          left: rect.left - 8,
+          width: rect.width + 16,
+          height: rect.height + 16,
+        }}
+      />
+
+      {/* Tooltip */}
+      <div
+        className="fixed bg-[#1a1b1e] p-4 rounded-lg shadow-lg z-[10001] max-w-xs transition-all duration-200 ease-linear border border-[#2d2e33]"
+        style={{
+          top: tooltipStyle.top,
+          left: tooltipStyle.left,
+        }}
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-          className="w-full max-w-lg rounded-2xl p-6 relative"
-        >
-          <button
-            onClick={handleSkip}
-            className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            <X size={18} style={{ color: "var(--foreground-muted)" }} />
+        <div
+          className={`absolute w-0 h-0 hidden sm:block transition-all duration-200 ease-linear ${
+            tooltipStyle.top < rect.top ? "top-full" : "bottom-full"
+          }`}
+          style={{
+            left: "50%",
+            marginLeft: "-9px",
+            borderLeft: "9px solid transparent",
+            borderRight: "9px solid transparent",
+            ...(tooltipStyle.top < rect.top
+              ? { borderTop: "12px solid #1a1b1e" }
+              : { borderBottom: "12px solid #1a1b1e" }),
+          }}
+        />
+
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-[#8FA828] text-sm font-semibold">
+            {step.title}
+          </div>
+          <button type="button" onClick={handleClose}>
+            <X size={20} className="text-gray-400" />
           </button>
+        </div>
 
-          <div className="flex justify-center mb-6">
-            <Image 
-              src="/navigation.png" 
-              alt="Navigation Preview" 
-              width={320} 
-              height={180}
-              className="rounded-xl"
-              style={{ objectFit: 'cover' }}
-            />
+        <div className="whitespace-pre-line text-sm text-gray-300">
+          {step.content}
+        </div>
+
+        <div className="flex items-center justify-between mt-3 text-right">
+          <p className="text-xs text-gray-500">{`${currentStep + 1} of ${totalSteps}`}</p>
+          <div className="flex gap-1">
+            {currentStep === 0 ? (
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-3 py-1.5 rounded-lg border border-gray-600 text-gray-300 text-sm hover:bg-white/5 transition-colors"
+              >
+                Skip
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="px-3 py-1.5 rounded-lg border border-gray-600 text-gray-300 text-sm hover:bg-white/5 transition-colors"
+              >
+                Previous
+              </button>
+            )}
+
+            {!isLastStep && (
+              <button
+                type="button"
+                onClick={handleNext}
+                className="px-3 py-1.5 rounded-lg bg-[#8FA828] text-black text-sm font-medium hover:bg-[#7a9220] transition-colors"
+              >
+                Next
+              </button>
+            )}
+
+            {isLastStep && (
+              <button
+                type="button"
+                onClick={handleClose}
+                className="px-3 py-1.5 rounded-lg bg-[#8FA828] text-black text-sm font-medium hover:bg-[#7a9220] transition-colors"
+              >
+                Close
+              </button>
+            )}
           </div>
-
-          <div className="text-center mb-6">
-            <div className="flex justify-center gap-2 mb-4">
-              {steps.map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: i === currentStep ? 24 : 8,
-                    background: i <= currentStep ? "var(--primary)" : "var(--border)",
-                    borderRadius: 4,
-                    transition: "all 0.3s ease",
-                  }}
-                />
-              ))}
-            </div>
-            <h2 style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 24 }}>
-              {steps[currentStep].title}
-            </h2>
-          </div>
-
-          <p style={{ color: "var(--foreground-muted)", fontSize: 16, lineHeight: 1.6 }} className="text-center mb-8">
-            {steps[currentStep].description}
-          </p>
-
-          <div className="flex justify-between items-center">
-            <button
-              onClick={handleSkip}
-              style={{ color: "var(--foreground-muted)", fontSize: 14 }}
-              className="text-sm"
-            >
-              Skip
-            </button>
-            <button
-              onClick={handleNext}
-              className="btn btn-primary flex items-center gap-2"
-            >
-              {currentStep === steps.length - 1 ? "Got it" : "Next"}
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </>
   );
 }

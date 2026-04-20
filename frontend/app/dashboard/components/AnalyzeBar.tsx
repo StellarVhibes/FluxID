@@ -56,6 +56,7 @@ export default function AnalyzeBar() {
       animate={{ opacity: 1, y: 0 }}
       style={{ background: "var(--card)", border: "1px solid var(--border)" }}
       className="rounded-2xl p-5 mb-6"
+      id="tour-wallet-input"
     >
       <div className="flex gap-3 flex-wrap">
         <input
