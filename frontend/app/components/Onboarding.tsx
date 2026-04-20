@@ -46,19 +46,19 @@ const steps: TourStep[] = [
 interface OnboardingProps {
   isOpen: boolean;
   onClose: () => void;
-  skipWelcome?: boolean;
+  initialStep?: number;
 }
 
-export default function Onboarding({ isOpen, onClose, skipWelcome }: OnboardingProps) {
+export default function Onboarding({ isOpen, onClose, initialStep = 0 }: OnboardingProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(skipWelcome ? 1 : 0);
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentStep(0);
+      setCurrentStep(initialStep);
     }
-  }, [isOpen]);
+  }, [isOpen, initialStep]);
 
   const step = steps[currentStep];
   const totalSteps = steps.length;

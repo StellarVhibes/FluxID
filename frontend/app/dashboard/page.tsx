@@ -23,10 +23,16 @@ const RISK_COLORS: Record<"Low" | "Medium" | "High", string> = {
 export default function Dashboard() {
   const { analysis, analyzedAddress, isAnalyzing, error } = useAnalysis();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [tourStartStep, setTourStartStep] = useState(0);
 
   useEffect(() => {
-    if (!localStorage.getItem("fluxid_onboarding_seen") || localStorage.getItem("fluxid_tour_active")) {
+    const hasSeen = localStorage.getItem("fluxid_onboarding_seen");
+    const tourActive = localStorage.getItem("fluxid_tour_active");
+    if (!hasSeen || tourActive) {
       setShowOnboarding(true);
+      if (tourActive) {
+        setTourStartStep(1);
+      }
     }
   }, []);
 
@@ -71,7 +77,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <Onboarding isOpen={showOnboarding} onClose={closeOnboarding} skipWelcome={!!localStorage.getItem("fluxid_tour_active")} />
+      <Onboarding isOpen={showOnboarding} onClose={closeOnboarding} initialStep={tourStartStep} />
     </>
   );
 }

@@ -13,11 +13,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Header />
         <Sidebar />
         <div
-          className="fixed right-4 bottom-4 mt-3"
+          className="fixed right-4 bottom-4 mt-1"
           style={{ left: "calc(var(--sidebar-width, 248px) + 28px)", top: 104 }}
         >
           <div
-            style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 20 }}
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: 20,
+            }}
             className="h-full w-full overflow-auto p-6"
           >
             <AnalyzeBar />
