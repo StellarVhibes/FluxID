@@ -46,11 +46,12 @@ const steps: TourStep[] = [
 interface OnboardingProps {
   isOpen: boolean;
   onClose: () => void;
+  skipWelcome?: boolean;
 }
 
-export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
+export default function Onboarding({ isOpen, onClose, skipWelcome }: OnboardingProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(skipWelcome ? 1 : 0);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
@@ -116,11 +117,12 @@ export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
 
   const handleNext = () => {
     if (isWelcomeLayout) {
+      localStorage.setItem("fluxid_tour_active", "true");
       router.push("/dashboard");
-      onClose();
     } else if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
+      localStorage.removeItem("fluxid_tour_active");
       onClose();
     }
   };
@@ -132,6 +134,7 @@ export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
   };
 
   const handleClose = () => {
+    localStorage.removeItem("fluxid_tour_active");
     onClose();
   };
 

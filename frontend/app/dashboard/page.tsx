@@ -25,7 +25,9 @@ export default function Dashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("fluxid_onboarding_seen")) setShowOnboarding(true);
+    if (!localStorage.getItem("fluxid_onboarding_seen") || localStorage.getItem("fluxid_tour_active")) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   const closeOnboarding = () => {
@@ -69,7 +71,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <Onboarding isOpen={showOnboarding} onClose={closeOnboarding} />
+      <Onboarding isOpen={showOnboarding} onClose={closeOnboarding} skipWelcome={!!localStorage.getItem("fluxid_tour_active")} />
     </>
   );
 }
