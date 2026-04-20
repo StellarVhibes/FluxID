@@ -46,7 +46,7 @@ function directionCaption(dir: { XLM: number; USDC: number; other: unknown[] }):
     );
     parts.push(`+${totalCount} other`);
   }
-  return parts.length > 0 ? parts.join(" · ") : "—";
+  return parts.length > 0 ? parts.join(" · ") : ",";
 }
 
 export default function FlowSummary({ data, assets, usd, isLoading, className = "" }: FlowSummaryProps) {
@@ -122,7 +122,7 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
     },
     {
       label: "Assets",
-      primary: assets ? assetCountLabel(assets) : "—",
+      primary: assets ? assetCountLabel(assets) : ",",
       caption: xlmPrice
         ? `XLM = ${formatUsd(xlmPrice)}`
         : frontendPrice
