@@ -222,12 +222,15 @@ export default function Home() {
                 background: "rgba(24, 27, 12, 0.85)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
-                borderRadius: 0,
+                borderTopLeftRadius: 40,
+                borderTopRightRadius: 0,
+                borderBottomLeftRadius: 40,
+                borderBottomRightRadius: 40,
                 position: "relative",
                 overflow: "visible",
                 boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
               }}
-              className="p-8 group cursor-default"
+              className="rounded-tl-[40px] rounded-bl-[40px] rounded-br-[40px] p-8 group cursor-default"
             >
               {/* Number orb at top */}
               <div 
