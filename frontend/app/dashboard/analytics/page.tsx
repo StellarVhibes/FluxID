@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
 import { useAnalysis } from "../context/AnalysisContext";
@@ -8,6 +8,19 @@ import FlowChart from "../../components/FlowChart";
 import FlowSummary from "../../components/FlowSummary";
 import AssetBreakdown from "../../components/AssetBreakdown";
 import type { TransactionData, UsdValuation } from "../../../lib/scoring";
+
+const COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd";
+
+async function fetchXlmPrice(): Promise<number | null> {
+  try {
+    const res = await fetch(COINGECKO_URL, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { stellar?: { usd?: number } };
+    return data?.stellar?.usd ?? null;
+  } catch {
+    return null;
+  }
+}
 
 function classifyAsset(asset: string | undefined): "XLM" | "USDC" | "OTHER" {
   if (!asset || asset === "XLM" || asset === "native") return "XLM";
@@ -107,9 +120,17 @@ function fmtUsd(n: number): string {
 
 export default function AnalyticsPage() {
   const { analysis, isAnalyzing } = useAnalysis();
+  const [frontendPrice, setFrontendPrice] = useState<number | null>(null);
+
+  // Fetch XLM price from frontend if backend didn't provide it
+  useEffect(() => {
+    if (!analysis?.usd?.xlmPriceUsd) {
+      fetchXlmPrice().then(setFrontendPrice);
+    }
+  }, [analysis?.usd?.xlmPriceUsd]);
 
   const txs = analysis?.transactions ?? [];
-  const xlmPrice = analysis?.usd?.xlmPriceUsd ?? null;
+  const xlmPrice = analysis?.usd?.xlmPriceUsd ?? frontendPrice;
 
   const weekly = useMemo(() => buildWeeklyTrend(txs, xlmPrice), [txs, xlmPrice]);
   const volatility = useMemo(() => computeVolatility(txs, xlmPrice), [txs, xlmPrice]);
@@ -186,7 +207,7 @@ function WeeklyTrend({
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>Weekly Trend</h3>
         <span style={{ color: "var(--foreground-muted)", fontSize: 11 }}>
-          {canShowUsd ? "USD per week (last 8 weeks)" : "XLM price unavailable — USDC only"}
+          {canShowUsd ? "USD per week (last 8 weeks) via CoinGecko" : "XLM price unavailable — USDC only"}
         </span>
       </div>
       {weekly.length === 0 ? (
@@ -271,6 +292,9 @@ function VolatilityCard({
           </>
         )}
         {interpretation}
+        {canShowUsd && (
+          <span style={{ color: "var(--foreground-dim)" }}> (via CoinGecko)</span>
+        )}
         {!canShowUsd && (
           <span style={{ color: "var(--foreground-dim)" }}> (USDC only — XLM price unavailable)</span>
         )}
