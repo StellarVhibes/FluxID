@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import Image from "next/image";
 
@@ -48,6 +49,7 @@ interface OnboardingProps {
 }
 
 export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
 
@@ -113,7 +115,10 @@ export default function Onboarding({ isOpen, onClose }: OnboardingProps) {
   }, [currentStep, isWelcomeLayout, rect, steps, updateRect]);
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (isWelcomeLayout) {
+      router.push("/dashboard");
+      onClose();
+    } else if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       onClose();
