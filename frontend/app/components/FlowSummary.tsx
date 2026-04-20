@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AssetsBreakdown, FlowSummary as FlowSummaryType, UsdValuation } from "../../lib/scoring";
-import { ArrowDownLeft, ArrowUpRight, Activity, Coins } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Activity, Coins, ArrowLeftRight } from "lucide-react";
 
 const COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd";
 
@@ -95,6 +95,11 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
   const inflowColor = hasUsd && inflowUsd !== null ? "#22c55e" : "var(--foreground)";
   const outflowColor = hasUsd && outflowUsd !== null ? "#ef4444" : "var(--foreground)";
 
+  // Format swaps for display
+  const swapsLabel = data.swaps && data.swaps.length > 0 
+    ? data.swaps.map(s => `${s.fromAsset}→${s.toAsset.split(':')[0]}`).join(" · ")
+    : null;
+  
   const stats = [
     {
       label: "Total Inflow",
@@ -134,9 +139,21 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
     },
   ];
 
+  // Add Conversions stat if there are swaps
+  if (data.swaps && data.swaps.length > 0) {
+    stats.push({
+      label: "Conversions",
+      primary: data.swaps.length.toString(),
+      caption: swapsLabel,
+      icon: ArrowLeftRight,
+      color: "#8FA828",
+      isPrimaryUsd: false,
+    });
+  }
+
   return (
     <div className={`space-y-3 ${className}`}>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}

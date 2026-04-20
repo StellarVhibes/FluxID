@@ -19,6 +19,8 @@ export interface LiquidityMetrics {
   transactionCount: number;
   inflowCount: number;
   outflowCount: number;
+  swaps: SwapInfo[];
+  totalSwapValue: number;
 }
 
 export interface LiquidityScore {
@@ -35,9 +37,23 @@ export interface TransactionData {
   id: string;
   date: string;
   amount: number;
-  type: "inflow" | "outflow";
+  type: "inflow" | "outflow" | "swap";
   address: string;
   asset: string;
+  swapDetails?: {
+    fromAsset: string;
+    toAsset: string;
+    fromAmount: number;
+    toAmount: number;
+  };
+}
+
+export interface SwapInfo {
+  fromAsset: string;
+  toAsset: string;
+  fromAmount: number;
+  toAmount: number;
+  count: number;
 }
 
 export interface FlowSummary {
@@ -45,6 +61,8 @@ export interface FlowSummary {
   totalOutflow: number;
   transactionCount: number;
   averageTransaction: number;
+  swaps: SwapInfo[];
+  totalSwapValue: number;
 }
 
 export interface AssetDirection {
@@ -130,6 +148,32 @@ export async function fetchWalletPayments(
   }
 }
 
+export async function fetchWalletPaymentsWithSwaps(
+  address: string,
+  network: StellarNetwork = "mainnet",
+  limit = 100
+): Promise<{ payments: PaymentRecord[]; swapPayments: PaymentRecord[] }> {
+  const server = new Horizon.Server(horizonUrlFor(network));
+
+  try {
+    const response = await server
+      .payments()
+      .forAccount(address)
+      .limit(limit)
+      .order("desc")
+      .call();
+
+    const records = response.records as unknown as PaymentRecord[];
+    const payments = records.filter((p) => !(p.from === address && p.to === address));
+    const swapPayments = records.filter((p) => p.from === address && p.to === address);
+
+    return { payments, swapPayments };
+  } catch (error) {
+    console.warn("fetchWalletPaymentsWithSwaps failed for", address, network, error);
+    return { payments: [], swapPayments: [] };
+  }
+}
+
 function parsePayments(payments: PaymentRecord[], walletAddress: string): TransactionData[] {
   const parsed: TransactionData[] = [];
 
@@ -155,7 +199,11 @@ function parsePayments(payments: PaymentRecord[], walletAddress: string): Transa
   return parsed.slice(0, 30);
 }
 
-export function calculateLiquidityMetrics(payments: PaymentRecord[], walletAddress: string): LiquidityMetrics {
+export function calculateLiquidityMetrics(
+  payments: PaymentRecord[],
+  walletAddress: string,
+  swapPayments: PaymentRecord[] = []
+): LiquidityMetrics {
   let totalInflow = 0;
   let totalOutflow = 0;
   let inflowCount = 0;
@@ -175,12 +223,42 @@ export function calculateLiquidityMetrics(payments: PaymentRecord[], walletAddre
     }
   }
 
+  // Track swaps/conversions
+  const swapMap = new Map<string, SwapInfo>();
+  let totalSwapValue = 0;
+
+  for (const p of swapPayments) {
+    if (p.transaction_successful === false) continue;
+    if (p.asset_type !== "native" && !p.asset_type?.startsWith("credit_")) continue;
+
+    const amount = parseFloat(p.amount) || 0;
+    const asset = p.asset_type === "native" ? "XLM" : `${p.asset_code ?? ""}:${p.asset_issuer ?? ""}`;
+    const key = `XLM→${asset}`; // Simplified: assume source is XLM for path payments
+
+    const existing = swapMap.get(key);
+    if (existing) {
+      existing.fromAmount += amount;
+      existing.count++;
+    } else {
+      swapMap.set(key, {
+        fromAsset: "XLM",
+        toAsset: asset,
+        fromAmount: amount,
+        toAmount: amount,
+        count: 1,
+      });
+    }
+    totalSwapValue += amount;
+  }
+
   return {
     totalInflow,
     totalOutflow,
     transactionCount: inflowCount + outflowCount,
     inflowCount,
     outflowCount,
+    swaps: Array.from(swapMap.values()),
+    totalSwapValue,
   };
 }
 
@@ -193,6 +271,8 @@ export function calculateFlowSummary(metrics: LiquidityMetrics): FlowSummary {
       metrics.transactionCount > 0
         ? (metrics.totalInflow + metrics.totalOutflow) / metrics.transactionCount
         : 0,
+    swaps: metrics.swaps || [],
+    totalSwapValue: metrics.totalSwapValue || 0,
   };
 }
 
@@ -232,8 +312,12 @@ export function calculateLiquidityScore(metrics: LiquidityMetrics): LiquiditySco
   };
 }
 
-function localAnalyze(address: string, payments: PaymentRecord[]): WalletAnalysis {
-  const metrics = calculateLiquidityMetrics(payments, address);
+function localAnalyze(
+  address: string,
+  payments: PaymentRecord[],
+  swapPayments: PaymentRecord[] = []
+): WalletAnalysis {
+  const metrics = calculateLiquidityMetrics(payments, address, swapPayments);
   const score = calculateLiquidityScore(metrics);
   const transactions = parsePayments(payments, address);
   return {
@@ -293,6 +377,8 @@ async function fetchFromBackend(
       transactionCount: d.metrics.transactionCount,
       inflowCount: d.metrics.inflowCount,
       outflowCount: d.metrics.outflowCount,
+      swaps: [],
+      totalSwapValue: 0,
     };
 
     return {
@@ -325,8 +411,8 @@ export async function analyzeWallet(
   const fromBackend = await fetchFromBackend(address, network);
   if (fromBackend) return fromBackend;
 
-  const payments = await fetchWalletPayments(address, network);
-  return localAnalyze(address, payments);
+  const { payments, swapPayments } = await fetchWalletPaymentsWithSwaps(address, network);
+  return localAnalyze(address, payments, swapPayments);
 }
 
 export function getSuggestions(score: LiquidityScore, metrics: LiquidityMetrics): string[] {
