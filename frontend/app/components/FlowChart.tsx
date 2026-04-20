@@ -1,7 +1,22 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TransactionData, UsdValuation } from "../../lib/scoring";
+
+const COINGECKO_URL = "https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd";
+
+// Fetch XLM price from CoinGecko (frontend fallback)
+async function fetchXlmPrice(): Promise<number | null> {
+  try {
+    const res = await fetch(COINGECKO_URL, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { stellar?: { usd?: number } };
+    return data?.stellar?.usd ?? null;
+  } catch {
+    return null;
+  }
+}
 
 interface FlowChartProps {
   transactions: TransactionData[];
@@ -33,6 +48,15 @@ function txToUsd(
 }
 
 export default function FlowChart({ transactions, usd, isLoading, className = "" }: FlowChartProps) {
+  const [frontendPrice, setFrontendPrice] = useState<number | null>(null);
+
+  // Fetch XLM price from frontend if backend didn't provide it
+  useEffect(() => {
+    if (!usd?.xlmPriceUsd) {
+      fetchXlmPrice().then(setFrontendPrice);
+    }
+  }, [usd?.xlmPriceUsd]);
+
   if (isLoading) {
     return (
       <div
@@ -59,7 +83,7 @@ export default function FlowChart({ transactions, usd, isLoading, className = ""
     );
   }
 
-  const xlmPrice = usd?.xlmPriceUsd ?? null;
+  const xlmPrice = usd?.xlmPriceUsd ?? frontendPrice;
   const canShowUsd = xlmPrice !== null;
 
   const groupedByDate: Record<string, { inflow: number; outflow: number; skipped: number }> = {};
@@ -94,7 +118,7 @@ export default function FlowChart({ transactions, usd, isLoading, className = ""
           7-Day Flow Pattern
         </h3>
         <span style={{ color: "var(--foreground-muted)", fontSize: 11 }}>
-          {canShowUsd ? "USD (XLM + USDC)" : "XLM price unavailable — showing USDC only"}
+          {canShowUsd ? "USD (XLM + USDC) via CoinGecko" : "XLM price unavailable — showing USDC only"}
         </span>
       </div>
 

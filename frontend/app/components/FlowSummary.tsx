@@ -185,6 +185,11 @@ export default function FlowSummary({ data, assets, usd, isLoading, className = 
             : ""}
         </p>
       )}
+      {!usd?.note && (usd?.xlmPriceUsd || frontendPrice) && (
+        <p style={{ color: "var(--foreground-dim)", fontSize: 11 }} className="italic">
+          XLM price fetched via CoinGecko
+        </p>
+      )}
     </div>
   );
 }
