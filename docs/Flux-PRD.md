@@ -371,7 +371,20 @@ Clean, fast, demo-ready.
 
 ---
 
-## Post-MVP Roadmap
+## Project Execution & Phases
+
+FluxID is structured across three definitive phases. This ensures we deliver on our promises step by step.
+
+- ✅ **Phase 1: MVP (Single Wallet Scoring) — COMPLETED**
+  Core scoring logic, AI insights, and address-based analysis are live.
+- 🏗️ **Phase 2: Scale (Protocol Intelligence) — IN PROGRESS**
+  We have currently started building the layer that analyzes multiple wallets.
+- 🔮 **Phase 3: Outcome (Internet of Value) — UPCOMING (FINAL PHASE)**
+  Establishing global credit primitives and decentralized reputation.
+
+---
+
+## Post-MVP Roadmap (Entering Phase 2)
 
 ### Overview
 

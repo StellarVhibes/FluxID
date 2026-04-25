@@ -201,9 +201,22 @@ FluxID/
 
 ---
 
-## Post-MVP Roadmap
+## Project Strategy & Phases
 
-After MVP, FluxID evolves from scoring one wallet to understanding entire user bases.
+FluxID is being executed in three distinct phases. We keep our word and deliver in stages.
+
+- ✅ **Phase 1: MVP (Single Wallet Scoring) — COMPLETED**
+  We have successfully built the core scoring engine, live dashboard, and AI explainability. The foundation is set.
+- 🏗️ **Phase 2: Scale (Protocol Intelligence) — IN PROGRESS**
+  We have currently started building features to analyze groups of wallets, including the User-Base Health Dashboard and Risk Heatmaps.
+- 🔮 **Phase 3: Outcome (Internet of Value) — UPCOMING (FINAL PHASE)**
+  Our ultimate vision is to establish decentralized reputation and cross-chain trust signals as a global credit primitive.
+
+---
+
+## Post-MVP Roadmap (Phase 2 Building)
+
+After Phase 1 (MVP), FluxID evolves from scoring one wallet to understanding entire user bases.
 
 > **Protocol Intelligence Layer** — A system for analyzing groups of wallets using trust scores.
 
@@ -213,7 +226,6 @@ After MVP, FluxID evolves from scoring one wallet to understanding entire user b
 2. **Cohort & Segmentation Engine** — Query wallets by behavior (score > threshold, inflow > threshold)
 3. **Risk Heatmaps** — Visualize where risk is concentrated
 4. **Early Warning System** — Detect sudden changes in risk (e.g., "12% dropped below 50 in 24h")
-5. **AI Agent Layer** — Autonomous systems query scores, make decisions, pay per request
 
 ---
 
