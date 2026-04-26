@@ -14,7 +14,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  Activity,
 } from "lucide-react";
+
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -24,7 +26,13 @@ const navItems = [
     label: "Transactions",
     icon: ArrowLeftRight,
   },
+  {
+    href: "/dashboard/protocol",
+    label: "Protocol Intelligence",
+    icon: Activity,
+  },
   { href: "/dashboard/insights", label: "Insights", icon: Sparkles },
+
   { href: "/dashboard/agent", label: "Agent Demo", icon: Bot },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
