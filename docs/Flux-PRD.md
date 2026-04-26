@@ -376,12 +376,10 @@ Clean, fast, demo-ready.
 FluxID is structured across three definitive phases. This ensures we deliver on our promises step by step.
 
 - ✅ **Phase 1: MVP (Single Wallet Scoring) — COMPLETED**
-  - **Address-based analysis**: Logic for permissionless wallet profiling.
-  - **Rule-based engine**: Initial heuristic liquidity scoring.
-  - **AI-powered insights**: Haiku-driven behavior explanations.
-  - **Demo-ready dashboard**: Core UI for score and risk display.
+  Core scoring logic, AI insights, and address-based analysis are live.
 
 - 🏗️ **Phase 2: Scale (Protocol Intelligence) — IN PROGRESS**
+
   - **User-base health metrics**: Aggregating risk across groups of wallets.
   - **Risk heatmaps & alerts**: Real-time network-level risk visualization.
   - **API-first infrastructure**: Infrastructure-as-a-Service for trust signaling.
