@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
+
 import { AlertCircle, Layers, TrendingUp, TrendingDown } from "lucide-react";
 import AnimatedScore from "../components/AnimatedScore";
 import OnChainBadge from "../components/OnChainBadge";
@@ -195,8 +197,15 @@ function DashboardSummary({
             />
           </div>
           <p style={{ color: "var(--foreground-dim)", fontSize: 11 }} className="pt-2">
-            Last {recent.length} tx · see Analytics for full charts
+            Last {recent.length} tx ·{" "}
+            <Link
+              href="/dashboard/analytics"
+              className="text-[var(--primary)] hover:underline font-bold"
+            >
+              see Analytics for full charts
+            </Link>
           </p>
+
         </div>
       </motion.div>
 
