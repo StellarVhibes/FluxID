@@ -208,7 +208,11 @@ FluxID is being executed in three distinct phases. We keep our word and deliver 
 - ✅ **Phase 1: MVP (Single Wallet Scoring) — COMPLETED**
   We have successfully built the core scoring engine, live dashboard, and AI explainability. The foundation is set.
 - 🏗️ **Phase 2: Scale (Protocol Intelligence) — IN PROGRESS**
-  We have currently started building features to analyze groups of wallets, including the User-Base Health Dashboard and Risk Heatmaps.
+  - **User-Base Health Metrics**: Aggregate scoring and health monitoring for whole ecosystems.
+  - **Risk Heatmaps & Alerts**: Visual risk clustering and early warning system for large-scale drops in trust.
+  - **API-First Infrastructure**: Programmable trust signals for developers and platforms.
+  - **X402 Agentic Payments**: Enabling AI agents to pay for intelligence on-chain.
+
 - 🔮 **Phase 3: Outcome (Internet of Value) — UPCOMING (FINAL PHASE)**
   Our ultimate vision is to establish decentralized reputation and cross-chain trust signals as a global credit primitive.
 
