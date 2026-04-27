@@ -1,12 +1,30 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Filter, Search, Download } from "lucide-react";
 import ProtocolMetrics from "../../components/ProtocolMetrics";
 import RiskHeatmap from "../../components/RiskHeatmap";
 import EarlyWarningBanner from "../../components/EarlyWarningBanner";
+import { fetchProtocolCohorts, type ProtocolCohort } from "../../../lib/protocolApi";
 
 export default function ProtocolDashboard() {
+  const [cohorts, setCohorts] = useState<ProtocolCohort[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchProtocolCohorts().then((res) => {
+      if (active) setCohorts(res?.cohorts ?? []);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const cohortsLoading = cohorts === null;
+  const cohortMax = cohorts && cohorts.length > 0
+    ? Math.max(1, ...cohorts.map((c) => c.count))
+    : 1;
+
   return (
     <div className="max-w-[1400px] mx-auto">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -76,14 +94,26 @@ export default function ProtocolDashboard() {
                 Quick Segments
               </p>
               <div className="space-y-2">
-                {[
-                  { name: "Whales (> 10k XLM)", count: 42, color: "var(--primary)" },
-                  { name: "Steady Earners", count: 156, color: "#22c55e" },
-                  { name: "High Volatility", count: 89, color: "#eab308" },
-                  { name: "Dormant Wallets", count: 312, color: "var(--foreground-dim)" },
-                ].map((s) => (
+                {cohortsLoading && (
+                  <p
+                    style={{ color: "var(--foreground-dim)", fontSize: 12 }}
+                    className="py-2"
+                  >
+                    Loading segments…
+                  </p>
+                )}
+                {!cohortsLoading && (cohorts?.length ?? 0) === 0 && (
+                  <p
+                    style={{ color: "var(--foreground-dim)", fontSize: 12 }}
+                    className="py-2"
+                  >
+                    No cohort data yet.
+                  </p>
+                )}
+                {!cohortsLoading && cohorts && cohorts.map((s) => (
                   <button
-                    key={s.name}
+                    key={s.id}
+                    title={s.description}
                     className="w-full text-left p-3 rounded-xl transition-colors hover:bg-[var(--surface)] border border-transparent hover:border-[var(--border)] group"
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -103,7 +133,7 @@ export default function ProtocolDashboard() {
                       <div
                         className="h-full"
                         style={{
-                          width: `${(s.count / 400) * 100}%`,
+                          width: `${(s.count / cohortMax) * 100}%`,
                           background: s.color,
                         }}
                       />
@@ -141,7 +171,7 @@ export default function ProtocolDashboard() {
         </p>
         <div className="flex justify-center gap-4">
           <code style={{ background: "var(--card)", padding: "8px 16px", borderRadius: 8, fontSize: 13, border: "1px solid var(--border)" }}>
-            GET /api/v1/protocol/health
+            GET /protocol/health
           </code>
           <button className="text-[var(--primary)] text-sm font-bold flex items-center gap-1 hover:underline">
             View API Docs →

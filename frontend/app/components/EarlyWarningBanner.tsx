@@ -2,28 +2,24 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, X, ChevronRight } from "lucide-react";
-import { useState } from "react";
-
-const MOCK_ALERTS = [
-  {
-    id: 1,
-    title: "Anomalous Outflow Detected",
-    desc: "12% of tracked wallets showed coordinated large outflows in the last 4h.",
-    severity: "High",
-  },
-  {
-    id: 2,
-    title: "Protocol Health Shift",
-    desc: "Average liquidity score for Segment A dropped by 8 points since yesterday.",
-    severity: "Medium",
-  },
-];
+import { useEffect, useState } from "react";
+import { fetchProtocolAlerts, type ProtocolAlert } from "../../lib/protocolApi";
 
 export default function EarlyWarningBanner() {
-  const [alerts, setAlerts] = useState(MOCK_ALERTS);
+  const [alerts, setAlerts] = useState<ProtocolAlert[]>([]);
 
-  const removeAlert = (id: number) => {
-    setAlerts(alerts.filter((a) => a.id !== id));
+  useEffect(() => {
+    let active = true;
+    fetchProtocolAlerts().then((res) => {
+      if (active) setAlerts(res?.alerts ?? []);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const removeAlert = (id: string) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
   };
 
   if (alerts.length === 0) return null;

@@ -1,47 +1,90 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, TrendingUp, AlertTriangle, Activity } from "lucide-react";
+import { fetchProtocolHealth, type ProtocolHealth } from "../../lib/protocolApi";
 
-const METRICS = [
-  {
-    label: "Average Liquidity Score",
-    value: "74.2",
-    change: "+2.4%",
-    trend: "up",
-    icon: Activity,
-    color: "var(--primary)",
-  },
-  {
-    label: "Active Wallets Monitored",
-    value: "1,284",
-    change: "+124",
-    trend: "up",
-    icon: Users,
-    color: "#3b82f6",
-  },
-  {
-    label: "Low Risk User-Base",
-    value: "68%",
-    change: "-2%",
-    trend: "down",
-    icon: TrendingUp,
-    color: "#22c55e",
-  },
-  {
-    label: "High Risk Alerts",
-    value: "12",
-    change: "+3",
-    trend: "up",
-    icon: AlertTriangle,
-    color: "#ef4444",
-  },
-];
+interface Metric {
+  label: string;
+  value: string;
+  change: string;
+  trend: "up" | "down";
+  icon: typeof Activity;
+  color: string;
+}
+
+function deltaParts(
+  delta: number | null,
+  suffix: string,
+  upIsGood: boolean
+): { change: string; trend: "up" | "down" } {
+  if (delta === null) return { change: "—", trend: "up" };
+  if (delta === 0) return { change: `0${suffix}`, trend: "up" };
+  const sign = delta > 0 ? "+" : "";
+  const formatted = suffix === "%" ? delta.toFixed(1) : delta.toString();
+  const change = `${sign}${formatted}${suffix}`;
+  const isPositive = delta > 0;
+  const isGood = upIsGood ? isPositive : !isPositive;
+  return { change, trend: isGood ? "up" : "down" };
+}
 
 export default function ProtocolMetrics() {
+  const [health, setHealth] = useState<ProtocolHealth | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchProtocolHealth().then((h) => {
+      if (active) setHealth(h);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const avgScoreDelta = deltaParts(health?.delta.avgScore ?? null, "", true);
+  const totalWalletsDelta = deltaParts(health?.delta.totalWallets ?? null, "", true);
+  const lowRiskDelta = deltaParts(health?.delta.lowRiskPct ?? null, "%", true);
+  const highRiskDelta = deltaParts(health?.delta.highRiskAlerts ?? null, "", false);
+
+  const metrics: Metric[] = [
+    {
+      label: "Average Liquidity Score",
+      value: health ? health.avgScore.toFixed(1) : "—",
+      change: avgScoreDelta.change,
+      trend: avgScoreDelta.trend,
+      icon: Activity,
+      color: "var(--primary)",
+    },
+    {
+      label: "Active Wallets Monitored",
+      value: health ? health.totalWallets.toLocaleString() : "—",
+      change: totalWalletsDelta.change,
+      trend: totalWalletsDelta.trend,
+      icon: Users,
+      color: "#3b82f6",
+    },
+    {
+      label: "Low Risk User-Base",
+      value: health ? `${Math.round(health.lowRiskPct)}%` : "—",
+      change: lowRiskDelta.change,
+      trend: lowRiskDelta.trend,
+      icon: TrendingUp,
+      color: "#22c55e",
+    },
+    {
+      label: "High Risk Alerts",
+      value: health ? String(health.highRiskAlerts) : "—",
+      change: highRiskDelta.change,
+      trend: highRiskDelta.trend,
+      icon: AlertTriangle,
+      color: "#ef4444",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {METRICS.map((m, i) => (
+      {metrics.map((m, i) => (
         <motion.div
           key={m.label}
           initial={{ opacity: 0, y: 12 }}

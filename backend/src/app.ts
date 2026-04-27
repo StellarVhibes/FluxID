@@ -7,6 +7,7 @@ import { registerPaymentRoutes } from './routes/contract.routes.js';
 import { registerPaidRoutes } from './routes/paid.routes.js';
 import { registerMcpRoutes } from './routes/mcp.routes.js';
 import { registerOnChainRoutes } from './routes/onchain.routes.js';
+import { registerProtocolRoutes } from './routes/protocol.routes.js';
 import { logger } from './utils/logger.js';
 
 export async function buildServer() {
@@ -33,6 +34,10 @@ export async function buildServer() {
       paidScore: 'GET /paid/score/:accountId?requestId=',
       mcpTools: 'GET /mcp/tools',
       mcpInvoke: 'POST /mcp/tools/call  body: { name, arguments }',
+      protocolHealth: 'GET /protocol/health?network=&windowHours=',
+      protocolCohorts: 'GET /protocol/cohorts?network=',
+      protocolRiskHeatmap: 'GET /protocol/risk-heatmap?network=',
+      protocolAlerts: 'GET /protocol/alerts?network=&lookbackHours=',
     },
     docs: 'See README.md and docs/ in the repo for full usage.',
   }));
@@ -43,6 +48,7 @@ export async function buildServer() {
   await registerPaidRoutes(fastify);
   await registerMcpRoutes(fastify);
   await registerOnChainRoutes(fastify);
+  await registerProtocolRoutes(fastify);
 
   fastify.setErrorHandler((error, _request, reply) => {
     logger.error({ error }, 'Unhandled error');

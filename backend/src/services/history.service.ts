@@ -72,3 +72,39 @@ export async function getScoreHistory(
     return [];
   }
 }
+
+export interface AllHistoryQueryOptions {
+  network?: NetworkType;
+  since?: number;
+}
+
+export async function getAllScoreHistory(
+  options: AllHistoryQueryOptions = {}
+): Promise<ScoreHistoryEntry[]> {
+  const { network, since } = options;
+
+  try {
+    const content = await fs.readFile(HISTORY_FILE, 'utf8');
+    const lines = content.split('\n');
+    const entries: ScoreHistoryEntry[] = [];
+
+    for (const line of lines) {
+      if (!line) continue;
+      try {
+        const entry = JSON.parse(line) as ScoreHistoryEntry;
+        if (network && entry.network !== network) continue;
+        if (since && entry.timestamp < since) continue;
+        entries.push(entry);
+      } catch {
+        // malformed line — skip silently
+      }
+    }
+
+    return entries;
+  } catch (err) {
+    const e = err as NodeJS.ErrnoException;
+    if (e.code === 'ENOENT') return [];
+    logger.warn({ error: e.message }, 'Failed to read full score history');
+    return [];
+  }
+}
