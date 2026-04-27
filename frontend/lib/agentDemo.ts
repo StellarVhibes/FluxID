@@ -9,7 +9,10 @@ import {
 } from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
 
-const HORIZON_URL = process.env.NEXT_PUBLIC_HORIZON_URL || "https://horizon-testnet.stellar.org";
+// Hardcoded to testnet Horizon: the demo signs with Networks.TESTNET so the
+// Horizon URL must match. Reading NEXT_PUBLIC_HORIZON_URL here let a mainnet
+// override route the demo to the wrong network and 404 on account load.
+const HORIZON_URL = "https://horizon-testnet.stellar.org";
 const AI_BACKEND_URL = process.env.NEXT_PUBLIC_AI_BACKEND_URL || "";
 const NETWORK_PASSPHRASE = Networks.TESTNET;
 
