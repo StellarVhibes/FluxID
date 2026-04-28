@@ -66,7 +66,7 @@ export default function AgentDemo() {
       // Step 1: request the score without a requestId — expect 402
       updateStep("request", { status: "active" });
       const first = await requestPaidScore(publicKey, "testnet");
-      updateStep("request", { status: "done", detail: `GET /paid/score/${truncateAddress(publicKey)}` });
+      updateStep("request", { status: "done", detail: `GET /paid/wallet/${truncateAddress(publicKey)}` });
 
       if (first.kind === "score") {
         updateStep("challenge", { status: "done", detail: "Free-tier cached response" });

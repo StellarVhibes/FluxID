@@ -414,7 +414,7 @@ async function fetchFromBackend(
   if (!AI_BACKEND_URL) return null;
 
   try {
-    const response = await fetch(`${AI_BACKEND_URL}/score/${address}?network=${network}`);
+    const response = await fetch(`${AI_BACKEND_URL}/wallet/${address}?network=${network}`);
     const json = (await response.json()) as BackendScoreResponse;
     if (!json.success || !json.data) return null;
 

@@ -81,7 +81,7 @@ export async function requestPaidScore(
   const base = backendBase();
   const qs = new URLSearchParams({ network });
   if (requestId) qs.set("requestId", requestId);
-  const res = await fetch(`${base}/paid/score/${wallet}?${qs.toString()}`);
+  const res = await fetch(`${base}/paid/wallet/${wallet}?${qs.toString()}`);
   const body = await res.json().catch(() => ({}));
 
   if (res.status === 402) {

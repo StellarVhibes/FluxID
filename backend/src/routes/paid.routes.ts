@@ -4,7 +4,7 @@ import { calculateWalletScore } from '../services/scoring.service.js';
 import { cacheService } from '../services/cache.service.js';
 import { paymentService } from '../services/payment.service.js';
 import { createContractService } from '../services/contract.service.js';
-import { appendScoreHistory } from '../services/history.service.js';
+import { appendWalletHistory } from '../services/history.service.js';
 import { generateExplanation } from '../services/explainability/index.js';
 import { validateAccountId, validateNetwork } from '../utils/validators.js';
 import { logger } from '../utils/logger.js';
@@ -36,7 +36,7 @@ function buildChallenge(
     memo: request.memo,
     network: request.network,
     expiresAt: request.expiresAt.toISOString(),
-    retryUrl: `/paid/score/${accountId}?requestId=${request.requestId}&network=${request.network}`,
+    retryUrl: `/paid/wallet/${accountId}?requestId=${request.requestId}&network=${request.network}`,
     instructions:
       `Send ${request.amountXLM} XLM to ${request.payTo} with text memo "${request.memo}" ` +
       `on the ${request.network} network, then GET the retryUrl to receive the score.`,
@@ -136,7 +136,7 @@ export async function paidScoreRoute(
         ));
       if (!cached) {
         cacheService.set(validatedAccountId, validatedNetwork, result);
-        void appendScoreHistory({
+        void appendWalletHistory({
           wallet: validatedAccountId,
           network: validatedNetwork,
           score: result.score,
@@ -195,5 +195,5 @@ export async function paidScoreRoute(
 }
 
 export async function registerPaidRoutes(fastify: FastifyInstance) {
-  fastify.get('/paid/score/:accountId', paidScoreRoute);
+  fastify.get('/paid/wallet/:accountId', paidScoreRoute);
 }

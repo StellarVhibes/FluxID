@@ -20,7 +20,7 @@ export async function fetchOnChainInfo(wallet: string): Promise<OnChainLookupRes
   }
 
   try {
-    const res = await fetch(`${AI_BACKEND_URL}/onchain/score/${wallet}`);
+    const res = await fetch(`${AI_BACKEND_URL}/onchain/wallet/${wallet}`);
     const json = await res.json().catch(() => ({}));
 
     if (res.status === 404) {

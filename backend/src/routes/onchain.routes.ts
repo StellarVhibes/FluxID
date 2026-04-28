@@ -149,6 +149,6 @@ export async function onChainBatchRoute(
 }
 
 export async function registerOnChainRoutes(fastify: FastifyInstance) {
-  fastify.get('/onchain/score/:wallet', onChainScoreRoute);
+  fastify.get('/onchain/wallet/:wallet', onChainScoreRoute);
   fastify.post('/onchain/batch', onChainBatchRoute);
 }

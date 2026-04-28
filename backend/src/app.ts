@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { appConfig } from './config/app.config.js';
 import { healthRoute } from './routes/health.routes.js';
-import { registerScoreRoutes } from './routes/score.routes.js';
+import { registerWalletRoutes } from './routes/wallet.routes.js';
 import { registerPaymentRoutes } from './routes/contract.routes.js';
 import { registerPaidRoutes } from './routes/paid.routes.js';
 import { registerMcpRoutes } from './routes/mcp.routes.js';
@@ -26,12 +26,12 @@ export async function buildServer() {
     network: appConfig.stellarNetwork,
     endpoints: {
       health: 'GET /health',
-      score: 'GET /score/:accountId?network=&refresh=&sync=',
-      syncScore: 'POST /score/:accountId/sync',
-      scoreHistory: 'GET /score/:accountId/history?limit=&since=',
-      onChainScore: 'GET /onchain/score/:wallet',
+      walletScore: 'GET /wallet/:accountId?network=&refresh=&sync=',
+      walletSync: 'POST /wallet/:accountId/sync',
+      walletHistory: 'GET /wallet/:accountId/history?limit=&since=',
+      onChainWalletScore: 'GET /onchain/wallet/:wallet',
       onChainBatch: 'POST /onchain/batch  body: { wallets: string[], mode?: "per-wallet" | "contract" }',
-      paidScore: 'GET /paid/score/:accountId?requestId=',
+      paidWalletScore: 'GET /paid/wallet/:accountId?requestId=',
       mcpTools: 'GET /mcp/tools',
       mcpInvoke: 'POST /mcp/tools/call  body: { name, arguments }',
       protocolHealth: 'GET /protocol/health?network=&windowHours=',
@@ -45,7 +45,7 @@ export async function buildServer() {
   }));
 
   fastify.get('/health', healthRoute);
-  await registerScoreRoutes(fastify);
+  await registerWalletRoutes(fastify);
   await registerPaymentRoutes(fastify);
   await registerPaidRoutes(fastify);
   await registerMcpRoutes(fastify);

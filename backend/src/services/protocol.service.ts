@@ -1,5 +1,5 @@
 import type { NetworkType } from '../config/stellar.config.js';
-import { getAllScoreHistory, type ScoreHistoryEntry } from './history.service.js';
+import { getAllProtocolHistory, type ScoreHistoryEntry } from './history.service.js';
 
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
@@ -52,7 +52,7 @@ export async function getHealthMetrics(
   const windowStart = now - windowHours * HOUR_MS;
   const priorStart = windowStart - windowHours * HOUR_MS;
 
-  const all = await getAllScoreHistory({ network });
+  const all = await getAllProtocolHistory({ network });
   const inWindow = all.filter((e) => e.timestamp >= windowStart);
   const inPrior = all.filter((e) => e.timestamp >= priorStart && e.timestamp < windowStart);
 
@@ -99,7 +99,7 @@ const VOLATILITY_THRESHOLD = 15;
 const STEADY_MIN_OBSERVATIONS = 2;
 
 export async function getCohorts(network: NetworkType): Promise<{ network: NetworkType; cohorts: Cohort[] }> {
-  const all = await getAllScoreHistory({ network });
+  const all = await getAllProtocolHistory({ network });
   const byWallet = new Map<string, ScoreHistoryEntry[]>();
   for (const e of all) {
     const arr = byWallet.get(e.wallet) ?? [];
@@ -185,7 +185,7 @@ const SCORE_BANDS: { label: string; min: number; max: number }[] = [
 export async function getRiskHeatmap(
   network: NetworkType
 ): Promise<{ network: NetworkType; bands: RiskBand[] }> {
-  const all = await getAllScoreHistory({ network });
+  const all = await getAllProtocolHistory({ network });
   const latest = Array.from(latestPerWallet(all).values());
 
   const buckets = SCORE_BANDS.map((b) => {
@@ -251,7 +251,7 @@ export async function getSegments(
   query: SegmentQuery = {}
 ): Promise<SegmentResult> {
   const limit = Math.max(1, Math.min(query.limit ?? 100, 500));
-  const all = await getAllScoreHistory({ network });
+  const all = await getAllProtocolHistory({ network });
 
   const byWallet = new Map<string, ScoreHistoryEntry[]>();
   for (const e of all) {
@@ -320,7 +320,7 @@ export async function getAlerts(
   const priorStart = windowStart - lookbackHours * HOUR_MS;
   const generatedAt = new Date(now).toISOString();
 
-  const all = await getAllScoreHistory({ network });
+  const all = await getAllProtocolHistory({ network });
   const current = all.filter((e) => e.timestamp >= windowStart);
   const prior = all.filter((e) => e.timestamp >= priorStart && e.timestamp < windowStart);
 
