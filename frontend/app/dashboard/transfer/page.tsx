@@ -60,12 +60,14 @@ export default function TransferPage() {
         .setTimeout(60)
         .build();
 
-      const signedTxStr = await signTransaction(transaction.toXDR(), { 
+      const signResult = await signTransaction(transaction.toXDR(), { 
         networkPassphrase: network === "mainnet" ? "PUBLIC" : "TESTNET" 
       });
+
+      const xdrStr = typeof signResult === "string" ? signResult : (signResult as any).signedTxXdr;
       
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(
-        signedTxStr, 
+        xdrStr, 
         network === "mainnet" ? StellarSdk.Networks.PUBLIC : StellarSdk.Networks.TESTNET
       );
       
