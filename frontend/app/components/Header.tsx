@@ -173,7 +173,7 @@ export default function Header() {
                       padding: 16,
                       zIndex: 50
                     }}
-                    className="card"
+                    className="card !rounded-none"
                   >
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-muted)]">Balances</span>
@@ -181,19 +181,19 @@ export default function Header() {
                     </div>
 
                     {/* Network Toggle */}
-                    <div className="flex bg-[var(--surface)] p-1 rounded-lg mb-4">
+                    <div className="flex p-1 rounded-lg mb-4 pressed">
                       <button
                         onClick={() => setNetwork("testnet")}
-                        className={`flex-1 text-xs font-bold py-1 rounded-md transition-colors ${
-                          network === "testnet" ? "bg-[var(--card)] text-[var(--primary)] shadow-sm" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
+                        className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all duration-200 ${
+                          network === "testnet" ? "card text-[var(--primary)]" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
                         }`}
                       >
                         Testnet
                       </button>
                       <button
                         onClick={() => setNetwork("mainnet")}
-                        className={`flex-1 text-xs font-bold py-1 rounded-md transition-colors ${
-                          network === "mainnet" ? "bg-[var(--card)] text-[var(--primary)] shadow-sm" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
+                        className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all duration-200 ${
+                          network === "mainnet" ? "card text-[var(--primary)]" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
                         }`}
                       >
                         Mainnet

@@ -94,10 +94,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Theme Selection */}
-        <div 
-          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-          className="rounded-2xl p-6 mb-6"
-        >
+        <div className="card p-6 mb-6">
           <div className="flex items-center gap-2 mb-6">
             <Palette size={18} style={{ color: "var(--primary)" }} />
             <h2 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>
@@ -141,10 +138,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Notification Preferences */}
-        <div 
-          style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-          className="rounded-2xl p-6 mb-6"
-        >
+        <div className="card p-6 mb-6">
           <div className="flex items-center gap-2 mb-6">
             <Bell size={18} style={{ color: "var(--primary)" }} />
             <h2 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>

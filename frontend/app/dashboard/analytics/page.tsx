@@ -149,13 +149,13 @@ export default function AnalyticsPage() {
       </p>
 
       {isAnalyzing && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-6 text-center">
+        <div className="card p-6 text-center">
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>Loading analytics…</p>
         </div>
       )}
 
       {!isAnalyzing && !analysis && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-8 text-center">
+        <div className="card p-8 text-center">
           <BarChart3 size={32} style={{ color: "var(--foreground-muted)", margin: "0 auto 12px" }} />
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
             Analyze a wallet above to populate analytics.
@@ -201,8 +201,7 @@ function WeeklyTrend({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-      className="rounded-2xl p-6"
+      className="card p-6 mb-6"
     >
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>Weekly Trend</h3>
@@ -273,8 +272,7 @@ function VolatilityCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-      className="rounded-2xl p-6"
+      className="card p-6"
     >
       <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }} className="mb-4">
         Volatility
@@ -320,8 +318,7 @@ function DistributionChart({ distribution, max }: { distribution: DistributionBu
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-      className="rounded-2xl p-6"
+      className="card p-6"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }}>Transaction Size Distribution</h3>

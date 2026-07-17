@@ -54,13 +54,13 @@ export default function TransactionsPage() {
       </div>
 
       {isAnalyzing && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-6 text-center">
+        <div className="card p-6 text-center">
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>Loading transactions…</p>
         </div>
       )}
 
       {!isAnalyzing && !analysis && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-8 text-center">
+        <div className="card p-8 text-center">
           <Activity size={32} style={{ color: "var(--foreground-muted)", margin: "0 auto 12px" }} />
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
             No wallet analyzed yet. Paste an address above to see its transactions here.
@@ -77,20 +77,15 @@ export default function TransactionsPage() {
             <StatCard label="Swaps" value={stats.swapCount} color="#8FA828" />
           </div>
 
-          <div
-            style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-            className="rounded-2xl overflow-hidden"
-          >
+          <div className="card overflow-hidden">
             <div
-              className="flex items-center justify-between px-5 py-3"
-              style={{ borderBottom: "1px solid var(--border)" }}
+              className="flex items-center justify-between px-5 py-3 border-b border-border"
             >
               <span style={{ color: "var(--foreground-muted)", fontSize: 12 }} className="flex items-center gap-1.5">
                 <Filter size={12} /> {filtered.length} transaction{filtered.length === 1 ? "" : "s"}
               </span>
               <div
-                style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 10 }}
-                className="flex items-center p-0.5"
+                className="pressed p-0.5 flex items-center"
               >
                 {(["all", "inflow", "outflow", "swap"] as DirectionFilter[]).map((f) => (
                   <button

@@ -224,8 +224,7 @@ export default function ProtocolDashboard() {
               Add Wallets to Protocol Intelligence
             </h3>
             <div
-              className="flex items-center p-0.5 rounded-lg"
-              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+              className="flex items-center p-0.5 rounded-lg card overflow-hidden"
             >
               {(["mainnet", "testnet"] as ProtocolNetwork[]).map((n) => (
                 <button
@@ -632,7 +631,7 @@ export default function ProtocolDashboard() {
           Access these trust signals programmatically. Integrate real-time liquidity scoring and risk monitoring into your lending logic, marketplaces, or AI agents.
         </p>
         <div className="flex justify-center gap-4">
-          <code style={{ background: "var(--card)", padding: "8px 16px", borderRadius: 8, fontSize: 13, border: "1px solid var(--border)" }}>
+          <code className="pressed px-4 py-2 text-[13px] rounded-lg text-primary">
             GET /protocol/health
           </code>
           <a 

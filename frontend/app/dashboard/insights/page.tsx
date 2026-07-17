@@ -18,13 +18,13 @@ export default function InsightsPage() {
       </p>
 
       {isAnalyzing && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-6 text-center">
+        <div className="card p-6 text-center">
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>Generating insight…</p>
         </div>
       )}
 
       {!isAnalyzing && !analysis && (
-        <div style={{ background: "var(--card)", border: "1px solid var(--border)" }} className="rounded-2xl p-8 text-center">
+        <div className="card p-8 text-center">
           <Sparkles size={32} style={{ color: "var(--foreground-muted)", margin: "0 auto 12px" }} />
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
             Analyze a wallet to see its insight and suggestions here.
