@@ -158,12 +158,8 @@ export default function Home() {
       {/* ── Stats strip ── */}
       <section className="px-6 md:px-16 py-6">
         <div
-          className="max-w-5xl mx-auto px-10 py-5 flex flex-col sm:flex-row items-stretch sm:items-center divide-y sm:divide-y-0 sm:divide-x rounded-2xl"
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            "--tw-divide-color": "var(--border)",
-          } as React.CSSProperties}
+          className="card max-w-5xl mx-auto px-10 py-5 flex flex-col sm:flex-row items-stretch sm:items-center divide-y sm:divide-y-0 sm:divide-x"
+          style={{ "--tw-divide-color": "var(--shadow-dark)" } as React.CSSProperties}
         >
           {STATS.map(({ icon: Icon, value, label, accent }, i) => (
             <motion.div
@@ -218,26 +214,12 @@ export default function Home() {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, delay: i * 0.12 }}
               whileHover={{ y: -6, transition: { duration: 0.22, ease: "easeOut" } }}
-              style={{
-                background: "var(--card)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                borderTopLeftRadius: 40,
-                borderTopRightRadius: 0,
-                borderBottomLeftRadius: 40,
-                borderBottomRightRadius: 40,
-                position: "relative",
-                overflow: "visible",
-                border: "1px solid var(--border)",
-              }}
-              className="rounded-tl-[40px] rounded-bl-[40px] rounded-br-[40px] p-8 group cursor-default"
+              style={{ position: "relative", overflow: "visible" }}
+              className="card p-8 group cursor-default"
             >
               {/* Number orb at top */}
               <div 
-                className="absolute -top-5 left-8 w-14 h-14 rounded-full flex items-center justify-center"
-                style={{ 
-                  background: "var(--primary)",
-                }}
+                className="absolute -top-5 left-8 w-14 h-14 rounded-full flex items-center justify-center card-primary"
               >
                 <span style={{ color: "var(--background)", fontWeight: 900, fontSize: 20 }}>
                   0{i + 1}
@@ -247,8 +229,7 @@ export default function Home() {
               {/* Icon and title */}
               <div className="flex items-center gap-3 mb-4 mt-4">
                 <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "transparent", border: "1px solid var(--border)" }}
+                  className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 pressed"
                 >
                   <Icon size={18} style={{ color: "var(--primary)" }} />
                 </div>
@@ -281,8 +262,7 @@ export default function Home() {
 
       {/* ── Footer ── */}
       <footer
-        style={{ background: "var(--card)", borderTop: "1px solid var(--border)" }}
-        className="py-8 px-5"
+        className="py-8 px-5 card mt-12 mb-4 mx-4 rounded-3xl"
       >
         <div className="max-w-2xl mx-auto text-center mb-6">
           <h2
@@ -299,7 +279,7 @@ export default function Home() {
           </Link>
         </div>
         
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 pt-4" style={{ borderTop: "1px solid var(--border)" }}>
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-6 border-t border-[var(--shadow-light)] opacity-80">
           <div className="flex items-center gap-2">
             <Image src="/fluxID-logo.png" alt="FluxID" width={36} height={36} />
             <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: "0.04em" }}>

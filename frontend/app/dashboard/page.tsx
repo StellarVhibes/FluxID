@@ -56,8 +56,7 @@ export default function Dashboard() {
 
       {error && (
         <div
-          style={{ background: "#ef444420", border: "1px solid #ef4444" }}
-          className="rounded-2xl p-4 mb-6 flex items-center gap-3"
+          className="pressed p-4 mb-6 flex items-center gap-3"
         >
           <AlertCircle size={18} style={{ color: "#ef4444" }} />
           <p style={{ color: "#ef4444", fontSize: 14 }}>{error}</p>
@@ -112,9 +111,7 @@ function DashboardSummary({
     <motion.div initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Score + risk */}
       <motion.div
-        variants={item}
-        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-        className="rounded-2xl p-6 md:col-span-2 flex items-center gap-6 flex-wrap"
+        className="card p-6 md:col-span-2 flex items-center gap-6 flex-wrap"
         id="tour-score-display"
       >
         <div className="relative shrink-0">
@@ -163,9 +160,7 @@ function DashboardSummary({
 
       {/* Compact flow snapshot */}
       <motion.div
-        variants={item}
-        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-        className="rounded-2xl p-6"
+        className="card p-6"
         id="tour-recent-flow"
       >
         <h3 style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 700 }} className="uppercase mb-4">
@@ -178,7 +173,7 @@ function DashboardSummary({
             </span>
             <span style={{ color: "var(--foreground)", fontWeight: 700 }}>{recentIn}</span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--surface)" }}>
+          <div className="pressed h-2 overflow-hidden">
             <div
               className="h-full"
               style={{ width: `${(recentIn / recentTotal) * 100}%`, background: "#22c55e" }}
@@ -190,7 +185,7 @@ function DashboardSummary({
             </span>
             <span style={{ color: "var(--foreground)", fontWeight: 700 }}>{recentOut}</span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--surface)" }}>
+          <div className="pressed h-2 overflow-hidden">
             <div
               className="h-full"
               style={{ width: `${(recentOut / recentTotal) * 100}%`, background: "#ef4444" }}
@@ -211,9 +206,7 @@ function DashboardSummary({
 
       {/* Score breakdown */}
       <motion.div
-        variants={item}
-        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-        className="rounded-2xl p-6 md:col-span-2"
+        className="card p-6 md:col-span-2"
       >
         <h3 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 16 }} className="mb-4">
           Score Breakdown
@@ -225,7 +218,7 @@ function DashboardSummary({
                 <span style={{ color: "var(--foreground-muted)", fontSize: 12 }}>{f.label}</span>
                 <span style={{ color: "var(--foreground)", fontWeight: 700, fontSize: 14 }}>{f.value}%</span>
               </div>
-              <div style={{ background: "var(--surface)", borderRadius: 4 }} className="h-2">
+              <div className="pressed h-2">
                 <div
                   className="h-full"
                   style={{
@@ -242,9 +235,7 @@ function DashboardSummary({
 
       {/* Top risk factors + suggestions */}
       <motion.div
-        variants={item}
-        style={{ background: "var(--card)", border: "1px solid var(--border)" }}
-        className="rounded-2xl p-6"
+        className="card p-6"
       >
         <h3 style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 700 }} className="uppercase mb-3">
           Top Risk Factors
