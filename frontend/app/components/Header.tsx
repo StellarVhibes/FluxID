@@ -7,14 +7,17 @@ import { useFreighter, truncateAddress } from "../context/FreighterContext";
 import { Wallet, LogOut, Bell, ChevronDown, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+  const pathname = usePathname();
   const { publicKey: address, isConnected, isLoading, connect, disconnect } = useFreighter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
   // Dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [network, setNetwork] = useState<"testnet" | "mainnet">("testnet");
   const [balances, setBalances] = useState<{ xlm: string; usdc: string }>({ xlm: "...", usdc: "..." });
   const [isFetchingBalances, setIsFetchingBalances] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -30,12 +33,19 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch balances when dropdown opens
+  // Fetch balances when dropdown opens or network changes
   useEffect(() => {
     if (isDropdownOpen && address) {
       setIsFetchingBalances(true);
-      fetch(`https://horizon-testnet.stellar.org/accounts/${address}`)
-        .then((res) => res.json())
+      const horizonUrl = network === "mainnet" 
+        ? "https://horizon.stellar.org" 
+        : "https://horizon-testnet.stellar.org";
+        
+      fetch(`${horizonUrl}/accounts/${address}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Account not found");
+          return res.json();
+        })
         .then((data) => {
           let xlm = "0.00";
           let usdc = "0.00";
@@ -52,12 +62,12 @@ export default function Header() {
           setBalances({ xlm, usdc });
         })
         .catch((err) => {
-          console.error("Failed to fetch balances", err);
-          setBalances({ xlm: "Error", usdc: "Error" });
+          console.error(`Failed to fetch balances on ${network}`, err);
+          setBalances({ xlm: "0.00", usdc: "0.00" });
         })
         .finally(() => setIsFetchingBalances(false));
     }
-  }, [isDropdownOpen, address]);
+  }, [isDropdownOpen, address, network]);
 
   useEffect(() => {
     setMounted(true);
@@ -72,9 +82,13 @@ export default function Header() {
         border: "1px solid var(--border)",
         borderRadius: 40
       }}
-      className="fixed top-4 left-4 right-4 z-40 h-[4.5rem]"
+      className={
+        pathname === '/' 
+          ? "fixed top-4 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-7xl z-40 h-[4.5rem]" 
+          : "fixed top-4 left-4 right-4 z-40 h-[4.5rem]"
+      }
     >
-      <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className={`h-full mx-auto px-6 flex items-center justify-between ${pathname === '/' ? 'w-full' : 'max-w-[1600px]'}`}>
         {/* Left: Logo */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2">
@@ -171,6 +185,26 @@ export default function Header() {
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-xs font-bold uppercase tracking-wider text-[var(--foreground-muted)]">Balances</span>
                       {isFetchingBalances && <div className="w-3 h-3 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>}
+                    </div>
+
+                    {/* Network Toggle */}
+                    <div className="flex bg-[var(--surface)] p-1 rounded-lg mb-4">
+                      <button
+                        onClick={() => setNetwork("testnet")}
+                        className={`flex-1 text-xs font-bold py-1 rounded-md transition-colors ${
+                          network === "testnet" ? "bg-[var(--card)] text-[var(--primary)] shadow-sm" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
+                        }`}
+                      >
+                        Testnet
+                      </button>
+                      <button
+                        onClick={() => setNetwork("mainnet")}
+                        className={`flex-1 text-xs font-bold py-1 rounded-md transition-colors ${
+                          network === "mainnet" ? "bg-[var(--card)] text-[var(--primary)] shadow-sm" : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
+                        }`}
+                      >
+                        Mainnet
+                      </button>
                     </div>
                     
                     <div className="flex flex-col gap-3">
