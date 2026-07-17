@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Home,
   Activity,
+  Send,
 } from "lucide-react";
 
 
@@ -33,6 +34,7 @@ const navSections = [
         icon: ArrowLeftRight,
       },
       { href: "/dashboard/insights", label: "Insights", icon: Sparkles },
+      { href: "/dashboard/transfer", label: "Send Liquidity", icon: Send },
     ],
   },
   {
