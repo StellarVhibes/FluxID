@@ -169,6 +169,24 @@ FluxID is infrastructure for:
 
 ---
 
+## Screenshots
+
+These screenshots demonstrate the core functionality required for the Level 1 evaluation on Testnet:
+
+### 1. Wallet Connected
+![Wallet Connected](docs/screenshots/wallet_connected.png)
+
+### 2. Balance Displayed
+![Balance Displayed](docs/screenshots/balance_displayed.png)
+
+### 3. Signing Payment Transaction
+![Signing Transaction](docs/screenshots/signing_transaction.png)
+
+### 4. Transaction Result (Success)
+![Transaction Result](docs/screenshots/transaction_result.png)
+
+---
+
 ## Getting Started
 
 ```bash
