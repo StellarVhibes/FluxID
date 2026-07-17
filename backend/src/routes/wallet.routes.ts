@@ -11,6 +11,42 @@ import { appConfig } from '../config/app.config.js';
 
 const DEFAULT_NETWORK = appConfig.stellarNetwork;
 
+// ─── In-process rate limiter (Fix 5) ─────────────────────────────────────────
+// Simple sliding-window counter per IP. No extra npm package required.
+// 10 requests per 60 seconds per client IP on the free scoring endpoint.
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+
+interface RateEntry { count: number; windowStart: number }
+const rateLimitStore = new Map<string, RateEntry>();
+
+function checkRateLimit(ip: string): { allowed: boolean; retryAfterSeconds: number } {
+  const now = Date.now();
+  const entry = rateLimitStore.get(ip);
+
+  if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    // New window
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  entry.count += 1;
+  if (entry.count > RATE_LIMIT_MAX) {
+    const retryAfterMs = RATE_LIMIT_WINDOW_MS - (now - entry.windowStart);
+    return { allowed: false, retryAfterSeconds: Math.ceil(retryAfterMs / 1000) };
+  }
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
+// Prune old entries every 5 minutes to avoid unbounded memory growth.
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitStore.entries()) {
+    if (now - entry.windowStart >= RATE_LIMIT_WINDOW_MS * 2) rateLimitStore.delete(ip);
+  }
+}, 5 * 60_000).unref();
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface WalletParams {
   accountId: string;
 }
@@ -28,6 +64,17 @@ interface SyncBody {
 export async function walletScoreRoute(request: FastifyRequest<{ Params: WalletParams; Querystring: WalletQuery }>, reply: FastifyReply) {
   const { accountId } = request.params;
   const { network = DEFAULT_NETWORK, refresh = 'false', sync = 'false' } = request.query;
+
+  // Fix 5: rate limit by client IP on the free endpoint.
+  const clientIp = request.ip ?? request.headers['x-forwarded-for']?.toString().split(',')[0] ?? 'unknown';
+  const { allowed, retryAfterSeconds } = checkRateLimit(clientIp);
+  if (!allowed) {
+    reply.header('Retry-After', String(retryAfterSeconds));
+    return reply.code(429).send({
+      success: false,
+      error: `Rate limit exceeded. Try again in ${retryAfterSeconds}s.`,
+    });
+  }
 
   try {
     const validatedAccountId = validateAccountId(accountId);

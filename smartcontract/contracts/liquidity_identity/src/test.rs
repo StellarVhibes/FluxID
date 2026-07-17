@@ -1,6 +1,11 @@
 #![cfg(test)]
 use super::*;
-use soroban_sdk::{symbol_short, testutils::Address as _};
+use soroban_sdk::{symbol_short, testutils::Address as _, BytesN};
+
+/// Helper: create a deterministic 32-byte dummy hash for tests.
+fn dummy_hash(env: &Env, seed: u8) -> BytesN<32> {
+    BytesN::from_array(env, &[seed; 32])
+}
 
 fn setup() -> (Env, Address, Address) {
     let env = Env::default();
@@ -35,7 +40,8 @@ fn test_set_and_get_score() {
     client.init(&admin, &symbol_short!("testnet"));
 
     let wallet = Address::generate(&env);
-    client.set_score(&admin, &wallet, &85, &RiskLevel::Low);
+    let hash = dummy_hash(&env, 0xab);
+    client.set_score(&admin, &wallet, &85, &RiskLevel::Low, &hash);
 
     let score = client.get_score(&wallet);
     assert_eq!(score, 85);
@@ -72,9 +78,9 @@ fn test_risk_level_mapping() {
     let wallet2 = Address::generate(&env);
     let wallet3 = Address::generate(&env);
 
-    client.set_score(&admin, &wallet1, &85, &RiskLevel::Low);
-    client.set_score(&admin, &wallet2, &55, &RiskLevel::Medium);
-    client.set_score(&admin, &wallet3, &25, &RiskLevel::High);
+    client.set_score(&admin, &wallet1, &85, &RiskLevel::Low, &dummy_hash(&env, 0x01));
+    client.set_score(&admin, &wallet2, &55, &RiskLevel::Medium, &dummy_hash(&env, 0x02));
+    client.set_score(&admin, &wallet3, &25, &RiskLevel::High, &dummy_hash(&env, 0x03));
 
     assert_eq!(client.get_risk(&wallet1), Some(RiskLevel::Low));
     assert_eq!(client.get_risk(&wallet2), Some(RiskLevel::Medium));
@@ -90,7 +96,7 @@ fn test_transfer_admin() {
     client.init(&admin, &symbol_short!("testnet"));
 
     let wallet = Address::generate(&env);
-    client.set_score(&admin, &wallet, &70, &RiskLevel::Low);
+    client.set_score(&admin, &wallet, &70, &RiskLevel::Low, &dummy_hash(&env, 0x70));
 
     let new_admin = Address::generate(&env);
     client.transfer_admin(&admin, &new_admin);
@@ -111,9 +117,9 @@ fn test_multiple_wallets() {
     let wallet2 = Address::generate(&env);
     let wallet3 = Address::generate(&env);
 
-    client.set_score(&admin, &wallet1, &90, &RiskLevel::Low);
-    client.set_score(&admin, &wallet2, &50, &RiskLevel::Medium);
-    client.set_score(&admin, &wallet3, &30, &RiskLevel::High);
+    client.set_score(&admin, &wallet1, &90, &RiskLevel::Low, &dummy_hash(&env, 0x90));
+    client.set_score(&admin, &wallet2, &50, &RiskLevel::Medium, &dummy_hash(&env, 0x50));
+    client.set_score(&admin, &wallet3, &30, &RiskLevel::High, &dummy_hash(&env, 0x30));
 
     assert_eq!(client.get_score(&wallet1), 90);
     assert_eq!(client.get_score(&wallet2), 50);
@@ -129,7 +135,7 @@ fn test_last_updated_timestamp() {
     client.init(&admin, &symbol_short!("testnet"));
 
     let wallet = Address::generate(&env);
-    client.set_score(&admin, &wallet, &75, &RiskLevel::Low);
+    client.set_score(&admin, &wallet, &75, &RiskLevel::Low, &dummy_hash(&env, 0x75));
 
     let timestamp = client.get_last_updated(&wallet);
     assert!(timestamp.is_some());
@@ -156,7 +162,7 @@ fn test_get_wallet_info() {
     client.init(&admin, &symbol_short!("testnet"));
 
     let wallet = Address::generate(&env);
-    client.set_score(&admin, &wallet, &82, &RiskLevel::Low);
+    client.set_score(&admin, &wallet, &82, &RiskLevel::Low, &dummy_hash(&env, 0x82));
 
     let info = client.get_wallet_info(&wallet);
     assert!(info.is_some());
@@ -177,4 +183,40 @@ fn test_get_wallet_info_nonexistent() {
     let wallet = Address::generate(&env);
     let info = client.get_wallet_info(&wallet);
     assert!(info.is_none());
+}
+
+#[test]
+fn test_get_verifiable_info() {
+    let (env, admin, contract_id) = setup();
+    env.mock_all_auths();
+
+    let client = LiquidityIdentityClient::new(&env, &contract_id);
+    client.init(&admin, &symbol_short!("testnet"));
+
+    let wallet = Address::generate(&env);
+    let hash = dummy_hash(&env, 0xde);
+    client.set_score(&admin, &wallet, &77, &RiskLevel::Medium, &hash);
+
+    // Verify the full verifiable record is stored and returned correctly.
+    let record = client.get_verifiable_info(&wallet);
+    assert!(record.is_some());
+
+    let v = record.unwrap();
+    assert_eq!(v.score, 77);
+    assert_eq!(v.risk, RiskLevel::Medium);
+    assert_eq!(v.score_input_hash, hash);
+    assert!(v.last_updated > 0);
+}
+
+#[test]
+fn test_get_verifiable_info_nonexistent() {
+    let (env, admin, contract_id) = setup();
+    env.mock_all_auths();
+
+    let client = LiquidityIdentityClient::new(&env, &contract_id);
+    client.init(&admin, &symbol_short!("testnet"));
+
+    let wallet = Address::generate(&env);
+    let record = client.get_verifiable_info(&wallet);
+    assert!(record.is_none());
 }

@@ -12,6 +12,27 @@ import { classifyAsset } from '../utils/asset.js';
 import { getXlmUsdPrice } from './price.service.js';
 import { logger } from '../utils/logger.js';
 
+/**
+ * Returns a USD-normalized copy of each payment.
+ * XLM is converted using the live price (fallback 0.10 if unavailable).
+ * USDC is treated as pegged 1:1 to USD.
+ * Other assets are passed through unchanged (their amounts are excluded from
+ * volume/flow sub-scores by the classifyAsset layer).
+ */
+function normalizeToUsd(payments: PaymentData[], xlmPriceUsd: number): PaymentData[] {
+  return payments.map((p) => {
+    const classified = classifyAsset(p.asset);
+    if (classified.kind === 'XLM') {
+      return { ...p, amount: p.amount * xlmPriceUsd };
+    }
+    if (classified.kind === 'USDC') {
+      return { ...p, amount: p.amount * 1.0 }; // USDC ≈ $1
+    }
+    // Unknown assets: use raw amount — same as before, no regression
+    return p;
+  });
+}
+
 const METRIC_WEIGHTS = {
   inflowConsistency: 0.25,
   outflowVolatility: 0.25,
@@ -196,27 +217,33 @@ export async function buildUsdValuation(assets: AssetsBreakdown): Promise<UsdVal
   };
 }
 
-// NOTE: the sub-scores below (CV-based metrics) still operate on raw amounts regardless of asset.
-// This means a wallet mixing XLM + USDC gets amounts summed as if they were the same unit, which
-// inflates volume-like components. Fix-up requires picking a canonical unit (USD) and changing every
-// wallet's score. Out of scope for the asset-breakdown pass; tracked for a future scoring overhaul.
-export function computeScore(payments: PaymentData[]): { score: number; metrics: Omit<ScoreMetrics, 'overallScore'> } {
-  const inflowScore = calculateInflowScore(payments);
-  const outflowScore = calculateOutflowScore(payments);
-  const frequencyScore = calculateFrequencyScore(payments);
-  const flowStabilityScore = calculateFlowStabilityScore(payments);
-  const diversityScore = calculateDiversityScore(payments);
-  const volumeScore = calculateVolumeScore(payments);
+/**
+ * Compute a 0-100 liquidity score from USD-normalized payments.
+ * xlmPriceUsd: the live XLM/USD price used for normalization (logged for auditability).
+ */
+export function computeScore(
+  payments: PaymentData[],
+  xlmPriceUsd: number = 0.10
+): { score: number; metrics: Omit<ScoreMetrics, 'overallScore'>; xlmPriceUsedForScoring: number } {
+  // All sub-scores operate on USD-equivalent amounts — no more mixed-unit distortion.
+  const normalized = normalizeToUsd(payments, xlmPriceUsd);
+
+  const inflowScore = calculateInflowScore(normalized);
+  const outflowScore = calculateOutflowScore(normalized);
+  const frequencyScore = calculateFrequencyScore(normalized);
+  const flowStabilityScore = calculateFlowStabilityScore(normalized);
+  const diversityScore = calculateDiversityScore(normalized); // uses counterparties, not amounts — no change
+  const volumeScore = calculateVolumeScore(normalized);
 
   const metrics: ScoreMetrics = {
-    totalVolumeXLM: payments.reduce((sum, p) => sum + p.amount, 0),
+    totalVolumeXLM: payments.reduce((sum, p) => sum + p.amount, 0), // keep raw for display
     transactionCount: payments.length,
     uniqueCounterparties: new Set(payments.flatMap(p => [p.from, p.to])).size,
-    avgTransactionSize: payments.length > 0 
-      ? payments.reduce((sum, p) => sum + p.amount, 0) / payments.length 
+    avgTransactionSize: payments.length > 0
+      ? normalized.reduce((sum, p) => sum + p.amount, 0) / payments.length
       : 0,
-    inflowVolume: payments.filter(p => p.isIncoming).reduce((sum, p) => sum + p.amount, 0),
-    outflowVolume: payments.filter(p => !p.isIncoming).reduce((sum, p) => sum + p.amount, 0),
+    inflowVolume: normalized.filter(p => p.isIncoming).reduce((sum, p) => sum + p.amount, 0),
+    outflowVolume: normalized.filter(p => !p.isIncoming).reduce((sum, p) => sum + p.amount, 0),
     inflowCount: payments.filter(p => p.isIncoming).length,
     outflowCount: payments.filter(p => !p.isIncoming).length,
     inflowScore,
@@ -236,7 +263,7 @@ export function computeScore(payments: PaymentData[]): { score: number; metrics:
     metrics.volumeScore * METRIC_WEIGHTS.volume
   );
 
-  return { score, metrics };
+  return { score, metrics, xlmPriceUsedForScoring: xlmPriceUsd };
 }
 
 export async function calculateWalletScore(
@@ -246,8 +273,12 @@ export async function calculateWalletScore(
 ): Promise<ScoreResult> {
   logger.info({ accountId, network }, 'Calculating wallet score');
 
+  // Fetch XLM price once — reused for both scoring normalization and USD valuation display.
+  const priceQuote = await getXlmUsdPrice();
+  const xlmPriceUsd = priceQuote?.usd ?? 0.10; // fallback to $0.10 if CoinGecko is unavailable
+
   const payments = await horizonService.getAccountPayments(accountId, 200);
-  
+
   if (payments.length === 0) {
     logger.warn({ accountId }, 'No payments found for account');
     const emptyAssets: AssetsBreakdown = {
@@ -280,12 +311,13 @@ export async function calculateWalletScore(
     };
   }
 
-  const { score, metrics } = computeScore(payments);
+  // computeScore receives the live price so all sub-scores use USD-equivalent amounts.
+  const { score, metrics, xlmPriceUsedForScoring } = computeScore(payments, xlmPriceUsd);
   const risk = classifyRisk(score);
   const assets = computeAssetsBreakdown(payments);
   const usd = await buildUsdValuation(assets);
 
-  logger.info({ accountId, score, risk }, 'Score calculated');
+  logger.info({ accountId, score, risk, xlmPriceUsedForScoring }, 'Score calculated (USD-normalized)');
 
   return {
     accountId,

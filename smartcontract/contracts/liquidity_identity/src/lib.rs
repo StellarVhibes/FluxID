@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol, Vec};
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol, Vec, Bytes, BytesN};
 
 #[contracttype]
 pub enum DataKey {
@@ -8,6 +8,11 @@ pub enum DataKey {
     Score(Address),
     LastUpdated(Address),
     RiskLevel(Address),
+    // Fix 1: store a hash of the scoring inputs alongside each score so any
+    // third party can independently re-run the scoring algorithm against the
+    // same Horizon data and verify the result matches on-chain — no trust in
+    // the admin key required.
+    ScoreInputHash(Address),
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -25,6 +30,18 @@ pub struct WalletScore {
     pub last_updated: u64,
 }
 
+/// Full verifiable record returned by get_verifiable_info.
+/// score_input_hash is a SHA-256 hex digest (as Bytes) of the canonical
+/// scoring inputs (accountId:txCount:inflowVolume:outflowVolume:xlmPrice)
+/// that the backend hashed before storing. Callers can recompute and compare.
+#[contracttype]
+pub struct VerifiableWalletScore {
+    pub score: u32,
+    pub risk: RiskLevel,
+    pub last_updated: u64,
+    pub score_input_hash: BytesN<32>,
+}
+
 #[contract]
 pub struct LiquidityIdentity;
 
@@ -36,7 +53,22 @@ impl LiquidityIdentity {
         env.storage().instance().set(&DataKey::Network, &network);
     }
 
-    pub fn set_score(env: Env, admin: Address, wallet: Address, score: u32, risk: RiskLevel) {
+    /// Store a score on-chain.
+    ///
+    /// score_input_hash: 32-byte SHA-256 digest of the canonical input string:
+    ///   "{wallet}:{tx_count}:{inflow_volume}:{outflow_volume}:{xlm_price_usd}"
+    ///
+    /// Anyone who has access to the wallet's Horizon history can re-derive the
+    /// same hash and verify the score was not tampered with between computation
+    /// and storage — this removes the need to trust the admin key for reads.
+    pub fn set_score(
+        env: Env,
+        admin: Address,
+        wallet: Address,
+        score: u32,
+        risk: RiskLevel,
+        score_input_hash: BytesN<32>,
+    ) {
         admin.require_auth();
 
         let stored_admin: Address = env
@@ -64,6 +96,17 @@ impl LiquidityIdentity {
         env.storage()
             .persistent()
             .set(&DataKey::LastUpdated(wallet.clone()), &timestamp);
+        // Fix 1: persist the input hash for trustless verification.
+        env.storage()
+            .persistent()
+            .set(&DataKey::ScoreInputHash(wallet.clone()), &score_input_hash);
+
+        // Emit a ScoreSet event so off-chain indexers and users can observe
+        // every score update without trusting the admin.
+        env.events().publish(
+            (Symbol::new(&env, "score_set"), wallet.clone()),
+            (score, risk, timestamp, score_input_hash.clone()),
+        );
     }
 
     pub fn get_score(env: Env, wallet: Address) -> u32 {
@@ -96,6 +139,39 @@ impl LiquidityIdentity {
                 score: s,
                 risk: r,
                 last_updated: t,
+            }),
+            _ => None,
+        }
+    }
+
+    /// Fix 1: returns the full verifiable record including the score_input_hash.
+    /// Third parties can independently verify by re-computing:
+    ///   SHA-256("{wallet}:{tx_count}:{inflow_volume}:{outflow_volume}:{xlm_price_usd}")
+    /// and comparing against the stored hash.
+    pub fn get_verifiable_info(env: Env, wallet: Address) -> Option<VerifiableWalletScore> {
+        let score: Option<u32> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Score(wallet.clone()));
+        let risk: Option<RiskLevel> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::RiskLevel(wallet.clone()));
+        let last_updated: Option<u64> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::LastUpdated(wallet.clone()));
+        let score_input_hash: Option<BytesN<32>> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::ScoreInputHash(wallet));
+
+        match (score, risk, last_updated, score_input_hash) {
+            (Some(s), Some(r), Some(t), Some(h)) => Some(VerifiableWalletScore {
+                score: s,
+                risk: r,
+                last_updated: t,
+                score_input_hash: h,
             }),
             _ => None,
         }

@@ -11,6 +11,7 @@ import {
   rpc,
   BASE_FEE,
 } from '@stellar/stellar-sdk';
+import { createHash } from 'crypto';
 import type { NetworkType } from '../config/stellar.config.js';
 import { getStellarConfig } from '../config/stellar.config.js';
 import type { ContractSyncResult, OnChainWalletInfo } from '../types/contract.types.js';
@@ -212,10 +213,57 @@ export class ContractService {
     }
   }
 
+  /**
+   * Fix 1: Read the full verifiable record (score + risk + timestamp + input hash).
+   * The returned score_input_hash can be compared against a locally-computed
+   * SHA-256(wallet:txCount:inflowVolume:outflowVolume:xlmPrice) to verify
+   * that the stored score has not been tampered with.
+   */
+  async getVerifiableInfo(wallet: string): Promise<{
+    score: number;
+    risk: 'Low' | 'Medium' | 'High';
+    lastUpdated: number;
+    scoreInputHash: string; // 64-char hex
+  } | null> {
+    try {
+      const retval = await this.simulateRead(
+        'get_verifiable_info',
+        [new Address(wallet).toScVal()],
+        wallet
+      );
+      if (!retval) return null;
+      const decoded = scValToNative(retval) as Record<string, unknown> | null;
+      if (!decoded || typeof decoded !== 'object') return null;
+
+      const score = typeof decoded.score === 'bigint' ? Number(decoded.score) : (decoded.score as number);
+      const risk = decodeRiskLevel(decoded.risk);
+      const lastUpdatedRaw = decoded.last_updated ?? decoded.lastUpdated;
+      const lastUpdated = typeof lastUpdatedRaw === 'bigint' ? Number(lastUpdatedRaw) : (lastUpdatedRaw as number);
+      const hashRaw = decoded.score_input_hash;
+      // BytesN<32> decodes as a Uint8Array or Buffer; convert to hex.
+      const hashHex = hashRaw instanceof Uint8Array
+        ? Buffer.from(hashRaw).toString('hex')
+        : typeof hashRaw === 'string' ? hashRaw : null;
+
+      if (typeof score !== 'number' || !risk || typeof lastUpdated !== 'number' || !hashHex) return null;
+      return { score, risk, lastUpdated, scoreInputHash: hashHex };
+    } catch (error) {
+      const err = error as Error;
+      logger.error({ error: err.message, wallet }, 'getVerifiableInfo failed');
+      return null;
+    }
+  }
+
   async syncScore(
     wallet: string,
     score: number,
-    risk: 'Low' | 'Medium' | 'High'
+    risk: 'Low' | 'Medium' | 'High',
+    scoringInputs?: {
+      txCount: number;
+      inflowVolume: number;
+      outflowVolume: number;
+      xlmPriceUsd: number;
+    }
   ): Promise<ContractSyncResult> {
     if (!this.isConfigured()) {
       logger.info(
@@ -224,6 +272,16 @@ export class ContractService {
       );
       return { success: false, error: 'Contract not configured' };
     }
+
+    // Fix 1: compute a SHA-256 hash of the canonical scoring inputs.
+    // Format: "wallet:txCount:inflowVolume:outflowVolume:xlmPriceUsd"
+    // Stored on-chain so anyone can independently verify the score.
+    const inputStr = scoringInputs
+      ? `${wallet}:${scoringInputs.txCount}:${scoringInputs.inflowVolume.toFixed(6)}:${scoringInputs.outflowVolume.toFixed(6)}:${scoringInputs.xlmPriceUsd.toFixed(6)}`
+      : `${wallet}:${score}:${risk}`;
+
+    const hashBuffer = createHash('sha256').update(inputStr).digest();
+    const hashScVal = xdr.ScVal.scvBytes(hashBuffer);
 
     try {
       const server = new rpc.Server(this.rpcUrl, { allowHttp: this.rpcUrl.startsWith('http://') });
@@ -237,6 +295,8 @@ export class ContractService {
         new Address(wallet).toScVal(),
         nativeToScVal(score, { type: 'u32' }),
         riskToScVal(risk),
+        // Fix 1: pass the SHA-256 input hash as BytesN<32> to set_score.
+        hashScVal,
       ];
 
       const baseTx = new TransactionBuilder(account, {
