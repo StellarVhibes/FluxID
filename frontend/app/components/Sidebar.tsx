@@ -101,12 +101,7 @@ export default function Sidebar() {
         );
       }}
       data-sidebar
-      style={{
-        background: "var(--card)",
-        border: "1px solid var(--border)",
-        borderRadius: 20,
-      }}
-      className="fixed left-4 top-[104px] bottom-4 mt-1 flex flex-col overflow-hidden z-30"
+      className="card fixed left-4 top-[104px] bottom-4 mt-1 flex flex-col overflow-hidden z-30"
     >
       <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-6">
         {navSections.map((section) => (
