@@ -175,8 +175,8 @@ FluxID is infrastructure for:
 ## Level 3 - Orange Belt Submission
 
 - **Live demo link:** [https://fluxid.vercel.app/](https://fluxid.vercel.app/)
-- **Deployed contract address:** `CAWYZOLKSRRBT42Z6WXZNVNQE7MDJTTGDQEYKADPAJWGVFDK4MIO3KE5` (Liquidity Identity)
-- **Transaction hash of a contract call:** [0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82](https://stellar.expert/explorer/testnet/tx/0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82)
+- **Deployed contract address:** `CAUICITFNLDMHPXARAXARFBS3JKRGZZP5CE7B4DTLFBCJB5F4U24CKBP` (Liquidity Identity)
+- **Transaction hash of a contract call:** [f23f505ebef73ace0ae8ec5fc4b496643968b5cda354010a678bb46eabeeaf92](https://stellar.expert/explorer/testnet/tx/f23f505ebef73ace0ae8ec5fc4b496643968b5cda354010a678bb46eabeeaf92)
 - **Demo video link:** *[Insert 1-2 minute Loom/YouTube link here]*
 
 ### Added Features for Level 3
