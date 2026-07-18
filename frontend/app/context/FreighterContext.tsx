@@ -67,6 +67,21 @@ export function FreighterProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     initKit();
+    const restoreSession = async () => {
+      try {
+        const { address } = await StellarWalletsKit.getAddress();
+        if (address) {
+          setState((prev) => ({
+            ...prev,
+            isConnected: true,
+            publicKey: address,
+          }));
+        }
+      } catch (err) {
+        // No active session or rejected, ignore silently
+      }
+    };
+    restoreSession();
   }, []);
 
   const connect = useCallback(async () => {
