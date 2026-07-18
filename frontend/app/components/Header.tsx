@@ -118,7 +118,7 @@ export default function Header() {
             {/* Notification */}
             <button 
               style={{ color: "var(--foreground-muted)" }}
-              className="p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
+              className="hidden sm:flex p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
             >
               <Bell size={18} />
             </button>
@@ -128,7 +128,7 @@ export default function Header() {
               <button 
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 style={{ color: "var(--foreground-muted)" }}
-                className="p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
+                className="hidden sm:flex p-2 rounded-lg hover:bg-[var(--border)] transition-colors"
               >
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </button>
@@ -230,6 +230,26 @@ export default function Header() {
                       <LogOut size={14} />
                       Disconnect
                     </button>
+
+                    {/* Mobile Only Actions */}
+                    <div className="flex sm:hidden justify-between items-center mt-3 pt-3 border-t border-[var(--shadow-dark)]">
+                      <button 
+                        style={{ color: "var(--foreground-muted)" }}
+                        className="p-2 rounded-lg hover:bg-[var(--surface)] transition-colors flex items-center gap-2"
+                      >
+                        <Bell size={16} /> <span className="text-xs font-semibold">Alerts</span>
+                      </button>
+                      {mounted && (
+                        <button 
+                          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                          style={{ color: "var(--foreground-muted)" }}
+                          className="p-2 rounded-lg hover:bg-[var(--surface)] transition-colors flex items-center gap-2"
+                        >
+                          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} 
+                          <span className="text-xs font-semibold">{theme === "dark" ? "Light" : "Dark"}</span>
+                        </button>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </div>
