@@ -176,8 +176,8 @@ FluxID is infrastructure for:
 
 - **Live demo link:** [https://fluxid.vercel.app/](https://fluxid.vercel.app/)
 - **Deployed contract address:** `CAUICITFNLDMHPXARAXARFBS3JKRGZZP5CE7B4DTLFBCJB5F4U24CKBP` (Liquidity Identity)
-- **Transaction hash of a contract call:** [f23f505ebef73ace0ae8ec5fc4b496643968b5cda354010a678bb46eabeeaf92](https://stellar.expert/explorer/testnet/tx/f23f505ebef73ace0ae8ec5fc4b496643968b5cda354010a678bb46eabeeaf92)
-- **Demo video link:** *[Insert 1-2 minute Loom/YouTube link here]*
+- **Transaction hash of a contract call:** [a00cfdeaadf703ca17b033013974e130e3baab961450fc4a18064230f0d2de3e](https://stellar.expert/explorer/testnet/tx/a00cfdeaadf703ca17b033013974e130e3baab961450fc4a18064230f0d2de3e)
+- **Demo video link:** [Watch Demo on Loom](https://www.loom.com/share/ba5e12068bae47b1ac6d504b3f1039d2)
 
 ### Added Features for Level 3
 - **Advanced Smart Contracts & Inter-contract Communication:** Built and integrated the `OracleRegistry` contract, and programmed the `LiquidityIdentity` contract to dynamically communicate with it to verify authorized score providers.
@@ -187,18 +187,20 @@ FluxID is infrastructure for:
 - **Mobile Responsive Frontend:** Extensively refactored the frontend (Header and Landing Page) to properly wrap, scale, and reorganize elements to be perfectly usable on small mobile screens.
 
 ### Proof of CI/CD Pipeline & Tests
-*[Upload Screenshot of GitHub Actions showing passing tests here]*
+![CI/CD Pipeline](docs/screenshots/CI-CD_pipeline.png)
+
+![Local Test Output](docs/screenshots/Test_Output.png)
 
 ### Proof of Mobile UI
-*[Upload Screenshot of Mobile View here]*
+![Mobile UI Responsiveness](docs/screenshots/Mobile_UI.png)
 
 ---
 
 ## Level 2 - Yellow Belt Submission
 
 - **Live demo link:** [https://fluxid.vercel.app/](https://fluxid.vercel.app/)
-- **Deployed contract address:** `CAWYZOLKSRRBT42Z6WXZNVNQE7MDJTTGDQEYKADPAJWGVFDK4MIO3KE5`
-- **Transaction hash of a contract call:** [0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82](https://stellar.expert/explorer/testnet/tx/0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82)
+- **Deployed contract address:** `CAUICITFNLDMHPXARAXARFBS3JKRGZZP5CE7B4DTLFBCJB5F4U24CKBP`
+- **Transaction hash of a contract call:** [b58a679bf231a0f74c41fe4d67e115736773170766106adee4a11eab820591c7](https://stellar.expert/explorer/testnet/tx/b58a679bf231a0f74c41fe4d67e115736773170766106adee4a11eab820591c7)
 
 ### Added Features
 - Replaced hardcoded wallet logic with `@creit.tech/stellar-wallets-kit` for Multi-Wallet Integration (Freighter, Albedo, xBull).
