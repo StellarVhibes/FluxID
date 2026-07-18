@@ -20,6 +20,17 @@ Soroban smart contracts enable **on-chain score storage and verification**.
 | Verification | Anyone can verify a score |
 | Trustless | Read scores without backend |
 | Access Control | Only authorized publisher can update |
+| Inter-contract Comm | `LiquidityIdentity` verifies publishers via `OracleRegistry` |
+| Event Streaming | `env.events().publish()` emits real-time score updates |
+
+---
+
+## Architecture (Level 3)
+
+The smart contract architecture has been upgraded to a multi-contract system to support decentralized authorization:
+
+1. **LiquidityIdentity Contract**: The main entry point. Stores wallet trust scores and risk levels. Before saving a score, it makes a cross-contract call to the `OracleRegistry` to verify if the caller is an authorized oracle.
+2. **OracleRegistry Contract**: A standalone registry that stores a list of whitelisted oracles (trusted backends/agents) that are allowed to publish scores.
 
 ---
 

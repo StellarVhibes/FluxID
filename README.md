@@ -172,6 +172,28 @@ FluxID is infrastructure for:
 
 ## Screenshots
 
+## Level 3 - Orange Belt Submission
+
+- **Live demo link:** [https://fluxid.vercel.app/](https://fluxid.vercel.app/)
+- **Deployed contract address:** `CAWYZOLKSRRBT42Z6WXZNVNQE7MDJTTGDQEYKADPAJWGVFDK4MIO3KE5` (Liquidity Identity)
+- **Transaction hash of a contract call:** [0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82](https://stellar.expert/explorer/testnet/tx/0ec7093bab1c0c34232901040f6d447ab1b27f30391b023a85a559bba2aaef82)
+- **Demo video link:** *[Insert 1-2 minute Loom/YouTube link here]*
+
+### Added Features for Level 3
+- **Advanced Smart Contracts & Inter-contract Communication:** Built and integrated the `OracleRegistry` contract, and programmed the `LiquidityIdentity` contract to dynamically communicate with it to verify authorized score providers.
+- **Event Streaming & Real-time Updates:** Implemented `env.events().publish()` inside the contract so external indexers and the frontend can listen to score changes in real-time.
+- **CI/CD Pipeline Setup:** Configured a robust GitHub Actions pipeline (`ci.yml`) to automatically compile, optimize, and run all 12 smart contract unit tests on every push.
+- **Smart Contract Deployment Workflow:** Created an automated shell script (`deploy.sh`) to securely compile, deploy, initialize, and link both contracts sequentially.
+- **Mobile Responsive Frontend:** Extensively refactored the frontend (Header and Landing Page) to properly wrap, scale, and reorganize elements to be perfectly usable on small mobile screens.
+
+### Proof of CI/CD Pipeline & Tests
+*[Upload Screenshot of GitHub Actions showing passing tests here]*
+
+### Proof of Mobile UI
+*[Upload Screenshot of Mobile View here]*
+
+---
+
 ## Level 2 - Yellow Belt Submission
 
 - **Live demo link:** [https://fluxid.vercel.app/](https://fluxid.vercel.app/)
@@ -188,7 +210,7 @@ FluxID is infrastructure for:
 
 ---
 
-## These screenshots demonstrate the core functionality required for the Level 1 evaluation on Testnet:
+## Level 1 evaluation on Testnet: (These screenshots demonstrate the core functionality required for the)
 
 ### 1. Wallet Connected
 ![Wallet Connected](docs/screenshots/wallet_connected.png)
