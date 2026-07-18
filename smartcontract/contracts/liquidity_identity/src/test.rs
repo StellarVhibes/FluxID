@@ -212,7 +212,7 @@ fn test_get_verifiable_info() {
     assert_eq!(v.score, 77);
     assert_eq!(v.risk, RiskLevel::Medium);
     assert_eq!(v.score_input_hash, hash);
-    assert!(v.last_updated > 0);
+    assert_eq!(v.last_updated, env.ledger().timestamp());
 }
 
 #[test]
