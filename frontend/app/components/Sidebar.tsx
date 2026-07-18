@@ -93,6 +93,8 @@ export default function Sidebar() {
 
 
   return (
+    <>
+    {/* Desktop Sidebar */}
     <motion.aside
       initial={false}
       animate={{ width: collapsed ? 80 : 248 }}
@@ -103,7 +105,7 @@ export default function Sidebar() {
         );
       }}
       data-sidebar
-      className="card fixed left-4 top-[104px] bottom-4 mt-1 flex flex-col overflow-hidden z-30"
+      className="hidden lg:flex card fixed left-4 top-[104px] bottom-4 mt-1 flex-col overflow-hidden z-30"
     >
       <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-6">
         {navSections.map((section) => (
@@ -221,5 +223,25 @@ export default function Sidebar() {
         </Link>
       </div>
     </motion.aside>
+
+    {/* Mobile Bottom Nav */}
+    <nav className="lg:hidden card fixed bottom-4 left-4 right-4 h-16 flex items-center justify-between px-2 z-40 overflow-x-auto gap-2 shadow-2xl">
+      {navSections.flatMap(s => s.items).map((item) => {
+        const isActive = pathname === item.href;
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex-shrink-0 p-3 rounded-xl transition-colors ${
+              isActive ? "bg-[var(--primary)] text-[var(--background)]" : "text-[var(--foreground-muted)] hover:bg-[var(--surface)]"
+            }`}
+          >
+            <Icon size={20} />
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

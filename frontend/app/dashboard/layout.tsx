@@ -9,13 +9,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <AnalysisProvider>
       <div className="min-h-screen" style={{ background: "var(--background)" }}>
-        <Header />
         <Sidebar />
         <div
-          className="fixed right-4 bottom-4 mt-1"
-          style={{ left: "calc(var(--sidebar-width, 248px) + 28px)", top: 104 }}
+          className="fixed left-4 right-4 bottom-[84px] top-[104px] lg:right-4 lg:bottom-4 transition-all duration-300"
+          style={{ 
+            "--lg-left": "calc(var(--sidebar-width, 248px) + 28px)"
+          } as React.CSSProperties}
         >
-          <div className="card h-full w-full relative overflow-hidden">
+          <style dangerouslySetInnerHTML={{__html: `
+            @media (min-width: 1024px) {
+              .dashboard-main { left: var(--lg-left) !important; bottom: 16px !important; }
+            }
+          `}} />
+          <div className="card h-full w-full relative overflow-hidden dashboard-main" style={{ left: 0, bottom: 0 }}>
             {/* Background Image */}
             <div className="absolute inset-0 flex items-center justify-end pointer-events-none z-0">
               <img 
