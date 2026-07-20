@@ -304,12 +304,31 @@ FluxID is infrastructure for:
 - **Transaction hash of a contract call:** [a00cfdeaadf703ca17b033013974e130e3baab961450fc4a18064230f0d2de3e](https://stellar.expert/explorer/testnet/tx/a00cfdeaadf703ca17b033013974e130e3baab961450fc4a18064230f0d2de3e)
 - **Demo video link:** [Watch Demo on Loom](https://www.loom.com/share/ba5e12068bae47b1ac6d504b3f1039d2)
 
+### 🟠 Level 3 Requirements Map
+
+Each Level 3 requirement mapped to the exact file, link, or screenshot that satisfies it.
+
+| Requirement | Status | Proof |
+|---|---|---|
+| Advanced smart contract development | ✅ | [`liquidity_identity/src/lib.rs`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/liquidity_identity/src/lib.rs) — auth, input-hash verification, events, verifiable records |
+| Inter-contract communication | ✅ | `LiquidityIdentity.set_score` calls [`OracleRegistry.is_oracle_authorized`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/oracle_registry/src/lib.rs) via `env.invoke_contract` ([lib.rs L85](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/liquidity_identity/src/lib.rs#L85)) |
+| Event streaming & real-time updates | ✅ | `env.events().publish("score_set", …)` on every score write ([lib.rs L117](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/liquidity_identity/src/lib.rs#L117)) |
+| CI/CD pipeline setup | ✅ | [`.github/workflows/ci.yml`](https://github.com/bbkenny/FluxID/blob/main/.github/workflows/ci.yml) — builds contracts, runs contract + frontend tests, builds frontend. Screenshot below |
+| Smart contract deployment workflow | ✅ | [`deploy.sh`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/deploy.sh) + [`Makefile`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/Makefile) |
+| Mobile responsive frontend | ✅ | Responsive layout across dashboard — screenshot below |
+| Error handling & loading states | ✅ | Skeletons in [`Skeletons.tsx`](https://github.com/bbkenny/FluxID/blob/main/frontend/app/components/Skeletons.tsx); wallet error handling in [`FreighterContext.tsx`](https://github.com/bbkenny/FluxID/blob/main/frontend/app/context/FreighterContext.tsx) |
+| Tests for contracts and frontend | ✅ | **Contracts:** 19 tests (12 in [`liquidity_identity/src/test.rs`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/liquidity_identity/src/test.rs) + 7 in [`oracle_registry/src/test.rs`](https://github.com/bbkenny/FluxID/blob/main/smartcontract/contracts/oracle_registry/src/test.rs)). **Frontend:** [`lib/scoring.test.ts`](https://github.com/bbkenny/FluxID/blob/main/frontend/lib/scoring.test.ts) (vitest) |
+| Production-ready architecture | ✅ | Separated frontend / backend / smart-contract layers; see [Repository Structure](#-repository-structure-where-each-mandatory-file-lives) |
+| Documentation & demo | ✅ | This README + [Loom demo video](https://www.loom.com/share/ba5e12068bae47b1ac6d504b3f1039d2) |
+| Minimum 10+ meaningful commits | ✅ | [Commit history](https://github.com/bbkenny/FluxID/commits/main) (190+ commits) |
+
 ### Added Features for Level 3
 - **Advanced Smart Contracts & Inter-contract Communication:** Built and integrated the `OracleRegistry` contract, and programmed the `LiquidityIdentity` contract to dynamically communicate with it to verify authorized score providers.
 - **Event Streaming & Real-time Updates:** Implemented `env.events().publish()` inside the contract so external indexers and the frontend can listen to score changes in real-time.
-- **CI/CD Pipeline Setup:** Configured a robust GitHub Actions pipeline (`ci.yml`) to automatically compile, optimize, and run all 12 smart contract unit tests on every push.
+- **CI/CD Pipeline Setup:** Configured a GitHub Actions pipeline (`ci.yml`) that compiles the contracts, runs all 19 smart-contract unit tests (12 for `LiquidityIdentity` + 7 for `OracleRegistry`) and the frontend `vitest` suite, then builds the Next.js app on every push.
 - **Smart Contract Deployment Workflow:** Created an automated shell script (`deploy.sh`) to securely compile, deploy, initialize, and link both contracts sequentially.
 - **Mobile Responsive Frontend:** Extensively refactored the frontend (Header and Landing Page) to properly wrap, scale, and reorganize elements to be perfectly usable on small mobile screens.
+- **Frontend Tests:** Added a `vitest` suite covering the liquidity scoring engine (`lib/scoring.test.ts`), runnable with `npm test`.
 
 ### Proof of CI/CD Pipeline & Tests
 ![CI/CD Pipeline](docs/screenshots/CI-CD_pipeline.png)

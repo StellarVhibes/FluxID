@@ -54,3 +54,5 @@ impl OracleRegistry {
         env.storage().persistent().get(&DataKey::AuthorizedOracle(oracle)).unwrap_or(false)
     }
 }
+
+mod test;
