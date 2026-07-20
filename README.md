@@ -333,7 +333,7 @@ Each Level 3 requirement mapped to the exact file, link, or screenshot that sati
 ### Proof of CI/CD Pipeline & Tests
 ![CI/CD Pipeline](docs/screenshots/CI-CD_pipeline.png)
 
-![Local Test Output](docs/screenshots/Test_Output.png)
+![Local Test Output](docs/screenshots/Contract_Test_Output.png)
 
 ### Proof of Mobile UI
 ![Mobile UI Responsiveness](docs/screenshots/Mobile_UI.png)
