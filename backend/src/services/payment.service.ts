@@ -15,13 +15,15 @@ const PERSIST_PATH = join(process.cwd(), '.payment-requests.json');
 
 function resolveReceiveAddress(): string {
   if (appConfig.payment.receiveAddress) return appConfig.payment.receiveAddress;
-  const adminSecretRaw = process.env.ADMIN_SECRET_KEY || process.env.FLUXID_ADMIN_SECRET_KEY;
+  const adminSecretRaw =
+    process.env.ORACLE_SECRET_KEY || process.env.ADMIN_SECRET_KEY || process.env.FLUXID_ADMIN_SECRET_KEY;
   if (adminSecretRaw) {
     const adminSecret = adminSecretRaw.trim().replace(/['"]/g, '');
     try {
       return Keypair.fromSecret(adminSecret).publicKey();
     } catch (err) {
-      logger.warn({ err: (err as Error).message, adminSecretRaw }, 'ADMIN_SECRET_KEY invalid; cannot derive receive address');
+      // Never log the secret itself — only that it failed to parse.
+      logger.warn({ err: (err as Error).message }, 'Oracle/admin secret key invalid; cannot derive receive address');
     }
   }
   return '';
@@ -103,7 +105,7 @@ class PaymentService {
 
   createRequest(accountId: string, network: NetworkType): PaymentRequest {
     if (!this.isConfigured()) {
-      throw new Error('Payment service not configured: set PAYMENT_RECEIVE_ADDRESS or ADMIN_SECRET_KEY');
+      throw new Error('Payment service not configured: set PAYMENT_RECEIVE_ADDRESS or ORACLE_SECRET_KEY');
     }
 
     // Fix 3: requestId is an HMAC of (accountId + random nonce) so it cannot be

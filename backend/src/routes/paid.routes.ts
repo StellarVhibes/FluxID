@@ -58,7 +58,7 @@ export async function paidScoreRoute(
       return reply.code(503).send({
         success: false,
         error:
-          'Payment gateway not configured. Set PAYMENT_RECEIVE_ADDRESS or ADMIN_SECRET_KEY.',
+          'Payment gateway not configured. Set PAYMENT_RECEIVE_ADDRESS or ORACLE_SECRET_KEY.',
       });
     }
 

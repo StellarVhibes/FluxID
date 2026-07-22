@@ -76,7 +76,13 @@ export class ContractService {
     this.networkPassphrase = config.networkPassphrase;
     this.rpcUrl = config.rpcUrl;
     this.contractId = config.contractId;
-    const secretRaw = process.env.ADMIN_SECRET_KEY || process.env.FLUXID_ADMIN_SECRET_KEY;
+    // The key that signs set_score. Named for its role (the oracle signer),
+    // not the wallet you use for it — ADMIN_SECRET_KEY is kept as a fallback so
+    // existing deployments that set the old name keep working.
+    const secretRaw =
+      process.env.ORACLE_SECRET_KEY ||
+      process.env.ADMIN_SECRET_KEY ||
+      process.env.FLUXID_ADMIN_SECRET_KEY;
     this.adminSecret = secretRaw ? secretRaw.trim().replace(/['"]/g, '') : undefined;
   }
 
@@ -269,7 +275,7 @@ export class ContractService {
     if (!this.isConfigured()) {
       logger.info(
         { wallet, score, risk, network: this.network },
-        'Contract sync skipped (contractId or ADMIN_SECRET_KEY not configured)'
+        'Contract sync skipped (contractId or ORACLE_SECRET_KEY not configured)'
       );
       return { success: false, error: 'Contract not configured' };
     }
