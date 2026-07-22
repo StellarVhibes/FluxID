@@ -1,14 +1,52 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { Redis } from '@upstash/redis';
 import { logger } from '../utils/logger.js';
 
-// Lightweight usage + feedback capture for the Green Belt admin panel.
-// Mirrors history.service.ts: append-only JSONL under the same data dir so a
-// backend restart never loses a captured event or a piece of feedback.
+// Usage + feedback capture for the Green Belt admin panel.
+//
+// Two interchangeable backends, chosen at startup:
+//   1. Upstash Redis — when UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN
+//      are set. Durable across restarts/redeploys, so this is what production
+//      (Render free tier, whose disk is ephemeral) should use.
+//   2. Append-only JSONL files under FLUXID_DATA_DIR — the zero-config fallback
+//      for local dev and any deploy without Redis configured.
+//
+// Both store the SAME UsageEvent / FeedbackEntry shapes, so everything below
+// the append/readLines primitives is backend-agnostic.
 
 const DATA_DIR = process.env.FLUXID_DATA_DIR || path.join(process.cwd(), 'data');
 const EVENTS_FILE = path.join(DATA_DIR, 'events.jsonl');
 const FEEDBACK_FILE = path.join(DATA_DIR, 'feedback.jsonl');
+
+// Redis list keys, keyed by the same basenames used for the JSONL files.
+const EVENTS_KEY = 'fluxid:events';
+const FEEDBACK_KEY = 'fluxid:feedback';
+
+// Lazily construct the Redis client so the module still imports cleanly when
+// the env vars are absent (fallback path). Null means "use JSONL files".
+const redis: Redis | null = (() => {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const client = new Redis({ url, token });
+    logger.info('Metrics store: Upstash Redis (durable)');
+    return client;
+  } catch (err) {
+    logger.warn({ error: (err as Error).message }, 'Redis init failed; falling back to JSONL files');
+    return null;
+  }
+})();
+
+if (!redis) {
+  logger.info({ dir: DATA_DIR }, 'Metrics store: JSONL files (ephemeral on Render free tier)');
+}
+
+// Map a file path to its Redis list key so the two primitives share one call site.
+function redisKeyFor(file: string): string {
+  return file === EVENTS_FILE ? EVENTS_KEY : FEEDBACK_KEY;
+}
 
 export type EventType = 'wallet_connect' | 'score_run' | 'contract_call' | 'agent_query';
 
@@ -35,6 +73,11 @@ async function ensureDataDir(): Promise<void> {
 
 async function append(file: string, entry: unknown): Promise<void> {
   try {
+    if (redis) {
+      // Upstash stores JSON values natively; rpush keeps insertion order.
+      await redis.rpush(redisKeyFor(file), entry as Record<string, unknown>);
+      return;
+    }
     await ensureDataDir();
     // Atomic per-call for writes under PIPE_BUF (4096B) on POSIX — our lines
     // are far smaller, so concurrent appends never interleave bytes.
@@ -46,6 +89,11 @@ async function append(file: string, entry: unknown): Promise<void> {
 
 async function readLines<T>(file: string): Promise<T[]> {
   try {
+    if (redis) {
+      // lrange returns the parsed objects in insertion order.
+      const items = await redis.lrange<T>(redisKeyFor(file), 0, -1);
+      return items ?? [];
+    }
     await ensureDataDir();
     const content = await fs.readFile(file, 'utf8');
     const out: T[] = [];

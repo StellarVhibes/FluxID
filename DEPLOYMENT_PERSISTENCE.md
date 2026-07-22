@@ -2,8 +2,8 @@
 
 ## The problem
 
-The backend stores usage events, feedback, and wallet/protocol history as
-append-only JSONL files on the local filesystem:
+The backend stores usage events, feedback, and wallet/protocol history. By
+default these are append-only JSONL files on the local filesystem:
 
 | File | Written by |
 |------|-----------|
@@ -26,40 +26,44 @@ When that happens the store is empty, so `/admin/stats` and `/admin/feedback`
 honestly return all-zeros. That's what made the admin panel look like the
 Refresh button was wiping data — it wasn't; the underlying files were gone.
 
-The frontend now keeps the last good snapshot on an empty refresh, but that's
-only cosmetic. **To actually stop losing data, the store must live on a Render
-persistent disk.**
+The frontend keeps the last good snapshot on an empty refresh, but that's only
+cosmetic. **To actually stop losing data, the store must live somewhere that
+survives restarts.** Two ways to do that:
 
-## The fix — attach a persistent disk
+- **Option A — Upstash Redis (free, recommended).** No paid plan, no code
+  change, works on Render's free tier. The metrics service auto-switches to
+  Redis when its two env vars are present.
+- **Option B — Render persistent disk (needs a paid instance).**
 
-### 1. Add the disk (Render dashboard)
+---
 
-1. Open the backend service in the Render dashboard.
-2. **Settings → Disks → Add Disk**.
-3. Fill in:
-   - **Name:** `fluxid-data` (any name)
-   - **Mount Path:** `/var/data`
-   - **Size:** `1 GB` is plenty (JSONL is tiny; grow later if needed)
-4. Save. Render will restart the service with the disk mounted at `/var/data`,
-   and that directory now survives deploys and restarts.
+## Option A — Upstash Redis (free, recommended)
 
-> Note: persistent disks require a **paid instance type**. Free-tier services
-> can't attach a disk — that's the tradeoff behind the ephemeral wipe.
+`metrics.service.ts` already supports this. When both env vars below are set it
+writes usage events and feedback to Upstash Redis instead of local files; when
+they're unset it falls back to JSONL. **No redeploy of code needed — just add
+the env vars.**
 
-### 2. Point the backend at it (env var)
+### 1. Create a free Redis database
 
-1. **Settings → Environment → Add Environment Variable**.
-2. Add:
+1. Go to <https://console.upstash.com> and sign up (free).
+2. **Create Database** → any name → pick a region close to your Render region.
+3. Open the database → **REST API** section → copy:
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+
+### 2. Add them to Render
+
+1. Backend service → **Settings → Environment → Add Environment Variable**.
+2. Add both:
    ```
-   FLUXID_DATA_DIR = /var/data
+   UPSTASH_REDIS_REST_URL   = https://<your-db>.upstash.io
+   UPSTASH_REDIS_REST_TOKEN = <your-token>
    ```
-   This must match the disk's Mount Path exactly. On startup the backend does
-   `mkdir -p` on this path, so no manual folder creation is needed.
-3. Save. Render redeploys with the new variable.
+3. Save. Render redeploys. On boot the logs will show
+   `Metrics store: Upstash Redis (durable)` — that confirms it switched.
 
 ### 3. Verify
-
-After the redeploy:
 
 ```bash
 # record an event
@@ -71,18 +75,41 @@ curl -X POST https://<your-backend>/events \
 curl https://<your-backend>/admin/stats
 ```
 
-Then trigger a manual redeploy (or wait for a cold start) and hit
+Then trigger a manual redeploy (or let the instance cold-start) and hit
 `/admin/stats` again — the count should **persist** instead of resetting to
-zero.
+zero. That's the durable proof you need for the 10+ wallet-interactions
+screenshot.
+
+> Free-tier Upstash allows a generous daily command quota — far more than a
+> demo/campaign needs. Usage events and feedback are tiny.
+
+---
+
+## Option B — Render persistent disk (paid instance)
+
+If you're already on a paid Render instance, a mounted disk also works and
+keeps the JSONL files.
+
+1. Backend service → **Settings → Disks → Add Disk**:
+   - **Name:** `fluxid-data` (any name)
+   - **Mount Path:** `/var/data`
+   - **Size:** `1 GB` (JSONL is tiny)
+2. **Settings → Environment** → add:
+   ```
+   FLUXID_DATA_DIR = /var/data
+   ```
+   Must match the mount path exactly. The backend does `mkdir -p` on startup.
+3. Save and redeploy. Verify with the same curl steps as Option A.
+
+> Persistent disks require a **paid instance type** — free-tier services can't
+> attach one. That's why Option A (Upstash) is the recommended free path.
+
+---
 
 ## One caveat — payment requests
 
 `payment.service.ts` writes `.payment-requests.json` to `process.cwd()`
-directly, **not** to `FLUXID_DATA_DIR`. These are short-lived payment
+directly, **not** to Redis or `FLUXID_DATA_DIR`. These are short-lived payment
 challenges (they expire via TTL), so losing them on restart is low-impact — a
-user just requests a fresh challenge. If you want those durable too, either:
-
-- move `PERSIST_PATH` in `payment.service.ts` under `FLUXID_DATA_DIR`, or
-- leave it as-is and accept that in-flight payment challenges reset on restart.
-
-No change is required for the metrics/feedback/history durability fix above.
+user just requests a fresh challenge. Neither option above changes this, and
+none is required for the metrics/feedback durability fix.
