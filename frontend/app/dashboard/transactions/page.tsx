@@ -70,7 +70,7 @@ export default function TransactionsPage() {
 
       {analysis && !isAnalyzing && (
         <>
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <StatCard label="Total" value={stats.total} color="var(--foreground)" />
             <StatCard label="Inflows" value={stats.inCount} color="#22c55e" />
             <StatCard label="Outflows" value={stats.outCount} color="#ef4444" />

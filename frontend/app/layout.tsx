@@ -4,6 +4,8 @@ import { Providers } from "./providers";
 import { FreighterProvider } from "./context/FreighterContext";
 import { ToastProvider } from "./components/Toast";
 import ClientLayout from "@/components/ClientLayout";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fluxid.stellarvhibes.org"),
@@ -54,6 +56,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </FreighterProvider>
           </ToastProvider>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { analyzeWallet, type StellarNetwork, type WalletAnalysis } from "../../../lib/scoring";
+import { logEvent } from "../../../lib/metricsApi";
 
 interface AnalysisState {
   analyzedAddress: string | null;
@@ -73,6 +74,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       if (typeof window !== "undefined") {
         window.localStorage.setItem(LS_ADDRESS, address);
       }
+      // Best-effort usage log — a real wallet was scored. Never blocks the UI.
+      void logEvent("score_run", address, network);
     } catch (err) {
       setState((prev) => ({
         ...prev,

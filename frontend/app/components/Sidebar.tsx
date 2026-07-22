@@ -17,11 +17,14 @@ import {
   Home,
   Activity,
   Send,
+  Shield,
 } from "lucide-react";
+import { useFreighter } from "../context/FreighterContext";
+import { ADMIN_ADDRESS } from "../../lib/constants";
 
 
 
-const navSections = [
+const baseNavSections = [
   {
     title: "Wallet Intelligence",
     id: "wallet",
@@ -54,6 +57,22 @@ const navSections = [
   },
 ];
 
+// The Admin link is only surfaced when the connected wallet is the admin/deployer.
+function buildNavSections(isAdmin: boolean) {
+  if (!isAdmin) return baseNavSections;
+  return baseNavSections.map((section) =>
+    section.id === "general"
+      ? {
+          ...section,
+          items: [
+            ...section.items,
+            { href: "/dashboard/admin", label: "Admin", icon: Shield },
+          ],
+        }
+      : section
+  );
+}
+
 
 export function useSidebarWidth() {
   const [width, setWidth] = useState(248);
@@ -77,6 +96,9 @@ export function useSidebarWidth() {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { publicKey } = useFreighter();
+  const isAdmin = publicKey === ADMIN_ADDRESS;
+  const navSections = buildNavSections(isAdmin);
   const [collapsed, setCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     wallet: true,

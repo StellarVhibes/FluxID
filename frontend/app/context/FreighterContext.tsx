@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useToast } from "../components/Toast";
+import { logEvent } from "../../lib/metricsApi";
 
 import {
   StellarWalletsKit,
@@ -99,6 +100,8 @@ export function FreighterProvider({ children }: { children: ReactNode }) {
         error: null,
       });
       showToast(`Connected to wallet`, "success");
+      // Best-effort usage log — proof of a real wallet interaction. Never blocks connect.
+      void logEvent("wallet_connect", address, "testnet");
     } catch (err: any) {
       console.error("Wallet selection error:", err);
       let errMsg = err.message || "Failed to connect to wallet.";
