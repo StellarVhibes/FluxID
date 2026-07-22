@@ -246,24 +246,59 @@ export default function Sidebar() {
       </div>
     </motion.aside>
 
-    {/* Mobile Bottom Nav */}
-    <nav className="lg:hidden card fixed bottom-4 left-4 right-4 h-16 flex items-center justify-between px-2 z-40 overflow-x-auto gap-2 shadow-2xl">
-      {navSections.flatMap(s => s.items).map((item) => {
-        const isActive = pathname === item.href;
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex-shrink-0 p-3 rounded-xl transition-colors ${
-              isActive ? "bg-[var(--primary)] text-[var(--background)]" : "text-[var(--foreground-muted)] hover:bg-[var(--surface)]"
-            }`}
-          >
-            <Icon size={20} />
-          </Link>
-        );
-      })}
-    </nav>
+    {/* Mobile Bottom Nav — horizontally scrollable, grouped into the same
+        sections as the desktop rail so nothing stays hidden. The trailing
+        fade + partially-clipped last item hint that it slides. */}
+    <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40">
+      <nav className="card relative flex items-stretch overflow-x-auto gap-3 px-3 py-2 shadow-2xl [scrollbar-width:none] [-webkit-overflow-scrolling:touch] snap-x">
+        <div className="flex items-stretch gap-3 min-w-max">
+          {navSections.map((section, si) => (
+            <div key={section.id} className="flex items-stretch gap-3">
+              {si > 0 && (
+                <div className="w-px self-stretch my-1 bg-[var(--border-strong)]" aria-hidden />
+              )}
+              <div className="flex flex-col justify-center snap-start">
+                <span
+                  style={{ color: "var(--foreground-dim)", letterSpacing: "0.05em" }}
+                  className="text-[9px] font-black uppercase whitespace-nowrap px-1 mb-1"
+                >
+                  {section.title}
+                </span>
+                <div className="flex items-center gap-1">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        aria-label={item.label}
+                        className={`flex flex-col items-center gap-0.5 flex-shrink-0 px-2.5 py-1.5 rounded-xl transition-colors ${
+                          isActive
+                            ? "bg-[var(--primary)] text-[var(--background)]"
+                            : "text-[var(--foreground-muted)] hover:bg-[var(--surface)]"
+                        }`}
+                      >
+                        <Icon size={18} />
+                        <span className="text-[9px] font-medium whitespace-nowrap max-w-[4.5rem] truncate">
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </nav>
+      {/* Right-edge fade cue that there's more to scroll */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 right-0 w-8 rounded-r-2xl"
+        style={{ background: "linear-gradient(to left, var(--card), transparent)" }}
+      />
+    </div>
     </>
   );
 }

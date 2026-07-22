@@ -196,20 +196,21 @@ export default function Onboarding({
 
   if (isWelcomeLayout) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/60 p-4">
-        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-[38.25rem] flex flex-col shadow-2xl border border-[#2d2e33]">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-sm md:max-w-[38.25rem] max-h-[90vh] flex flex-col shadow-2xl border border-[#2d2e33]">
           {step.imageUrl && (
-            <div className="relative w-full h-[19.375rem]">
+            <div className="relative w-full h-44 md:h-[19.375rem]">
               <Image
                 src={step.imageUrl}
                 alt={step.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 612px"
                 className="object-cover"
               />
             </div>
           )}
 
-          <div className="w-full p-6 flex flex-col gap-2">
+          <div className="w-full p-4 md:p-6 flex flex-col gap-2 overflow-y-auto">
             <div>
               <h2 className="text-xl md:text-2xl font-medium text-white">
                 {step.title}
@@ -249,20 +250,21 @@ export default function Onboarding({
 
   if (!rect && step.imageUrl) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/60 p-4">
-        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-[38.25rem] flex flex-col shadow-2xl border border-[#2d2e33]">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4">
+        <div className="bg-[#1a1b1e] rounded-3xl overflow-hidden w-full max-w-sm md:max-w-[38.25rem] max-h-[90vh] flex flex-col shadow-2xl border border-[#2d2e33]">
           {step.imageUrl && (
-            <div className="relative w-full h-[19.375rem]">
+            <div className="relative w-full h-44 md:h-[19.375rem]">
               <Image
                 src={step.imageUrl}
                 alt={step.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 612px"
                 className="object-cover"
               />
             </div>
           )}
 
-          <div className="w-full p-6 flex flex-col gap-2">
+          <div className="w-full p-4 md:p-6 flex flex-col gap-2 overflow-y-auto">
             <div>
               <h2 className="text-xl md:text-2xl font-medium text-white">
                 {step.title}

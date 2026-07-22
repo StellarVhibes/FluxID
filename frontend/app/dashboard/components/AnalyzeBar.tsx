@@ -58,7 +58,7 @@ export default function AnalyzeBar() {
       className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 mb-6"
       id="tour-wallet-input"
     >
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
         <input
           type="text"
           value={input}
@@ -69,39 +69,42 @@ export default function AnalyzeBar() {
           placeholder="Enter any Stellar wallet address (G...)"
           spellCheck={false}
           autoComplete="off"
-          className="flex-1 min-w-[260px] px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm font-mono"
+          className="w-full sm:flex-1 sm:min-w-[260px] px-4 py-3 rounded-xl bg-background border border-white/10 focus:border-primary outline-none text-sm font-mono"
         />
-        <div
-          className="bg-[var(--background)] border border-[var(--border)] flex items-center p-1 rounded-xl"
-          role="radiogroup"
-          aria-label="Network"
-        >
-          {(["mainnet", "testnet"] as StellarNetwork[]).map((n) => (
-            <button
-              key={n}
-              role="radio"
-              aria-checked={network === n}
-              onClick={() => setNetwork(n)}
-              disabled={isAnalyzing}
-              style={{
-                background: network === n ? "var(--primary)" : "transparent",
-                color: network === n ? "var(--background)" : "var(--foreground-muted)",
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-              className="px-3 py-2 rounded-lg uppercase transition-colors disabled:opacity-60"
-            >
-              {n}
-            </button>
-          ))}
+        {/* On mobile these two share a row (toggle left, Analyze right); on
+            sm+ the wrapper dissolves so they flow inline with the input. */}
+        <div className="flex items-center justify-between gap-3 sm:contents">
+          <div
+            className="bg-[var(--background)] border border-[var(--border)] flex items-center p-1 rounded-xl"
+            role="radiogroup"
+            aria-label="Network"
+          >
+            {(["mainnet", "testnet"] as StellarNetwork[]).map((n) => (
+              <button
+                key={n}
+                role="radio"
+                aria-checked={network === n}
+                onClick={() => setNetwork(n)}
+                disabled={isAnalyzing}
+                style={{
+                  background: network === n ? "var(--primary)" : "transparent",
+                  color: network === n ? "var(--background)" : "var(--foreground-muted)",
+                  fontWeight: 700,
+                }}
+                className="px-2.5 sm:px-3 py-2 rounded-lg uppercase text-[11px] sm:text-xs transition-colors disabled:opacity-60"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={onAnalyze}
+            disabled={isAnalyzing || !isValid}
+            className="btn btn-primary flex items-center gap-2"
+          >
+            {isAnalyzing ? <AnalyzingButton /> : <><TrendingUp size={16} />Analyze</>}
+          </button>
         </div>
-        <button
-          onClick={onAnalyze}
-          disabled={isAnalyzing || !isValid}
-          className="btn btn-primary flex items-center gap-2"
-        >
-          {isAnalyzing ? <AnalyzingButton /> : <><TrendingUp size={16} />Analyze</>}
-        </button>
       </div>
 
       {showInvalidWarning && (
