@@ -81,9 +81,9 @@ export default function Header() {
         background: "var(--surface)", 
       }}
       className={
-        pathname === '/' 
-          ? "card fixed top-4 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-7xl z-40 h-[4.5rem]" 
-          : "card fixed top-4 left-4 right-4 z-40 h-[4.5rem]"
+        pathname === '/'
+          ? "card fixed top-4 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-7xl z-40 h-20"
+          : "card fixed top-4 left-4 right-4 z-40 h-20"
       }
     >
       <div className={`h-full mx-auto px-4 sm:px-6 flex items-center justify-between ${pathname === '/' ? 'w-full' : 'max-w-[1600px]'}`}>

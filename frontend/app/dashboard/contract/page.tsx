@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useFreighter } from "../../context/FreighterContext";
+import { ADMIN_ADDRESS } from "../../../lib/constants";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { Shield, BookOpen, Send, AlertTriangle } from "lucide-react";
 
@@ -10,6 +11,9 @@ const DEFAULT_CONTRACT_ID = process.env.NEXT_PUBLIC_CONTRACT_ID || "CAUICITFNLDM
 
 export default function ContractPage() {
   const { isConnected, publicKey, connect, getKit } = useFreighter();
+  // Only the contract admin can set_score on-chain — so the Write card is
+  // gated to the admin wallet. Everyone else gets a read-only lookup.
+  const isAdmin = isConnected && publicKey === ADMIN_ADDRESS;
   const [contractId, setContractId] = useState(DEFAULT_CONTRACT_ID);
   
   // Read state
@@ -152,7 +156,9 @@ export default function ContractPage() {
             Contract Interface
           </h1>
           <p style={{ color: "var(--foreground-muted)", fontSize: 14 }}>
-            Directly interact with the FluxID Soroban smart contract via RPC.
+            {isAdmin
+              ? "Directly interact with the FluxID Soroban smart contract via RPC."
+              : "Look up any wallet's on-chain liquidity score directly from the contract."}
           </p>
         </div>
       </div>
@@ -169,7 +175,7 @@ export default function ContractPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className={`grid grid-cols-1 gap-8 ${isAdmin ? "lg:grid-cols-2" : "max-w-xl"}`}>
         {/* Read Card */}
         <div className="card p-6">
           <h2 className="text-lg font-bold mb-6 text-[var(--foreground)] flex items-center gap-2">
@@ -206,7 +212,8 @@ export default function ContractPage() {
           </div>
         </div>
 
-        {/* Write Card */}
+        {/* Write Card — admin only (set_score is admin-gated on-chain) */}
+        {isAdmin && (
         <div className="card p-6">
           <h2 className="text-lg font-bold mb-6 text-[var(--foreground)] flex items-center gap-2">
             <Send size={20} className="text-[var(--primary)]" /> Write Score
@@ -259,6 +266,7 @@ export default function ContractPage() {
             )}
           </div>
         </div>
+        )}
       </div>
     </motion.div>
   );

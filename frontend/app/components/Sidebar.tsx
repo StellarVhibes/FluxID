@@ -127,7 +127,7 @@ export default function Sidebar() {
         );
       }}
       data-sidebar
-      className="hidden lg:flex card fixed left-4 top-[104px] bottom-4 mt-1 flex-col overflow-hidden z-30"
+      className="hidden lg:flex card fixed left-4 top-[112px] bottom-4 mt-1 flex-col overflow-hidden z-30"
     >
       <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-6">
         {navSections.map((section) => (
