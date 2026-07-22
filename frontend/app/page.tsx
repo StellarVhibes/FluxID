@@ -65,10 +65,14 @@ export default function Home() {
       <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-20 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center min-h-[100dvh]">
         {/* Abstract 3D background floating behind everything */}
         <div className="absolute inset-0 flex items-center justify-end pointer-events-none overflow-hidden z-0">
-          <img 
-            src="/3d-imgs-assest/fluxid_protocol_intelligence.png" 
-            alt="Hero Background" 
-            className="w-[800px] md:w-[1200px] max-w-none object-contain opacity-20 -rotate-12 blur-[2px]"
+          <Image
+            src="/3d-imgs-assest/fluxid_protocol_intelligence.png"
+            alt=""
+            aria-hidden
+            width={1200}
+            height={1200}
+            loading="lazy"
+            className="w-[800px] md:w-[1200px] max-w-none h-auto object-contain opacity-20 -rotate-12 blur-[2px]"
           />
         </div>
 
@@ -147,6 +151,7 @@ export default function Home() {
               alt="FluxID"
               width={500}
               height={500}
+              sizes="(max-width: 1024px) 0px, 500px"
               style={{
                 objectFit: "cover",
                 borderRadius: 0,
@@ -166,7 +171,7 @@ export default function Home() {
       {/* ── Stats strip ── */}
       <section className="px-4 sm:px-6 lg:px-8 py-6">
         <div
-          className="card max-w-5xl mx-auto px-10 py-5 flex flex-col sm:flex-row items-stretch sm:items-center divide-y sm:divide-y-0 sm:divide-x"
+          className="card max-w-5xl mx-auto px-5 sm:px-10 py-5 flex flex-col sm:flex-row items-stretch sm:items-center divide-y sm:divide-y-0 sm:divide-x"
           style={{ "--tw-divide-color": "var(--shadow-dark)" } as React.CSSProperties}
         >
           {STATS.map(({ icon: Icon, value, label, accent }, i) => (
@@ -200,10 +205,14 @@ export default function Home() {
       {/* ── Features ── */}
       <section id="how-it-works" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
         <div className="absolute inset-0 flex items-center justify-start pointer-events-none overflow-hidden z-0">
-          <img 
-            src="/3d-imgs-assest/fluxid_liquidity_flow.png" 
-            alt="Liquidity Flow" 
-            className="w-[600px] md:w-[900px] max-w-none object-contain opacity-10 mix-blend-screen translate-y-20 -translate-x-20"
+          <Image
+            src="/3d-imgs-assest/fluxid_liquidity_flow.png"
+            alt=""
+            aria-hidden
+            width={900}
+            height={900}
+            loading="lazy"
+            className="w-[600px] md:w-[900px] max-w-none h-auto object-contain opacity-10 mix-blend-screen translate-y-20 -translate-x-20"
           />
         </div>
         {/* Section header — scroll reveal */}
@@ -269,10 +278,14 @@ export default function Home() {
         className="relative py-10 px-6 sm:px-10 card mt-16 mb-4 mx-4 sm:mx-8 rounded-3xl overflow-hidden"
       >
         <div className="absolute inset-0 flex items-end justify-end pointer-events-none z-0">
-          <img 
-            src="/3d-imgs-assest/fluxid_risk_detection.png" 
-            alt="Risk Background" 
-            className="w-[400px] md:w-[600px] max-w-none object-contain opacity-[0.08] translate-y-1/4 translate-x-1/4"
+          <Image
+            src="/3d-imgs-assest/fluxid_risk_detection.png"
+            alt=""
+            aria-hidden
+            width={600}
+            height={600}
+            loading="lazy"
+            className="w-[400px] md:w-[600px] max-w-none h-auto object-contain opacity-[0.08] translate-y-1/4 translate-x-1/4"
           />
         </div>
         <div className="max-w-2xl mx-auto text-center mb-6">

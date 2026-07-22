@@ -270,6 +270,19 @@ body {
 .delay-400 { animation-delay: 0.40s; }
 .delay-500 { animation-delay: 0.50s; }
 
+/* Respect the OS "reduce motion" setting — kills the infinite loops (float,
+   pulse, shimmer) that otherwise run forever and cost battery on mobile. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .skeleton {
   background: var(--surface);
   border-radius: 12px;

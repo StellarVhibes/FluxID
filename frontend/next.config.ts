@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
     "@solana-program/system",
     "@solana-program/token",
   ],
+  // Prefer modern, smaller formats for the optimized <Image> pipeline so the
+  // heavy landing-page art ships as AVIF/WebP instead of full-size PNG.
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   // turbopack: {},
 };
 
