@@ -207,17 +207,17 @@ function NotificationRow({
   onCheckedChange: (val: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between py-3">
-      <div className="space-y-0.5">
+    <div className="flex items-center justify-between gap-4 py-3">
+      <div className="space-y-0.5 min-w-0">
         <p style={{ color: "var(--foreground)", fontSize: 14, fontWeight: 600 }}>{label}</p>
         <p style={{ color: "var(--foreground-muted)", fontSize: 12 }}>{description}</p>
       </div>
       <button
         onClick={() => onCheckedChange(!checked)}
-        className={`w-12 h-6 rounded-full transition-colors ${checked ? "bg-[var(--primary)]" : "bg-[var(--border)]"}`}
+        className={`shrink-0 w-12 h-6 rounded-full flex items-center transition-colors ${checked ? "bg-[var(--primary)]" : "bg-[var(--border)]"}`}
       >
-        <div 
-          className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? "translate-x-6" : "translate-x-0.5"}`} 
+        <div
+          className={`w-5 h-5 bg-white rounded-full transition-transform ${checked ? "translate-x-6" : "translate-x-0.5"}`}
         />
       </button>
     </div>
