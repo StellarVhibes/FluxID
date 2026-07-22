@@ -117,7 +117,7 @@ export default function Header() {
               src="/header_assets/fluxID-logo.png"
               alt="FluxID"
               width={34}
-              height={34}
+              height={42}
               className="sm:w-10 sm:h-10"
             />
             <span
