@@ -28,12 +28,12 @@ export default function AgentDemoPage() {
         </div>
       )}
 
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-end pointer-events-none z-0">
-          <img 
-            src="/3d-imgs-assest/fluxid_agent_gateway.png" 
-            alt="Agent Gateway Background" 
-            className="w-[400px] object-contain opacity-[0.08] translate-y-12 translate-x-12 mix-blend-screen"
+          <img
+            src="/3d-imgs-assest/fluxid_agent_gateway.png"
+            alt="Agent Gateway Background"
+            className="w-[280px] sm:w-[400px] object-contain opacity-[0.08] translate-y-12 translate-x-12 mix-blend-screen"
           />
         </div>
         <div className="relative z-10">

@@ -180,7 +180,7 @@ export default function ProtocolDashboard() {
         <div>
           <h1
             style={{ color: "var(--foreground)", letterSpacing: "-0.04em" }}
-            className="text-4xl font-black mb-2"
+            className="text-3xl sm:text-4xl font-black mb-2"
           >
             Protocol Intelligence
           </h1>

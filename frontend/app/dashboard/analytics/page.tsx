@@ -314,7 +314,7 @@ function Stat({ label, value }: { label: string; value: string }) {
       <p style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 600 }} className="uppercase mb-1">
         {label}
       </p>
-      <p style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 16 }}>{value}</p>
+      <p style={{ color: "var(--foreground)", fontWeight: 800, fontSize: 16 }} className="break-words">{value}</p>
     </div>
   );
 }
