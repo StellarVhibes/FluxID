@@ -6,7 +6,7 @@ import { motion, type Variants } from "framer-motion";
 
 import { AlertCircle, Layers, TrendingUp, TrendingDown } from "lucide-react";
 import AnimatedScore from "../components/AnimatedScore";
-import OnChainBadge from "../components/OnChainBadge";
+import OnChainSync from "../components/OnChainSync";
 import { ScoreSkeleton } from "../components/Skeletons";
 import Onboarding from "../components/Onboarding";
 import { useAnalysis } from "./context/AnalysisContext";
@@ -24,7 +24,7 @@ const RISK_COLORS: Record<"Low" | "Medium" | "High", string> = {
 };
 
 export default function Dashboard() {
-  const { analysis, analyzedAddress, isAnalyzing, error } = useAnalysis();
+  const { analysis, analyzedAddress, network, isAnalyzing, error } = useAnalysis();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [tourStartStep, setTourStartStep] = useState(0);
 
@@ -65,7 +65,9 @@ export default function Dashboard() {
 
       {isAnalyzing && <ScoreSkeleton />}
 
-      {analysis && !isAnalyzing && <DashboardSummary analysis={analysis} analyzedAddress={analyzedAddress} />}
+      {analysis && !isAnalyzing && (
+        <DashboardSummary analysis={analysis} analyzedAddress={analyzedAddress} network={network} />
+      )}
 
       {!analysis && !isAnalyzing && !error && (
         <div className="text-center py-12">
@@ -87,9 +89,11 @@ export default function Dashboard() {
 function DashboardSummary({
   analysis,
   analyzedAddress,
+  network,
 }: {
   analysis: NonNullable<ReturnType<typeof useAnalysis>["analysis"]>;
   analyzedAddress: string | null;
+  network: string;
 }) {
   const riskColor = RISK_COLORS[analysis.score.riskLevel];
   const factors = [
@@ -148,7 +152,7 @@ function DashboardSummary({
               <AlertCircle size={12} />
               {analysis.score.riskLevel} Risk
             </span>
-            <OnChainBadge wallet={analyzedAddress} />
+            <OnChainSync wallet={analyzedAddress} network={network} />
           </div>
           {analysis.explanation?.insight && (
             <p style={{ color: "var(--foreground)", fontSize: 14, lineHeight: 1.5 }} className="mb-2">

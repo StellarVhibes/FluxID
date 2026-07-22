@@ -41,6 +41,41 @@ export async function fetchOnChainInfo(wallet: string): Promise<OnChainLookupRes
   }
 }
 
+export interface SyncResult {
+  success: boolean;
+  txHash?: string;
+  error?: string;
+}
+
+/**
+ * Ask the backend to stamp this wallet's latest score on-chain.
+ *
+ * The backend is a registered oracle: it recomputes (or reuses the cached)
+ * score and signs a set_score transaction with its own key, so no admin
+ * approval and no user signature is needed here. The contract stores the
+ * score, risk, timestamp, and a hash of the scoring inputs, and emits a
+ * score_set event — a tamper-evident stamp anyone can verify or track.
+ */
+export async function syncOnChain(wallet: string, network: string): Promise<SyncResult> {
+  if (!AI_BACKEND_URL) {
+    return { success: false, error: "Backend URL not configured" };
+  }
+  try {
+    const res = await fetch(`${AI_BACKEND_URL}/wallet/${wallet}/sync`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ network }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.success) {
+      return { success: false, error: json?.data?.error || json.error || `HTTP ${res.status}` };
+    }
+    return { success: true, txHash: json.data?.txHash };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
 export function formatLastUpdated(unixSeconds: number): string {
   const ms = unixSeconds * 1000;
   const diff = Date.now() - ms;
