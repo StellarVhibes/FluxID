@@ -18,20 +18,20 @@ const FEATURES = [
     icon: Layers,
     title: "Liquidity Score",
     desc: "We look at income consistency, spending patterns, and activity level. Then turn that into a simple score from 0–100.",
-    tag: "0-100",
+    tag: "Score",
   },
   {
     icon: Cpu,
     title: "Risk Insight",
-    desc: "You don't just get a number. You see why the score is what it is and what could be improved.",
+    desc: "You don't just get a number — you see what's driving it and how to improve.",
     tag: "Analysis",
   },
 ];
 
 const STATS = [
-  { icon: Wallet,    value: "Stellar",   label: "Built on Stellar",    accent: "var(--primary)" },
-  { icon: Layers,    value: "0-100",      label: "Liquidity Score",     accent: "var(--primary)" },
-  { icon: Zap,       value: "Instant",    label: "Real-time Analysis",  accent: "var(--primary)" },
+  { icon: Wallet,    value: "Stellar",     label: "Built on Stellar",    accent: "var(--primary)" },
+  { icon: Layers,    value: "On-chain",    label: "Verifiable score",    accent: "var(--primary)" },
+  { icon: Zap,       value: "No sign-up",  label: "Wallet-only access",  accent: "var(--primary)" },
 ];
 
 const stagger = {
@@ -106,7 +106,7 @@ export default function Home() {
           {/* CTA */}
           <motion.div variants={item} className="flex flex-col sm:flex-row flex-wrap gap-4">
             <Link href="/dashboard" className="btn btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3">
-              Analyze a Wallet <Zap size={14} />
+              Launch FluxID <Zap size={14} />
             </Link>
             <Link href="#how-it-works" className="btn btn-outline text-sm flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3">
               How it Works <ArrowRight size={14} />
@@ -259,17 +259,6 @@ export default function Home() {
               <p style={{ color: "var(--foreground-muted)", fontSize: 14, lineHeight: 1.7 }}>
                 {desc}
               </p>
-
-              {/* Learn more - slides up on hover */}
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                whileHover={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.18 }}
-                style={{ color: "var(--primary)", fontSize: 12, fontWeight: 700 }}
-                className="mt-6 flex items-center gap-1"
-              >
-                Learn more <ArrowRight size={11} />
-              </motion.div>
             </motion.div>
           ))}
         </div>
