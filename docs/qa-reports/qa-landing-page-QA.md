@@ -4,151 +4,102 @@
 **Date:** 2026-08-18  
 **Site:** https://fluxid.vercel.app/  
 **Issue:** Landing Page UI/UX QA for mainnet launch readiness
-
----
-
-## ✅ Acceptance Criteria Overview
-
-| Criteria | Status | Notes |
-|----------|--------|-------|
-| Open landing on fresh browser (mobile width) | ✅ Pass | Device toolbar: 375px, content reflows to single column |
-| Open landing on fresh browser (desktop width) | ✅ Pass | Device toolbar: 1440px, full multi-column layout |
-| "Launch FluxID" CTA routes correctly | ✅ Pass | Links to `/dashboard` |
-| "How it Works" CTA routes correctly | ✅ Pass | Links to `#how-it-works` anchor |
-| Hero copy, stats strip, features render cleanly in both themes | ✅ Pass | CSS vars `var(--foreground)`, `var(--primary)` render |
-| Dark/light toggle (header) re-renders all sections | ✅ Pass | Theme toggle in header switches `data-theme` |
-| Onboarding modal appears on first visit and dismisses properly | ✅ Pass | LocalStorage check on mount, dismiss saves preference |
-| Footer "Launch App" works | ✅ Pass | Links to `/dashboard` |
-| Notification bell (decorative / not connected yet) | ✅ Pass | `aria-hidden="true"`, `class="hidden sm:flex"`, no handler |
-| Screenshots captured (mobile + desktop + dark mode) | 📝 See below | |
-
----
-
-## 📱 Mobile Width (375px) Observations
-
-| Element | Observation |
-|---------|-------------|
-| Hero headline | Text stacks vertically: "Liquidity<br/><span>Identity</span><br/>Layer." - readable, no overflow |
-| CTA buttons | Stacked vertically in column, full-width `w-full sm:w-auto`, adequate spacing |
-| Stats strip | Single column, icons stack above labels, progress readable |
-| Features section | 1-column grid, each feature card full-width, number orb visible (`01`, `02`, `03`) |
-| Footer | Single column, "Launch App" btn full-width, copyright centered below |
-| Theme toggle | Header button visible, toggles theme correctly |
-| Onboarding modal | Appears on first visit, all step content visible, "Show me around" works |
-
----
-
-## 💻 Desktop Width (1440px) Observations
-
-| Element | Observation |
-|---------|-------------|
-| Hero headline | Multi-line with image right side, no overflow issues |
-| CTA buttons | Side-by-side in row: "Launch FluxID" (primary) + "How it Works" (outline), gap-4 spacing |
-| Stats strip | 3 cards in row, evenly spaced, icons with color accents |
-| Features section | 3-column grid with `md:grid-cols-3`, cards have hover lift `y: -6`, number orbs aligned left |
-| Hero image | Visible on right side, gentle float animation `y: [0, -10, 0]` |
-| Footer | Multi-column: logo + text left, "Launch App" btn center, copyright + links right |
-| Theme toggle | Button in header works, all sections re-render with CSS vars |
-| Notification bell | Visible on `sm`+ breakpoints only, decorative only |
-
----
-
-## 🌓 Dark Mode Observations
-
-| Element | Observation |
-|---------|-------------|
-| Page loads | Default theme: dark (from `localStorage` or system preference) |
-| CSS variables | `var(--foreground)`, `var(--primary)`, `var(--background)`, `var(--surface)`, `var(--border)` all resolve |
-| Text colors | Foreground text legible against backgrounds, primary accent `#3F3F46` visible |
-| Header background | `var(--surface)` renders correctly |
-| Card backgrounds | `var(--card)` has proper opacity/contrast |
-| Stats card backgrounds | `color-mix(in srgb, var(--primary) 12%, transparent)` works |
-| Feature card backgrounds | `var(--card)` with group-hover states |
-| Footer background | `card` with `border-t border-[var(--shadow-light)] opacity-80` |
-| Onboarding modal | Dark background `#1a1b1e`, white/light text, borders `#2d2e33` |
-| Bell icon | `currentColor` inherits theme, visible in both modes |
-| Logo | `fluxID-logo.png` - appears correctly in both themes |
-
----
-
-## 🔍 Light Mode Observations
-
-| Element | Observation |
-|---------|-------------|
-| Theme toggle | Switches from dark to light on click |
-| CSS variables | Same vars resolve with light theme values |
-| Text colors | Legible, slight color shift expected from dark theme defaults |
-| Backgrounds | Lighter surface colors, proper contrast |
-| Onboarding modal | Light theme colors render (`#f4f4f5` backgrounds, darker text) |
-| Header | `var(--surface)` lighter in light mode |
+**Name:** Abiodun Samson Olawale - @wadexybiodun
 
 ---
 
 ## 🐛 Bugs / Observations Found
 
-### [Bug #1] Notification Bell Has No Functional Handler
 
-- **Location:** Header, `sm`+ breakpoint only
-- **Expected:** Decorative icon (noted as expected)
-- **Actual:** `<button aria-hidden="true">` with `Bell` icon, no onClick handler
-- **Impact:** Low - decorative only, but should confirm no action needed
-- **Screenshot:** `docs/grantfox-OSS/issue7-QA_landing-page/bell-decorative.png`
+### [Bug #1] Analyze Button Not Responding After Wallet Connection
 
-### [Bug #2] Onboarding Modal First-Visit Timing
+- **Location:** Dashboard wallet analysis section
+- **Platform:** Laptop / PC
+- **Network:** Mainnet
+- **Expected:** After successfully connecting the wallet and selecting Mainnet, clicking **Analyze** should start the wallet analysis.
+- **Actual:** The Freighter wallet connects successfully and Mainnet is selected, but clicking **Analyze** produces no response and the wallet analysis does not start.
+- **Impact:** High - prevents the primary wallet analysis flow from being initiated.
+- **Screenshot:** `analyze button not responding.PNG`
 
-- **Location:** Home page `/`
-- **Expected:** Appears on fresh browser visit
-- **Actual:** Modal hydrates after initial page render (client-side component), may flash before appearing
-- **Impact:** Low - UX minor flash, not a functional bug
-- **Screenshot:** `docs/grantfox-OSS/issue7-QA_landing-page/onboarding-timing.png`
+### [Bug #2] Network Defaults to Testnet and Does Not Persist Mainnet Selection
 
-### [Bug #3] Theme Toggle State Persistence
+- **Location:** Network dropdown / wallet connection area
+- **Platform:** Laptop / PC (desktop)
+- **Expected:** When a wallet connected to Mainnet is active, the network selection should default to Mainnet. If the user manually switches the network to Mainnet, that selection should persist after refreshing the page.
+- **Actual:** The connected wallet is on Mainnet, but the network dropdown defaults to **Testnet**. After manually switching the dropdown to **Mainnet**, refreshing the page causes the selection to switch back to **Testnet**.
+- **Impact:** High - users may analyze a wallet against the wrong Stellar network, potentially resulting in incorrect wallet information and confusion about the selected network.
+- **Evidence:** Screenshot showing the network dropdown with Testnet selected after refreshing, despite Mainnet having been selected previously.
 
-- **Location:** Header theme button + `ThemeToggle` component
-- **Expected:** Theme preference persists across page navigations
-- **Actual:** Both `ThemeToggle` (sets `data-theme` attribute) and `Header` (uses `next-themes` `setTheme`) exist; potential double-toggle or conflict if both fire
-- **Impact:** Medium - could cause theme flicker or inconsistency
-- **Screenshot:** `docs/grantfox-OSS/issue7-QA_landing-page/theme-toggle.png`
+### [Bug #3] Wallet Analysis Results Disappear After Page Refresh
+
+- **Location:** Dashboard wallet analysis results
+- **Platform:** Laptop / PC (desktop)
+- **Expected:** After a wallet has been successfully analyzed, the analysis results should remain available when the page is refreshed.
+- **Actual:** The wallet analysis results are displayed before refreshing, but after refreshing the page, the analysis result is wiped/removed and the dashboard returns to the state where the analysis results are no longer displayed.
+- **Impact:** High - users can lose previously generated wallet analysis results after a normal page refresh and may need to repeat the analysis.
+- **Evidence:** Before/after screenshots provided showing the dashboard state before and after refreshing the page.
+
+### [Bug #4] Wallet Transaction History Incorrectly Shows No Transactions
+
+- **Location:** Wallet analysis results / transaction history
+- **Platform:** Laptop / PC (desktop)
+- **Network:** Mainnet
+- **Expected:** The wallet analysis should reflect the wallet's actual on-chain transaction history, including both sent and received transactions.
+- **Actual:** After analyzing the wallet, FluxID reports **“No transaction history available for this wallet”** and **“0 transactions analyzed.”** However, the connected wallet extension shows that transactions have previously been made from/to the wallet, including both sending and receiving activity.
+- **Impact:** High - displaying an empty transaction history when the wallet has existing activity makes the wallet analysis inaccurate and can significantly affect the reliability of FluxID's liquidity and risk assessment.
+- **Evidence:** Screenshot showing the FluxID analysis result with **0 transactions / no transaction history**. The tester also verified existing send/receive activity in the wallet extension.
+
+
+
+
+### [Bug #5] Freighter Wallet Redirects to Download Page Despite Being Installed
+
+- **Location:** Connect Wallet → Freighter Wallet
+- **Platform:** Mobile
+- **Wallet:** Freighter
+- **Expected:** When Freighter is already installed, selecting it should detect/use the installed wallet or initiate its supported connection flow.
+- **Actual:** Selecting Freighter redirects to the Freighter website/download page even though the Freighter app is already installed on the device.
+- **Impact:** Medium - may prevent mobile users with an existing Freighter installation from connecting their wallet.
+
+### [Bug #6] Wallet Analysis Results Disappear When Switching Between Mobile and Desktop Views
+
+- **Location:** Wallet analysis results / responsive layout
+- **Platform:** Mobile testing
+- **Expected:** Existing wallet analysis results should remain available when switching between mobile and desktop views, provided the session/page has not intentionally been reset.
+- **Actual:** After a wallet is analyzed, the result disappears when switching between mobile and desktop views, including when switching back from desktop to mobile.
+- **Impact:** Medium - users may lose analysis results and be forced to analyze the wallet again.
+
+### [Bug #7] Incorrect Wallet Balance, Asset Detection, and Transaction History
+
+- **Location:** Wallet analysis / Analytics
+- **Network:** Stellar Mainnet
+- **Expected:** FluxID should accurately reflect the wallet's XLM balance, recognized assets, and on-chain transaction history, including incoming transfers.
+- **Actual:** The tested Freighter wallet shows **5.99999 XLM (~$0.94)**, while FluxID displays **XLM = $0.16** and **Assets: None**. FluxID also reports **0 Transactions**, **$0.00 Total Inflow**, **$0.00 Total Outflow**, and no activity, even though the wallet address has previously received a token/asset.
+- **Impact:** High - inaccurate wallet and transaction data can significantly affect user trust in FluxID's financial analysis.
+- **Evidence:** Screenshots showing the Freighter wallet balance and the corresponding FluxID analysis results.
+
+### [Bug #8] Mobile Layout Shifts When Wallet Address Input Is Selected
+
+- **Location:** Wallet address input field
+- **Platform:** Mobile
+- **Expected:** Selecting or highlighting text in the wallet address field should not change the responsive page layout. The interface should remain within the viewport and accessible.
+- **Actual:** Double-tapping the wallet address field and highlighting the address causes the page layout to shift horizontally. Content becomes misaligned/clipped and a large empty area appears on the right side.
+- **Impact:** Medium - creates a broken mobile layout and can make parts of the interface difficult to view or use.
+- **Screenshot:** Mobile screenshots showing the normal layout and the shifted layout after the address is highlighted.
+
+
+
+### [UX Suggestion #1] Provide a General Stellar Wallet Connection Option
+
+- **Location:** Connect Wallet popup
+- **Observation:** The wallet connection popup lists individual supported wallets. A general Stellar wallet connection option is not apparent.
+- **Suggestion:** Consider providing a general Stellar-compatible wallet connection option, using the appropriate Stellar connection protocol, to make the connection flow more flexible for compatible wallets that are not directly listed.
+- **Classification:** UX improvement / feature suggestion, not a confirmed bug.
 
 ---
 
 ## 📸 Screenshot Evidence
 
-All screenshots should be placed in:
+All screenshots are placed in:
 ```
 docs/grantfox-OSS/issue7-QA_landing-page/
-├─ mobile-dark-mode.png
-├─ desktop-light-mode.png
-├─ mobile-light-mode.png
-├─ desktop-dark-mode.png
-└─ [bug-specific screenshots]
-```
-
----
-
-## ✅ Flow Verification Summary
-
-| Flow | Result |
-|------|--------|
-| Open landing (mobile) | ✅ Pass |
-| Open landing (desktop) | ✅ Pass |
-| Click "Launch FluxID" → navigate to /dashboard | ✅ Pass (href present) |
-| Click "How it Works" → scroll to #how-it-works | ✅ Pass (href="#how-it-works") |
-| Switch theme dark ↔ light | ✅ Pass (header toggle works) |
-| Dismiss onboarding modal | ✅ Pass (localStorage saved) |
-| Submit footer "Launch App" | ✅ Pass (href="/dashboard") |
-| View notification bell | ✅ Pass (decorative, no handler) |
-
----
-
-## 📋 Submission Requirements
-
-- [x] QA report Markdown file created at `docs/qa-reports/qa-landing-page-QA.md`
-- [ ] Screenshots placed in `docs/grantfox-OSS/issue7-QA_landing-page/`
-- [ ] Google Form submitted: https://forms.gle/kLYwDRdJo8WV1RTE7
-- [ ] In-app feedback sent via floating button (bottom-right)
-- [ ] Telegram group joined: https://t.me/stellarvhibes
-- [ ] PR will link issue with `Closes #<issue-number>`
-- [ ] PR will tag `@thebabalola` for review
-
----
