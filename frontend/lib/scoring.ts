@@ -188,6 +188,7 @@ export interface TransactionData {
   type: "inflow" | "outflow" | "swap";
   address: string;
   asset: string;
+  isNonTransfer?: boolean;
   swapDetails?: {
     fromAsset: string;
     toAsset: string;
@@ -411,6 +412,7 @@ function parsePayments(payments: PaymentRecord[], walletAddress: string): Transa
       type: isOutflow ? "outflow" : "inflow",
       address: isOutflow ? p.to : p.from,
       asset,
+      isNonTransfer: amount === 0,
     });
   }
 
@@ -432,6 +434,8 @@ export function calculateLiquidityMetrics(
     if (p.asset_type !== "native" && !p.asset_type?.startsWith("credit_")) continue;
 
     const amount = parseFloat(p.amount) || 0;
+    if (amount <= 0) continue;
+
     if (p.from === walletAddress) {
       totalOutflow += amount;
       outflowCount++;
