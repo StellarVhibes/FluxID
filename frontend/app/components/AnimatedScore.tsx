@@ -17,8 +17,15 @@ function easeOutCubic(t: number): number {
 export default function AnimatedScore({ value, className = "", style }: AnimatedScoreProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const displayValueRef = useRef(displayValue);
-  displayValueRef.current = displayValue;
   const frameRef = useRef<number | null>(null);
+
+  // Refs must not be written during render (react-hooks/refs) — mirror the
+  // latest committed displayValue here so the animation effect below can
+  // read a fresh "from" value without depending on (and re-running for)
+  // every displayValue tick it itself produces.
+  useEffect(() => {
+    displayValueRef.current = displayValue;
+  }, [displayValue]);
 
   useEffect(() => {
     const from = displayValueRef.current;
