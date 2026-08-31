@@ -201,7 +201,7 @@ function parsePayments(payments: PaymentRecord[], walletAddress: string): Transa
     });
   }
 
-  return parsed.slice(0, 30);
+  return parsed;
 }
 
 export function calculateLiquidityMetrics(

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquarePlus, Star, X, Send } from "lucide-react";
+import { MessageSquarePlus, Star, X, Send, AlertCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useFreighter } from "../context/FreighterContext";
 import { useToast } from "./Toast";
@@ -26,17 +26,19 @@ export default function Feedback() {
   const [hover, setHover] = useState(0);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
-    const open = () => setOpen(true);
-    window.addEventListener(OPEN_FEEDBACK_EVENT, open);
-    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, open);
+    const openModal = () => setOpen(true);
+    window.addEventListener(OPEN_FEEDBACK_EVENT, openModal);
+    return () => window.removeEventListener(OPEN_FEEDBACK_EVENT, openModal);
   }, []);
 
   const reset = () => {
     setRating(0);
     setHover(0);
     setMessage("");
+    setSubmitError(null);
   };
 
   const handleSubmit = async () => {
@@ -49,14 +51,21 @@ export default function Feedback() {
       return;
     }
     setSubmitting(true);
-    const ok = await submitFeedback(rating, message.trim(), publicKey);
+    setSubmitError(null);
+
+    const res = await submitFeedback(rating, message.trim(), publicKey);
     setSubmitting(false);
-    if (ok) {
+
+    if (res.success) {
       showToast("Thanks for the feedback!", "success");
       reset();
       setOpen(false);
     } else {
-      showToast("Could not send feedback. Please try again.", "error");
+      const errMsg = res.timedOut
+        ? "Failed to send — try again"
+        : res.error || "Failed to send — try again";
+      setSubmitError(errMsg);
+      showToast(errMsg, "error");
     }
   };
 
@@ -114,7 +123,10 @@ export default function Feedback() {
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
                     key={n}
-                    onClick={() => setRating(n)}
+                    onClick={() => {
+                      setRating(n);
+                      setSubmitError(null);
+                    }}
                     onMouseEnter={() => setHover(n)}
                     onMouseLeave={() => setHover(0)}
                     aria-label={`${n} star${n > 1 ? "s" : ""}`}
@@ -135,12 +147,31 @@ export default function Feedback() {
               {/* Message */}
               <textarea
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  if (submitError) setSubmitError(null);
+                }}
                 placeholder="What should we improve?"
                 rows={4}
                 maxLength={2000}
                 className="w-full pressed px-4 py-3 rounded-xl text-[var(--foreground)] outline-none resize-none mb-4"
               />
+
+              {submitError && (
+                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <span>{submitError}</span>
+                  </div>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="font-bold underline hover:text-red-300 ml-auto shrink-0"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
 
               <button
                 onClick={handleSubmit}
@@ -148,7 +179,7 @@ export default function Feedback() {
                 className="w-full card-primary py-3 rounded-xl font-bold text-[var(--background)] disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 <Send size={16} />
-                {submitting ? "Sending..." : "Send feedback"}
+                {submitting ? "Sending..." : submitError ? "Try again" : "Send feedback"}
               </button>
             </motion.div>
           </motion.div>

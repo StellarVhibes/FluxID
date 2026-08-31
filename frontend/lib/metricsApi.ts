@@ -3,8 +3,6 @@
 // standard { success, data } envelope, and NEVER throws — every call returns a
 // value or null so a missing/unreachable backend degrades gracefully.
 
-const AI_BACKEND_URL = process.env.NEXT_PUBLIC_AI_BACKEND_URL || "";
-
 export type EventType = "wallet_connect" | "score_run" | "contract_call" | "agent_query";
 
 export interface UsageStats {
@@ -32,9 +30,16 @@ export interface FeedbackSummary {
   entries: FeedbackEntry[];
 }
 
-function baseUrl(): string | null {
-  if (!AI_BACKEND_URL) return null;
-  return AI_BACKEND_URL.endsWith("/") ? AI_BACKEND_URL : AI_BACKEND_URL + "/";
+export interface SubmitFeedbackResult {
+  success: boolean;
+  timedOut?: boolean;
+  error?: string;
+}
+
+function baseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_AI_BACKEND_URL || "";
+  if (!url) return "/";
+  return url.endsWith("/") ? url : url + "/";
 }
 
 /**
@@ -47,7 +52,6 @@ export async function logEvent(
   network?: string | null
 ): Promise<void> {
   const base = baseUrl();
-  if (!base) return;
   try {
     await fetch(`${base}events`, {
       method: "POST",
@@ -64,25 +68,41 @@ export async function submitFeedback(
   rating: number,
   message: string,
   wallet?: string | null
-): Promise<boolean> {
+): Promise<SubmitFeedbackResult> {
   const base = baseUrl();
-  if (!base) return false;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
   try {
     const res = await fetch(`${base}feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rating, message, wallet: wallet ?? null }),
+      signal: controller.signal,
     });
-    const body = (await res.json()) as { success?: boolean };
-    return body.success === true;
-  } catch {
-    return false;
+    clearTimeout(timeoutId);
+    const body = (await res.json()) as { success?: boolean; error?: string };
+    if (!res.ok || !body.success) {
+      return { success: false, error: body.error || `HTTP ${res.status}` };
+    }
+    return { success: true };
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    const isTimeout =
+      err instanceof Error &&
+      (err.name === "AbortError" ||
+        err.message.toLowerCase().includes("timeout") ||
+        err.message.toLowerCase().includes("aborted"));
+    return {
+      success: false,
+      timedOut: isTimeout,
+      error: isTimeout ? "Failed to send — try again" : (err instanceof Error ? err.message : "Failed to send — try again"),
+    };
   }
 }
 
 export async function fetchAdminStats(): Promise<UsageStats | null> {
   const base = baseUrl();
-  if (!base) return null;
   try {
     const res = await fetch(`${base}admin/stats`);
     const body = (await res.json()) as { success?: boolean; stats?: UsageStats };
@@ -95,7 +115,6 @@ export async function fetchAdminStats(): Promise<UsageStats | null> {
 
 export async function fetchAdminFeedback(): Promise<FeedbackSummary | null> {
   const base = baseUrl();
-  if (!base) return null;
   try {
     const res = await fetch(`${base}admin/feedback`);
     const body = (await res.json()) as { success?: boolean; feedback?: FeedbackSummary };

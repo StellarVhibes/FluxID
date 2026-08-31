@@ -320,7 +320,10 @@ export class ContractService {
       const sendResult = await server.sendTransaction(prepared);
 
       if (sendResult.status === 'ERROR') {
-        const errMsg = JSON.stringify(sendResult.errorResult ?? sendResult);
+        const errMsg =
+          typeof sendResult.errorResult === 'string'
+            ? sendResult.errorResult
+            : JSON.stringify(sendResult.errorResult ?? sendResult);
         logger.error({ wallet, errMsg }, 'Contract sync send failed');
         return { success: false, error: `Send failed: ${errMsg}` };
       }
@@ -330,8 +333,15 @@ export class ContractService {
       let getResult: Awaited<ReturnType<typeof server.getTransaction>> | null = null;
       while (status === 'PENDING' && attempts < 20) {
         await new Promise((r) => setTimeout(r, 1500));
-        getResult = await server.getTransaction(sendResult.hash);
-        status = getResult.status;
+        try {
+          getResult = await server.getTransaction(sendResult.hash);
+          status = getResult.status;
+        } catch (pollErr) {
+          logger.warn(
+            { error: (pollErr as Error).message, attempt: attempts, txHash: sendResult.hash },
+            'RPC getTransaction polling error'
+          );
+        }
         attempts += 1;
       }
 
@@ -341,11 +351,28 @@ export class ContractService {
       }
 
       logger.warn({ wallet, status, txHash: sendResult.hash }, 'Contract sync did not confirm');
-      return { success: false, txHash: sendResult.hash, error: `Final status: ${status}` };
+      return {
+        success: false,
+        txHash: sendResult.hash,
+        error: `Transaction ${status || 'timed out'} (tx: ${sendResult.hash})`,
+      };
     } catch (error) {
       const err = error as Error;
       logger.error({ error: err.message, wallet }, 'Contract sync threw');
-      return { success: false, error: err.message };
+      let msg = err.message || 'Contract sync failed';
+      if (
+        msg.includes('fetch failed') ||
+        msg.includes('ECONNREFUSED') ||
+        msg.includes('ETIMEDOUT') ||
+        msg.includes('ENOTFOUND')
+      ) {
+        msg = `Soroban RPC network error: ${msg}`;
+      } else if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
+        msg = `Soroban RPC rate limit reached: ${msg}`;
+      } else if (msg.toLowerCase().includes('timeout')) {
+        msg = `Soroban RPC request timed out: ${msg}`;
+      }
+      return { success: false, error: msg };
     }
   }
 }

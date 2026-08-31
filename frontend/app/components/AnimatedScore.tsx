@@ -1,29 +1,63 @@
 "use client";
 
-import { useEffect, useState, CSSProperties } from "react";
-import { motion, useSpring } from "framer-motion";
+import { useEffect, useState, useRef, CSSProperties } from "react";
 
 interface AnimatedScoreProps {
   value: number;
   className?: string;
   style?: CSSProperties;
+  duration?: number;
 }
 
-export default function AnimatedScore({ value, className = "", style }: AnimatedScoreProps) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const spring = useSpring(0, { stiffness: 50, damping: 15 });
+export default function AnimatedScore({
+  value,
+  className = "",
+  style,
+  duration = 0.8,
+}: AnimatedScoreProps) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValueRef = useRef(value);
 
   useEffect(() => {
-    const unsubscribe = spring.on("change", (v) => {
-      setDisplayValue(Math.round(v));
-    });
-    spring.set(value);
-    return unsubscribe;
-  }, [value, spring]);
+    const startValue = prevValueRef.current;
+    const targetValue = value;
+    prevValueRef.current = value;
+
+    if (startValue === targetValue) {
+      setDisplayValue(targetValue);
+      return;
+    }
+
+    const startTime = performance.now();
+    const durationMs = duration * 1000;
+    let animationFrameId: number;
+
+    const updateCounter = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / durationMs, 1);
+      // easeOutCubic
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const currentVal = Math.round(startValue + (targetValue - startValue) * easeProgress);
+
+      setDisplayValue(currentVal);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(updateCounter);
+      } else {
+        setDisplayValue(targetValue);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateCounter);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [value, duration]);
 
   return (
-    <motion.span className={className} style={style}>
+    <span className={className} style={style}>
       {displayValue}
-    </motion.span>
+    </span>
   );
 }

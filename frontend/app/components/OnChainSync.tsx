@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ShieldCheck, UploadCloud, Loader2 } from "lucide-react";
+import { ShieldCheck, UploadCloud, Loader2, AlertCircle } from "lucide-react";
 import {
   fetchOnChainInfo,
   syncOnChain,
@@ -13,12 +13,13 @@ import { useToast } from "./Toast";
 interface Props {
   wallet: string | null;
   network: string;
+  isStale?: boolean;
 }
 
 // Shows the on-chain stamp for a wallet and lets anyone push the latest score
 // on-chain. The write itself is signed by the backend oracle — the user just
 // asks for it, no wallet signature or admin role required.
-export default function OnChainSync({ wallet, network }: Props) {
+export default function OnChainSync({ wallet, network, isStale = false }: Props) {
   const { showToast } = useToast();
   const [info, setInfo] = useState<OnChainWalletInfo | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -42,12 +43,15 @@ export default function OnChainSync({ wallet, network }: Props) {
   }, [wallet]);
 
   const handleSync = async () => {
-    if (!wallet || syncing) return;
+    if (!wallet || syncing || isStale) return;
     setSyncing(true);
     const result = await syncOnChain(wallet, network);
     setSyncing(false);
     if (result.success) {
-      showToast("Score saved on-chain", "success");
+      const msg = result.txHash
+        ? `Score saved on-chain (${result.txHash.slice(0, 8)}...)`
+        : "Score saved on-chain";
+      showToast(msg, "success");
       await load();
     } else {
       showToast(result.error || "Could not save on-chain", "error");
@@ -74,7 +78,16 @@ export default function OnChainSync({ wallet, network }: Props) {
           On-chain verified · {formatLastUpdated(info.lastUpdated)}
         </span>
       )}
-      {isMainnet ? (
+      {isStale ? (
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+          style={{ background: "#eab30815", border: "1px solid #eab308", color: "#eab308" }}
+          title="Analysis is stale or network has switched. Please re-analyze to save on-chain."
+        >
+          <AlertCircle size={12} />
+          Re-analyze to save on-chain
+        </span>
+      ) : isMainnet ? (
         <span
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
           style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--foreground-dim)" }}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 
-import { AlertCircle, Layers, TrendingUp, TrendingDown } from "lucide-react";
+import { AlertCircle, Layers, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 import AnimatedScore from "../components/AnimatedScore";
 import OnChainSync from "../components/OnChainSync";
 import { ScoreSkeleton } from "../components/Skeletons";
@@ -25,7 +25,7 @@ const RISK_COLORS: Record<"Low" | "Medium" | "High", string> = {
 };
 
 export default function Dashboard() {
-  const { analysis, analyzedAddress, network, isAnalyzing, error } = useAnalysis();
+  const { analysis, analyzedAddress, network, analyzedNetwork, isAnalyzing, error } = useAnalysis();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [tourStartStep, setTourStartStep] = useState(0);
 
@@ -44,6 +44,8 @@ export default function Dashboard() {
     setShowOnboarding(false);
     localStorage.setItem("fluxid_onboarding_seen", "true");
   };
+
+  const isStale = Boolean(analysis && analyzedNetwork && analyzedNetwork !== network);
 
   return (
     <>
@@ -67,7 +69,13 @@ export default function Dashboard() {
       {isAnalyzing && <ScoreSkeleton />}
 
       {analysis && !isAnalyzing && (
-        <DashboardSummary analysis={analysis} analyzedAddress={analyzedAddress} network={network} />
+        <DashboardSummary
+          analysis={analysis}
+          analyzedAddress={analyzedAddress}
+          network={network}
+          analyzedNetwork={analyzedNetwork}
+          isStale={isStale}
+        />
       )}
 
       {!analysis && !isAnalyzing && !error && (
@@ -93,10 +101,14 @@ function DashboardSummary({
   analysis,
   analyzedAddress,
   network,
+  analyzedNetwork,
+  isStale = false,
 }: {
   analysis: NonNullable<ReturnType<typeof useAnalysis>["analysis"]>;
   analyzedAddress: string | null;
   network: string;
+  analyzedNetwork: string | null;
+  isStale?: boolean;
 }) {
   const riskColor = RISK_COLORS[analysis.score.riskLevel];
   const factors = [
@@ -108,14 +120,29 @@ function DashboardSummary({
   // Top risk factors — lowest sub-scores (weakest signals, headline problems).
   const riskFactors = [...factors].sort((a, b) => a.value - b.value).slice(0, 2);
 
-  // Compact flow: summarize the 14 most recent transactions into a single stacked bar per direction.
-  const recent = analysis.transactions.slice(0, 14);
+  // Compact flow: summarize up to 50 most recent transactions into a single stacked bar per direction.
+  const recent = analysis.transactions.slice(0, 50);
   const recentIn = recent.filter((t) => t.type === "inflow").length;
   const recentOut = recent.filter((t) => t.type === "outflow").length;
   const recentTotal = Math.max(recentIn + recentOut, 1);
+  const totalAnalyzed = analysis.metrics.transactionCount;
 
   return (
     <motion.div initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      {isStale && (
+        <div className="card p-4 md:col-span-3 border-amber-500/40 bg-amber-500/10 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 text-amber-400 text-xs sm:text-sm">
+            <AlertCircle size={16} className="shrink-0" />
+            <span>
+              Network switched to <strong>{network}</strong>. Current data was analyzed on <strong>{analyzedNetwork}</strong>.
+            </span>
+          </div>
+          <span className="text-xs text-amber-300 font-semibold flex items-center gap-1">
+            <RefreshCw size={12} /> Click Analyze above to refresh
+          </span>
+        </div>
+      )}
+
       {/* Score + risk */}
       <motion.div
         className="card p-4 sm:p-6 md:col-span-2 flex items-center gap-4 sm:gap-6 flex-wrap relative overflow-hidden"
@@ -155,7 +182,7 @@ function DashboardSummary({
               <AlertCircle size={12} />
               {analysis.score.riskLevel} Risk
             </span>
-            <OnChainSync wallet={analyzedAddress} network={network} />
+            <OnChainSync wallet={analyzedAddress} network={network} isStale={isStale} />
           </div>
           {analysis.explanation?.insight && (
             <p style={{ color: "var(--foreground)", fontSize: 14, lineHeight: 1.5 }} className="mb-2">
@@ -177,9 +204,14 @@ function DashboardSummary({
         className="card p-4 sm:p-6"
         id="tour-recent-flow"
       >
-        <h3 style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 700 }} className="uppercase mb-4">
-          Recent Flow
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 style={{ color: "var(--foreground-muted)", fontSize: 11, fontWeight: 700 }} className="uppercase">
+            Recent Flow
+          </h3>
+          <span style={{ color: "var(--foreground-dim)", fontSize: 11 }}>
+            Showing {recent.length} of {totalAnalyzed} tx
+          </span>
+        </div>
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between">
             <span style={{ color: "#22c55e" }} className="flex items-center gap-2">
@@ -205,16 +237,15 @@ function DashboardSummary({
               style={{ width: `${(recentOut / recentTotal) * 100}%`, background: "#ef4444" }}
             />
           </div>
-          <p style={{ color: "var(--foreground-dim)", fontSize: 11 }} className="pt-2">
-            Last {recent.length} tx ·{" "}
+          <p style={{ color: "var(--foreground-dim)", fontSize: 11 }} className="pt-2 flex items-center justify-between flex-wrap gap-1">
+            <span>Showing {recent.length} of {totalAnalyzed} tx</span>
             <Link
-              href="/dashboard/analytics"
+              href="/dashboard/transactions"
               className="text-[var(--primary)] hover:underline font-bold"
             >
-              see Analytics for full charts
+              See all in Transactions →
             </Link>
           </p>
-
         </div>
       </motion.div>
 

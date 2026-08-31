@@ -15,6 +15,7 @@ interface AnalysisState {
   analyzedAddress: string | null;
   analysis: WalletAnalysis | null;
   network: StellarNetwork;
+  analyzedNetwork: StellarNetwork | null;
   isAnalyzing: boolean;
   error: string | null;
 }
@@ -41,6 +42,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     analyzedAddress: null,
     analysis: null,
     network: "mainnet",
+    analyzedNetwork: null,
     isAnalyzing: false,
     error: null,
   });
@@ -56,6 +58,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       // so the UI can pre-fill the input. Re-running analyze() unprompted would burn
       // Horizon/LLM calls every pageview.
       analyzedAddress: address,
+      analyzedNetwork: null,
     }));
   }, []);
 
@@ -68,6 +71,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         analyzedAddress: address,
         analysis: result,
         network,
+        analyzedNetwork: network,
         isAnalyzing: false,
         error: null,
       });
@@ -86,7 +90,15 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   }, [state.network]);
 
   const setNetwork = useCallback((network: StellarNetwork) => {
-    setState((prev) => ({ ...prev, network }));
+    // When switching network, clear previous analysis to prevent stale data from being
+    // displayed or erroneously saved to the wrong network.
+    setState((prev) => ({
+      ...prev,
+      network,
+      analysis: null,
+      analyzedNetwork: null,
+      error: null,
+    }));
     if (typeof window !== "undefined") {
       window.localStorage.setItem(LS_NETWORK, network);
     }
@@ -97,6 +109,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       ...prev,
       analyzedAddress: null,
       analysis: null,
+      analyzedNetwork: null,
       error: null,
     }));
     if (typeof window !== "undefined") {
